@@ -1,9 +1,11 @@
 import { baseKeymap } from "prosemirror-commands";
 import { history, redo, undo } from "prosemirror-history";
+import { undoInputRule } from "prosemirror-inputrules";
 import { keymap } from "prosemirror-keymap";
 import { defaultMarkdownParser, defaultMarkdownSerializer, schema } from "prosemirror-markdown";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import { markdownShortcutsPlugin } from "./markdown-shortcuts/index.ts";
 
 export interface EditorOptions {
   mount: HTMLElement;
@@ -27,6 +29,8 @@ export function createEditor(options: EditorOptions): EditorHandle {
     plugins: [
       history(),
       keymap({ "Mod-z": undo, "Mod-y": redo, "Mod-Shift-z": redo }),
+      keymap({ Backspace: undoInputRule }),
+      markdownShortcutsPlugin(schema),
       keymap(baseKeymap),
     ],
   });

@@ -33,13 +33,16 @@
   "dependencies": {
     "prosemirror-commands": "^1.5.2",
     "prosemirror-history": "^1.4.1",
+    "prosemirror-inputrules": "catalog:",
     "prosemirror-keymap": "^1.2.2",
     "prosemirror-markdown": "^1.13.1",
+    "prosemirror-model": "catalog:",
     "prosemirror-state": "^1.4.3",
     "prosemirror-view": "^1.33.7"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",
+    "jsdom": "catalog:",
     "typescript": "^6.0.3",
     "vite-plus": "^0.1.20"
   }

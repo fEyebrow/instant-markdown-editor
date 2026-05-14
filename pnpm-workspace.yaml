@@ -11,6 +11,9 @@ catalog:
   vite: npm:@voidzero-dev/vite-plus-core@latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest
   vite-plus: latest
+  jsdom: ^29.1.1
+  prosemirror-inputrules: ^1.5.1
+  prosemirror-model: ^1.25.4
 overrides:
   vite: "catalog:"
   vitest: "catalog:"
