@@ -5,6 +5,7 @@ import { keymap } from "prosemirror-keymap";
 import { defaultMarkdownParser, defaultMarkdownSerializer, schema } from "prosemirror-markdown";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import { markdownClipboardTextParser } from "./clipboard/markdown-paste.ts";
 import { horizontalRuleOnEnter } from "./keymap/horizontal-rule-on-enter.ts";
 import { listKeymap } from "./keymap/list-keymap.ts";
 import { markdownShortcutsPlugin } from "./markdown-shortcuts/index.ts";
@@ -41,6 +42,7 @@ export function createEditor(options: EditorOptions): EditorHandle {
 
   const view = new EditorView(mount, {
     state,
+    clipboardTextParser: markdownClipboardTextParser(schema),
     dispatchTransaction(tr) {
       const next = view.state.apply(tr);
       view.updateState(next);

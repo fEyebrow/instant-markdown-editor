@@ -152,6 +152,28 @@ test("typing '```ts ' creates a code block with params='ts'", () => {
   editor.destroy();
 });
 
+test("pasting markdown text parses it as schema nodes", () => {
+  const mount = document.createElement("div");
+  const editor = createEditor({ mount });
+  const result = editor.view.someProp("clipboardTextParser", (f) =>
+    f("# Title\n\n- a\n- b", editor.view.state.doc.resolve(0), false, editor.view),
+  );
+  expect(result).not.toBeNull();
+  const slice = result as import("prosemirror-model").Slice;
+  expect(slice.content.firstChild?.type.name).toBe("heading");
+  editor.destroy();
+});
+
+test("pasting empty string returns falsy (PM handles as plain)", () => {
+  const mount = document.createElement("div");
+  const editor = createEditor({ mount });
+  const result = editor.view.someProp("clipboardTextParser", (f) =>
+    f("", editor.view.state.doc.resolve(0), false, editor.view),
+  );
+  expect(result).toBeFalsy();
+  editor.destroy();
+});
+
 test("typing '---' then Enter creates a horizontal_rule", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
