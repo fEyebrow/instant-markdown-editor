@@ -5,6 +5,7 @@ import { keymap } from "prosemirror-keymap";
 import { defaultMarkdownParser, defaultMarkdownSerializer, schema } from "prosemirror-markdown";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
+import { horizontalRuleOnEnter } from "./keymap/horizontal-rule-on-enter.ts";
 import { listKeymap } from "./keymap/list-keymap.ts";
 import { markdownShortcutsPlugin } from "./markdown-shortcuts/index.ts";
 
@@ -31,6 +32,7 @@ export function createEditor(options: EditorOptions): EditorHandle {
       history(),
       keymap({ "Mod-z": undo, "Mod-y": redo, "Mod-Shift-z": redo }),
       keymap({ Backspace: undoInputRule }),
+      keymap({ Enter: horizontalRuleOnEnter }),
       keymap(listKeymap(schema)),
       markdownShortcutsPlugin(schema),
       keymap(baseKeymap),

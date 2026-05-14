@@ -152,6 +152,35 @@ test("typing '```ts ' creates a code block with params='ts'", () => {
   editor.destroy();
 });
 
+test("typing '---' then Enter creates a horizontal_rule", () => {
+  const mount = document.createElement("div");
+  const editor = createEditor({ mount });
+  typeText(editor.view, "---");
+  pressKey(editor.view, "Enter");
+  expect(editor.view.state.doc.firstChild?.type.name).toBe("horizontal_rule");
+  expect(editor.view.state.doc.lastChild?.type.name).toBe("paragraph");
+  editor.destroy();
+});
+
+test("Enter on a paragraph that isn't exactly '---' does NOT make a hr", () => {
+  const mount = document.createElement("div");
+  const editor = createEditor({ mount });
+  typeText(editor.view, "----");
+  pressKey(editor.view, "Enter");
+  expect(editor.view.state.doc.firstChild?.type.name).toBe("paragraph");
+  editor.destroy();
+});
+
+test("Enter on '---' inside a list item does NOT make a hr", () => {
+  const mount = document.createElement("div");
+  const editor = createEditor({ mount });
+  typeText(editor.view, "- ");
+  typeText(editor.view, "---");
+  pressKey(editor.view, "Enter");
+  expect(editor.view.state.doc.firstChild?.type.name).toBe("bullet_list");
+  editor.destroy();
+});
+
 test("typing inside a code block does NOT trigger rules", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
