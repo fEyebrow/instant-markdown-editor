@@ -11,6 +11,8 @@ This is a **Typora-style** markdown editor playground built on \`prosemirror-mar
 
 > Quote block
 
+---
+
 \`\`\`ts
 const x: number = 42;
 \`\`\`
