@@ -1,5 +1,6 @@
 import { expect, test } from "vite-plus/test";
 import { defaultMarkdownSerializer } from "prosemirror-markdown";
+import { TextSelection } from "prosemirror-state";
 import { createEditor } from "../src/index.ts";
 import { pressKey, typeText } from "./helpers.ts";
 
@@ -60,7 +61,7 @@ test("Backspace immediately after heading conversion undoes the rule", () => {
   editor.destroy();
 });
 
-test("typing '**bold**' converts the Marked Text to strong on the Closing Delimiter", () => {
+test("typing '**bold**' converts the Marked Text to strong", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
   typeText(editor.view, "**bold**");
@@ -71,7 +72,7 @@ test("typing '**bold**' converts the Marked Text to strong on the Closing Delimi
   editor.destroy();
 });
 
-test("typing '__bold__' converts the Marked Text to strong on the Closing Delimiter", () => {
+test("typing '__bold__' converts the Marked Text to strong", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
   typeText(editor.view, "__bold__");
@@ -82,7 +83,7 @@ test("typing '__bold__' converts the Marked Text to strong on the Closing Delimi
   editor.destroy();
 });
 
-test("typing '_em_' converts the Marked Text to emphasis on the Closing Delimiter", () => {
+test("typing '_em_' converts the Marked Text to emphasis", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
   typeText(editor.view, "_em_");
@@ -93,7 +94,7 @@ test("typing '_em_' converts the Marked Text to emphasis on the Closing Delimite
   editor.destroy();
 });
 
-test("typing '*em*' converts the Marked Text to emphasis on the Closing Delimiter", () => {
+test("typing '*em*' converts the Marked Text to emphasis", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
   typeText(editor.view, "*em*");
@@ -104,7 +105,7 @@ test("typing '*em*' converts the Marked Text to emphasis on the Closing Delimite
   editor.destroy();
 });
 
-test("typing '`code`' converts the Marked Text to inline code on the Closing Delimiter", () => {
+test("typing '`code`' converts the Marked Text to inline code", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
   typeText(editor.view, "`code`");
@@ -115,11 +116,26 @@ test("typing '`code`' converts the Marked Text to inline code on the Closing Del
   editor.destroy();
 });
 
-test("typing '[text](https://example.com)' converts the Marked Text to a link on the Closing Delimiter", () => {
+test("typing '[text](https://example.com)' converts the Marked Text to a link", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
   typeText(editor.view, "[text](https://example.com)");
   const paragraph = editor.view.state.doc.firstChild!;
+  expect(paragraph.textContent).toBe("text");
+  expect(paragraph.firstChild?.marks.map((mark) => mark.type.name)).toEqual(["link"]);
+  expect(paragraph.firstChild?.marks[0]?.attrs.href).toBe("https://example.com");
+  expect(editor.getMarkdown()).toBe("[text](https://example.com)");
+  editor.destroy();
+});
+
+test("typing '[' before existing 'text](url)' retroactively converts to a link", () => {
+  const mount = document.createElement("div");
+  const editor = createEditor({ mount });
+  typeText(editor.view, "text](https://example.com)");
+  const { view } = editor;
+  view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc, 1)));
+  typeText(view, "[");
+  const paragraph = view.state.doc.firstChild!;
   expect(paragraph.textContent).toBe("text");
   expect(paragraph.firstChild?.marks.map((mark) => mark.type.name)).toEqual(["link"]);
   expect(paragraph.firstChild?.marks[0]?.attrs.href).toBe("https://example.com");
@@ -219,7 +235,7 @@ test("typing '_em_' at a word boundary still converts to emphasis", () => {
   editor.destroy();
 });
 
-test("typing '**bold**!' continues with plain text after the Closing Delimiter", () => {
+test("typing '**bold**!' continues with plain text after the strong mark", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
   typeText(editor.view, "**bold**!");

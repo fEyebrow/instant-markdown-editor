@@ -24,10 +24,6 @@ _Avoid_: marked content, inner text
 The plain URL or anchor target attached to link text.
 _Avoid_: href text, link URL markdown
 
-**Closing Delimiter**:
-The final character that completes an **Inline Markdown Mark** and signals that the marked text should become rich text.
-_Avoid_: trigger character, ending token
-
 **Escaped Inline Markdown Mark**:
 An **Inline Markdown Mark** preceded by a backslash to keep the typed Markdown literal.
 _Avoid_: disabled mark, literal syntax mode
@@ -36,7 +32,6 @@ _Avoid_: disabled mark, literal syntax mode
 
 - An **Inline Markdown Mark** affects text inside a block.
 - A **Block Markdown Shortcut** affects the block that contains the cursor.
-- A **Closing Delimiter** completes exactly one **Inline Markdown Mark**.
 - An **Inline Markdown Mark** encloses **Marked Text**.
 - A **Combined Inline Markdown Mark** applies multiple marks to the same **Marked Text**.
 - An **Escaped Inline Markdown Mark** remains literal text.
@@ -46,8 +41,6 @@ _Avoid_: disabled mark, literal syntax mode
 
 > **Dev:** "Should `**bold**` create a new node?"
 > **Domain expert:** "No — `**bold**` is an **Inline Markdown Mark** because it marks text inside the current block."
-> **Dev:** "When should the editor transform it?"
-> **Domain expert:** "When the **Closing Delimiter** is typed."
 > **Dev:** "Should `***important***` be treated as one style or two?"
 > **Domain expert:** "It is a **Combined Inline Markdown Mark** because the same text is both strong and emphasized."
 

@@ -5,7 +5,6 @@ import { defaultMarkdownParser } from "prosemirror-markdown";
 import { serializeTextblockToRawMarkdown } from "./raw-markdown.ts";
 
 type UndoableInput = { from: number; to: number; content: Fragment } | null;
-const inlineClosingDelimiters = new Set(["*", "_", "`", ")"]);
 const inlineMarkdownPatterns = [
   /(?<!\\)\[(.+)\]\(((?:https?:\/\/|mailto:|\/|#)[^\s)]+)\)$/,
   /(?<!\\)\*\*\*(\S(?:.*?\S)?)\*\*\*$/,
@@ -30,12 +29,12 @@ export function liveInlineMarkdownPlugin() {
       },
     },
     props: {
-      handleTextInput(view, from, to, text, defaultTr) {
-        if (!inlineClosingDelimiters.has(text) || view.composing) return false;
+      handleTextInput(view, _from, _to, _text, defaultTr) {
+        if (view.composing) return false;
 
         const tr = defaultTr();
         const nextState = view.state.apply(tr);
-        const undoable = applyInlineMarkdownConversion(nextState, tr, text);
+        const undoable = applyInlineMarkdownConversion(nextState, tr);
         if (!undoable) return false;
 
         tr.setMeta(plugin, undoable);
@@ -67,7 +66,6 @@ export const undoLiveInlineMarkdown: Command = (state, dispatch) => {
 function applyInlineMarkdownConversion(
   state: EditorState,
   tr: Transaction,
-  _insertedText: string,
 ): { from: number; to: number; content: Fragment } | null {
   const { $from } = state.selection;
   const parent = $from.parent;
