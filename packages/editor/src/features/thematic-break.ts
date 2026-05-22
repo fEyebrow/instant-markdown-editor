@@ -1,7 +1,7 @@
 import { TextSelection } from "prosemirror-state";
 import type { Command } from "prosemirror-state";
 
-export const thematicBreakOnEnter: Command = (state, dispatch) => {
+const thematicBreakOnEnter: Command = (state, dispatch) => {
   const { $from } = state.selection;
   const parent = $from.parent;
 
@@ -20,4 +20,8 @@ export const thematicBreakOnEnter: Command = (state, dispatch) => {
     dispatch(tr);
   }
   return true;
+};
+
+export const thematicBreakKeymap = {
+  Enter: thematicBreakOnEnter,
 };

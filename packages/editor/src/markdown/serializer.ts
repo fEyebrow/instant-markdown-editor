@@ -1,11 +1,12 @@
 import type { Mark, Node as ProseMirrorNode } from "prosemirror-model";
+import { featureMarkdownSerializeSpecs, featureMarkRankEntries } from "../features/index.ts";
 
 // Stable mark order so emit is deterministic regardless of how marks happen to
 // be stacked in the doc. Lower rank = outer.
 const markRank = new Map<string, number>([
   ["link", 0],
   ["strong", 1],
-  ["em", 2],
+  ...featureMarkRankEntries,
   ["code", 3],
 ]);
 
@@ -23,7 +24,7 @@ type MarkSpec = {
 };
 
 const markSpecs: Record<string, MarkSpec> = {
-  em: { open: "*", close: "*", expelEnclosingWhitespace: true },
+  ...featureMarkdownSerializeSpecs,
   strong: { open: "**", close: "**", expelEnclosingWhitespace: true },
   link: {
     open(state, mark, parent, index) {

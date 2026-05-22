@@ -1,4 +1,5 @@
 import { type MarkSpec, Schema } from "prosemirror-model";
+import { featureMarkSpecs } from "../features/index.ts";
 
 export const editorSchema = new Schema({
   nodes: {
@@ -168,17 +169,7 @@ export const editorSchema = new Schema({
   },
 
   marks: {
-    em: {
-      parseDOM: [
-        { tag: "i" },
-        { tag: "em" },
-        { style: "font-style=italic" },
-        { style: "font-style=normal", clearMark: (m) => m.type.name === "em" },
-      ],
-      toDOM() {
-        return ["em"];
-      },
-    } as MarkSpec,
+    ...featureMarkSpecs,
 
     strong: {
       parseDOM: [

@@ -1,6 +1,30 @@
-import type { Node, Schema } from "prosemirror-model";
+import type { MarkSpec, Node, Schema } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+
+export const italicMarkSpecs = {
+  em: {
+    parseDOM: [
+      { tag: "i" },
+      { tag: "em" },
+      { style: "font-style=italic" },
+      { style: "font-style=normal", clearMark: (m) => m.type.name === "em" },
+    ],
+    toDOM() {
+      return ["em"];
+    },
+  } as MarkSpec,
+};
+
+export const italicMarkdownParseSpecs = {
+  em: { mark: "em" },
+};
+
+export const italicMarkdownSerializeSpecs = {
+  em: { open: "*", close: "*", expelEnclosingWhitespace: true },
+};
+
+export const italicMarkRankEntries: [string, number][] = [["em", 2]];
 
 const PATTERN = /\*([^*\s]+)\*/g;
 // Browsers may insert U+00A0 (nbsp) instead of " " at end of contentEditable.

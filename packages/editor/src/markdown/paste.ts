@@ -1,6 +1,6 @@
 import type { ResolvedPos, Slice } from "prosemirror-model";
 import type { EditorView } from "prosemirror-view";
-import { markdownParser } from "../markdown/parser.ts";
+import { markdownParser } from "./parser.ts";
 
 export function markdownPasteParser(): (
   text: string,

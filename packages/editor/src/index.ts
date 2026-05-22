@@ -3,10 +3,8 @@ import { history, redo, undo } from "prosemirror-history";
 import { keymap } from "prosemirror-keymap";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { markdownPasteParser } from "./clipboard/paste.ts";
-import { thematicBreakOnEnter } from "./keymap/thematic-break.ts";
-import { listKeymap } from "./keymap/list.ts";
-import { liveItalic } from "./live/italic.ts";
+import { createFeatureKeymaps, createFeaturePlugins } from "./features/index.ts";
+import { markdownPasteParser } from "./markdown/paste.ts";
 import { markdownParser } from "./markdown/parser.ts";
 import { markdownSerializer } from "./markdown/serializer.ts";
 import { editorSchema } from "./schema/index.ts";
@@ -33,9 +31,8 @@ export function createEditor(options: EditorOptions): EditorHandle {
     plugins: [
       history(),
       keymap({ "Mod-z": undo, "Mod-y": redo, "Mod-Shift-z": redo }),
-      keymap({ Enter: thematicBreakOnEnter }),
-      keymap(listKeymap(editorSchema)),
-      liveItalic(editorSchema),
+      ...createFeatureKeymaps(editorSchema).map((bindings) => keymap(bindings)),
+      ...createFeaturePlugins(editorSchema),
       keymap(baseKeymap),
     ],
   });

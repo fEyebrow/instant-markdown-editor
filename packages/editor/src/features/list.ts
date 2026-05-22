@@ -1,5 +1,5 @@
-import { liftListItem, sinkListItem, splitListItem } from "prosemirror-schema-list";
 import type { Schema } from "prosemirror-model";
+import { liftListItem, sinkListItem, splitListItem } from "prosemirror-schema-list";
 
 export function listKeymap(schema: Schema) {
   const { list_item } = schema.nodes;

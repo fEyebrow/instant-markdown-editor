@@ -8,6 +8,7 @@ import {
   type NodeType,
   type Schema,
 } from "prosemirror-model";
+import { featureMarkdownParseSpecs } from "../features/index.ts";
 import { editorSchema } from "../schema/index.ts";
 
 type TokenHandler = (state: ParseState, token: Token, tokens: Token[], i: number) => void;
@@ -224,7 +225,7 @@ const tokenSpecs: Record<string, ParseSpec> = {
   },
   hardbreak: { node: "hard_break" },
 
-  em: { mark: "em" },
+  ...featureMarkdownParseSpecs,
   strong: { mark: "strong" },
   link: {
     mark: "link",
