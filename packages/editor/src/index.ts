@@ -3,7 +3,11 @@ import { history, redo, undo } from "prosemirror-history";
 import { keymap } from "prosemirror-keymap";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import { createFeatureKeymaps, createFeaturePlugins } from "./features/index.ts";
+import {
+  createFeatureKeymaps,
+  createFeaturePlugins,
+  serializeFeatureMarkdown,
+} from "./features/index.ts";
 import { markdownPasteParser } from "./markdown/paste.ts";
 import { markdownParser } from "./markdown/parser.ts";
 import { markdownSerializer } from "./markdown/serializer.ts";
@@ -44,14 +48,14 @@ export function createEditor(options: EditorOptions): EditorHandle {
       const next = view.state.apply(tr);
       view.updateState(next);
       if (tr.docChanged && onChange) {
-        onChange(markdownSerializer.serialize(next.doc));
+        onChange(serializeMarkdown(next.doc));
       }
     },
   });
 
   return {
     view,
-    getMarkdown: () => markdownSerializer.serialize(view.state.doc),
+    getMarkdown: () => serializeMarkdown(view.state.doc),
     setMarkdown(markdown) {
       const doc = markdownParser.parse(markdown);
       if (!doc) return;
@@ -66,6 +70,18 @@ export function createEditor(options: EditorOptions): EditorHandle {
   };
 }
 
+function serializeMarkdown(doc: EditorState["doc"]): string {
+  return serializeFeatureMarkdown(markdownSerializer.serialize(doc));
+}
+
 export { editorSchema };
 export { EDITOR_SPEC_FEATURES } from "./specs.ts";
-export type { EditorSpecCase, EditorSpecFeature, EditorSpecStep } from "./specs.ts";
+export type { EditorSpecCase, EditorSpecCheckpoint, EditorSpecFeature } from "./specs.ts";
+export {
+  applyAction,
+  applyActions,
+  parseChord,
+  projectEditorView,
+  setMarkdownWithCursor,
+} from "./spec-runner.ts";
+export type { Chord, ProjectionOptions } from "./spec-runner.ts";

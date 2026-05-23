@@ -1,15 +1,18 @@
 import {
+  applyActions,
   createEditor,
   EDITOR_SPEC_FEATURES,
-  type EditorHandle,
   type EditorSpecCase,
+  projectEditorView,
+  setMarkdownWithCursor,
 } from "@rte/editor";
-import { EditorState, TextSelection } from "prosemirror-state";
 
 interface Snapshot {
   index: number;
   projection: string;
   expectedProjection: string | null;
+  markdown: string;
+  expectedMarkdown: string | null;
   passed: boolean | null;
 }
 
@@ -41,7 +44,6 @@ export function renderSpecs(root: HTMLElement): void {
             <div class="specs-content-head">
               <div>
                 <h2 id="feature-title"></h2>
-                <p id="feature-description" class="hint"></p>
               </div>
             </div>
             <div id="spec-case-list" class="spec-case-list"></div>
@@ -53,7 +55,6 @@ export function renderSpecs(root: HTMLElement): void {
 
   const featureList = root.querySelector<HTMLElement>("#feature-list")!;
   const featureTitle = root.querySelector<HTMLElement>("#feature-title")!;
-  const featureDescription = root.querySelector<HTMLElement>("#feature-description")!;
   const caseList = root.querySelector<HTMLElement>("#spec-case-list")!;
 
   renderFeatureList();
@@ -81,7 +82,6 @@ export function renderSpecs(root: HTMLElement): void {
           data-feature-id="${feature.id}"
         >
           <span class="feature-item-title">${feature.title}</span>
-          <span class="feature-item-copy">${feature.description}</span>
         </button>
       `;
     }).join("");
@@ -92,7 +92,6 @@ export function renderSpecs(root: HTMLElement): void {
     if (!feature) return;
 
     featureTitle.textContent = feature.title;
-    featureDescription.textContent = feature.description;
     caseList.innerHTML = "";
 
     for (const specCase of feature.cases) {
@@ -109,11 +108,10 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
     <div class="spec-case-head">
       <div>
         <h3>${specCase.title}</h3>
-        <p class="hint">${specCase.summary}</p>
         <p class="hint" data-role="step-summary"></p>
       </div>
       <div class="player-meta">
-        <span data-role="progress-text">0/${specCase.steps.length}</span>
+        <span data-role="progress-text">0/${specCase.keyevents.length}</span>
         <div class="toolbar toolbar-tight">
           <button type="button" data-action="reset">Reset</button>
           <button type="button" data-action="step">Step</button>
@@ -136,10 +134,18 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
       <pre data-role="projection-out" class="projection-output"></pre>
     </section>
 
+    <section class="projection-card">
+      <div class="projection-head">
+        <span>markdown</span>
+        <button type="button" class="copylink" data-action="copy-markdown">copy</button>
+      </div>
+      <pre data-role="markdown-out" class="projection-output"></pre>
+    </section>
+
     <section class="history-card">
       <div class="history-head">
         <span>checkpoints</span>
-        <span data-role="checkpoint-text">0/${specCase.steps.length}</span>
+        <span data-role="checkpoint-text">0/${specCase.checkpoints.length}</span>
       </div>
       <ol data-role="history-out" class="history-list"></ol>
     </section>
@@ -148,6 +154,7 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
   const mount = root.querySelector<HTMLElement>('[data-role="editor"]')!;
   const stepSummary = root.querySelector<HTMLElement>('[data-role="step-summary"]')!;
   const projectionOut = root.querySelector<HTMLElement>('[data-role="projection-out"]')!;
+  const markdownOut = root.querySelector<HTMLElement>('[data-role="markdown-out"]')!;
   const historyOut = root.querySelector<HTMLOListElement>('[data-role="history-out"]')!;
   const playButton = root.querySelector<HTMLButtonElement>('[data-role="play-button"]')!;
   const progressText = root.querySelector<HTMLElement>('[data-role="progress-text"]')!;
@@ -158,6 +165,9 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
     onChange: updateOutputs,
   });
 
+  const checkpoints = new Map(
+    specCase.checkpoints.map((checkpoint) => [checkpoint.step, checkpoint]),
+  );
   let currentStep = 0;
   let playTimer: number | null = null;
   let snapshots: Snapshot[] = [];
@@ -174,31 +184,34 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
     if (action === "copy-projection") {
       await navigator.clipboard.writeText(projectionOut.textContent ?? "");
     }
+    if (action === "copy-markdown") {
+      await navigator.clipboard.writeText(markdownOut.textContent ?? "");
+    }
   });
 
   resetEditor();
 
   function resetEditor(): void {
     stopPlay();
-    setLiteralParagraph(editor, "");
+    setMarkdownWithCursor(editor.view, specCase.initialMarkdown ?? "");
     currentStep = 0;
     snapshots = [makeSnapshot(0)];
     updateOutputs();
   }
 
   function runNextStep(): void {
-    if (currentStep >= specCase.steps.length) {
+    if (currentStep >= specCase.keyevents.length) {
       stopPlay();
       return;
     }
 
-    const step = specCase.steps[currentStep];
-    typeText(editor.view, step.input);
+    const keyevent = specCase.keyevents[currentStep];
+    applyActions(editor.view, [keyevent]);
     currentStep += 1;
     snapshots = [...snapshots, makeSnapshot(currentStep)];
     updateOutputs();
 
-    if (currentStep >= specCase.steps.length) stopPlay();
+    if (currentStep >= specCase.keyevents.length) stopPlay();
   }
 
   function togglePlay(): void {
@@ -207,12 +220,12 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
       return;
     }
 
-    if (currentStep >= specCase.steps.length) resetEditor();
+    if (currentStep >= specCase.keyevents.length) resetEditor();
 
     playButton.textContent = "Pause";
     playTimer = window.setInterval(() => {
       runNextStep();
-      if (currentStep >= specCase.steps.length) stopPlay();
+      if (currentStep >= specCase.keyevents.length) stopPlay();
     }, 900);
   }
 
@@ -225,21 +238,24 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
   }
 
   function updateOutputs(): void {
-    const activeStep = currentStep === 0 ? null : specCase.steps[currentStep - 1];
+    const activeCheckpoint = currentStep === 0 ? null : (checkpoints.get(currentStep) ?? null);
 
     stepSummary.textContent =
       currentStep === 0
         ? "Ready. Start from an empty paragraph and replay the test sequence."
-        : `${activeStep?.title}: ${activeStep?.expectation}`;
+        : activeCheckpoint
+          ? activeCheckpoint.title
+          : `Step ${currentStep}: played ${specCase.keyevents[currentStep - 1]}`;
 
-    progressText.textContent = `${currentStep}/${specCase.steps.length}`;
+    progressText.textContent = `${currentStep}/${specCase.keyevents.length}`;
     const passedCount = snapshots.filter((snapshot) => snapshot.passed === true).length;
     const failedCount = snapshots.filter((snapshot) => snapshot.passed === false).length;
     checkpointText.textContent =
       failedCount > 0
         ? `${passedCount} passed, ${failedCount} failed`
-        : `${passedCount}/${specCase.steps.length} passed`;
+        : `${passedCount}/${specCase.checkpoints.length} passed`;
     projectionOut.textContent = projectEditorView(editor);
+    markdownOut.textContent = editor.getMarkdown();
     historyOut.innerHTML = snapshots
       .map((snapshot) => renderSnapshot(snapshot, snapshot.index === currentStep))
       .join("");
@@ -247,14 +263,20 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
 
   function makeSnapshot(index: number): Snapshot {
     const projection = projectEditorView(editor);
-    const expectedProjection =
-      index === 0 ? null : (specCase.steps[index - 1]?.expectedProjection ?? null);
+    const markdown = editor.getMarkdown();
+    const checkpoint = index === 0 ? null : (checkpoints.get(index) ?? null);
+    const expectedProjection = checkpoint?.expectedProjection ?? null;
+    const expectedMarkdown = checkpoint?.expectedMarkdown ?? null;
+    const projectionPassed = expectedProjection === null || projection === expectedProjection;
+    const markdownPassed = expectedMarkdown === null || markdown === expectedMarkdown;
 
     return {
       index,
       projection,
       expectedProjection,
-      passed: expectedProjection === null ? null : projection === expectedProjection,
+      markdown,
+      expectedMarkdown,
+      passed: expectedProjection === null ? null : projectionPassed && markdownPassed,
     };
   }
 }
@@ -264,6 +286,7 @@ function renderSnapshot(snapshot: Snapshot, isActive: boolean): string {
   const status = snapshot.passed === null ? "ready" : snapshot.passed ? "pass" : "fail";
   const statusLabel = status.toUpperCase();
   const expected = snapshot.expectedProjection;
+  const expectedMarkdown = snapshot.expectedMarkdown;
 
   return `
     <li class="history-item ${status}${isActive ? " active" : ""}">
@@ -283,76 +306,26 @@ function renderSnapshot(snapshot: Snapshot, isActive: boolean): string {
                   <dt>actual</dt>
                   <dd><pre class="history-value">${escapeHtml(snapshot.projection)}</pre></dd>
                 </div>
+                ${
+                  expectedMarkdown === null
+                    ? ""
+                    : `
+                      <div>
+                        <dt>expected markdown</dt>
+                        <dd><pre class="history-value">${escapeHtml(expectedMarkdown)}</pre></dd>
+                      </div>
+                      <div>
+                        <dt>actual markdown</dt>
+                        <dd><pre class="history-value">${escapeHtml(snapshot.markdown)}</pre></dd>
+                      </div>
+                    `
+                }
               </dl>
             `
         }
       </div>
     </li>
   `;
-}
-
-function setLiteralParagraph(editor: EditorHandle, text: string): void {
-  const { schema } = editor.view.state;
-  const content = text ? [schema.text(text)] : undefined;
-  const paragraph = schema.nodes.paragraph.create(null, content);
-  const doc = schema.topNodeType.createAndFill(null, [paragraph]);
-
-  if (!doc) return;
-
-  let next = EditorState.create({
-    doc,
-    schema,
-    plugins: editor.view.state.plugins,
-  });
-  next = next.apply(next.tr.setSelection(TextSelection.atEnd(next.doc)));
-  editor.view.updateState(next);
-}
-
-function typeText(view: EditorHandle["view"], text: string): void {
-  for (const ch of text) {
-    const { from, to } = view.state.selection;
-    view.dispatch(view.state.tr.insertText(ch, from, to));
-  }
-}
-
-function projectEditorView(editor: EditorHandle): string {
-  const viewRoot = editor.view.dom;
-  const cursor = editor.view.domAtPos(editor.view.state.selection.from);
-  return serializeNode(viewRoot, cursor).trimEnd() || "|";
-}
-
-function serializeNode(node: Node, cursor: { node: Node; offset: number }): string {
-  if (node.nodeType === Node.TEXT_NODE) {
-    const text = normalizeText(node.textContent ?? "");
-    if (node === cursor.node) {
-      return `${text.slice(0, cursor.offset)}|${text.slice(cursor.offset)}`;
-    }
-    return text;
-  }
-
-  if (!(node instanceof HTMLElement)) return "";
-
-  const children = Array.from(node.childNodes);
-  const parts: string[] = [];
-
-  if (node === cursor.node && cursor.offset === 0) parts.push("|");
-
-  children.forEach((child, index) => {
-    parts.push(serializeNode(child, cursor));
-    if (node === cursor.node && cursor.offset === index + 1) parts.push("|");
-  });
-
-  const content = parts.join("");
-
-  if (node.classList.contains("ProseMirror")) return content;
-  if (node.classList.contains("md-pending")) return `<pending>${content}</pending>`;
-  if (node.tagName === "EM" || node.tagName === "I") return `<i>${content}</i>`;
-  if (node.tagName === "P") return `<p>${content}</p>`;
-  return content;
-}
-
-function normalizeText(value: string): string {
-  return value.replaceAll("\u00a0", " ").replaceAll("\n", "");
 }
 
 function escapeHtml(value: string): string {

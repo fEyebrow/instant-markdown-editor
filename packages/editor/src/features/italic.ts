@@ -1,5 +1,6 @@
 import type { MarkSpec, Node, Schema } from "prosemirror-model";
-import { Plugin } from "prosemirror-state";
+import type { Command } from "prosemirror-state";
+import { Plugin, TextSelection } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 
 export const italicMarkSpecs = {
@@ -27,8 +28,57 @@ export const italicMarkdownSerializeSpecs = {
 export const italicMarkRankEntries: [string, number][] = [["em", 2]];
 
 const PATTERN = /\*([^*\s]+)\*/g;
+const ESCAPED_PENDING_MARKER = /\\\*([^*\s\\]+)\\\*/g;
 // Browsers may insert U+00A0 (nbsp) instead of " " at end of contentEditable.
 const COMMIT = /\*([^*\s]+)\*[ \u00a0]$/;
+
+export function serializeLiveItalicPendingMarkdown(markdown: string): string {
+  return markdown.replace(ESCAPED_PENDING_MARKER, "*$1*");
+}
+
+export function italicKeymap(schema: Schema): Record<string, Command> {
+  return {
+    Backspace: reopenPendingItalicOnBackspace(schema),
+  };
+}
+
+function reopenPendingItalicOnBackspace(schema: Schema): Command {
+  const em = schema.marks.em;
+  return (state, dispatch) => {
+    const { $from, empty } = state.selection;
+    if (!empty || !$from.parent.isTextblock || $from.parentOffset === 0) return false;
+
+    const parent = $from.parent;
+    let offset = 0;
+    let pending: { from: number; to: number; text: string } | undefined;
+
+    for (let index = 0; index < parent.childCount; index += 1) {
+      const node = parent.child(index);
+      if (offset + node.nodeSize !== $from.parentOffset || node.text !== "\u00a0") {
+        offset += node.nodeSize;
+        continue;
+      }
+      if (index === 0) break;
+
+      const previous = parent.child(index - 1);
+      if (!previous.isText || !em.isInSet(previous.marks) || !previous.text) break;
+
+      const from = $from.start() + offset - previous.nodeSize;
+      pending = { from, to: $from.pos, text: previous.text };
+      break;
+    }
+
+    if (!pending) return false;
+    if (dispatch) {
+      const text = `*${pending.text}*`;
+      const tr = state.tr.replaceWith(pending.from, pending.to, schema.text(text));
+      tr.setSelection(TextSelection.create(tr.doc, pending.from + text.length));
+      tr.removeStoredMark(em);
+      dispatch(tr);
+    }
+    return true;
+  };
+}
 
 function pendingDecorations(doc: Node): Decoration[] {
   const decos: Decoration[] = [];
@@ -69,7 +119,7 @@ export function liveItalic(schema: Schema): Plugin {
       const patternStart = $from.pos - m[0].length;
       const tr = newState.tr;
       const emText = newState.schema.text(inner, [em.create()]);
-      const spaceText = newState.schema.text(" ");
+      const spaceText = newState.schema.text("\u00a0");
       tr.replaceWith(patternStart, $from.pos, [emText, spaceText]);
       tr.removeStoredMark(em);
       return tr;
