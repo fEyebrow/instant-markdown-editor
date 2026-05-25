@@ -296,6 +296,9 @@ function serializeNode(
 
   if (node.classList.contains("ProseMirror")) return content;
   if (node.classList.contains("md-pending")) return `<pending>${content}</pending>`;
+  if (node.classList.contains("md-block-pending"))
+    return `<block-pending>${content}</block-pending>`;
+  if (node.classList.contains("md-block-pending-content")) return `<strong>${content}</strong>`;
   if (node.classList.contains("md-live-em")) return `<i>${content}</i>`;
   if (node.classList.contains("md-live-strong")) return `<b>${content}</b>`;
   if (node.classList.contains("md-live-strikethrough")) return `<s>${content}</s>`;

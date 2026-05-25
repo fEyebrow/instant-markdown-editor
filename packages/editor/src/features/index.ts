@@ -1,4 +1,5 @@
 import type { Schema } from "prosemirror-model";
+import { atxHeading, atxHeadingKeymap } from "./atx-heading.ts";
 import { blockquoteInputRules } from "./blockquote.ts";
 import { codeKeymap, liveCode, serializeLiveCodePendingMarkdown } from "./code.ts";
 import {
@@ -55,6 +56,7 @@ export function createFeaturePlugins(schema: Schema) {
     liveStrikethrough(schema),
     liveCode(schema),
     thematicBreakLeaveLine(schema),
+    atxHeading(schema),
     unorderedListInputRules(schema),
     blockquoteInputRules(schema),
   ];
@@ -63,6 +65,7 @@ export function createFeaturePlugins(schema: Schema) {
 export function createFeatureKeymaps(schema: Schema) {
   return [
     thematicBreakKeymap,
+    atxHeadingKeymap,
     italicKeymap(schema),
     strongKeymap(schema),
     strikethroughKeymap(schema),

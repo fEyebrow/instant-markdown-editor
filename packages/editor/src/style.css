@@ -82,6 +82,14 @@
   color: var(--rte-pending, #b8b3c4);
 }
 
+.ProseMirror .md-block-pending {
+  color: var(--rte-block-pending, #c4c0cd);
+}
+
+.ProseMirror .md-block-pending-content {
+  font-weight: 600;
+}
+
 .ProseMirror .md-live-em {
   font-style: italic;
 }
