@@ -1,3 +1,4 @@
+import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { EditorState, TextSelection } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 import type { EditorHandle } from "./index.ts";
@@ -98,29 +99,98 @@ export function setMarkdownWithCursor(view: EditorView, markdown: string): void 
 function setMarkdown(view: EditorView, markdown: string, cursorOffset: number | null): void {
   const doc = markdownParser.parse(markdown);
   const { schema } = view.state;
-  const position = cursorOffset === null ? doc.content.size : 1 + cursorOffset;
+  const position =
+    cursorOffset === null ? endOfLastTextblock(doc) : textOffsetToPosition(doc, cursorOffset);
 
   const next = EditorState.create({
     doc,
     schema,
     plugins: view.state.plugins,
-    selection: TextSelection.create(doc, Math.min(position, doc.content.size)),
+    selection: TextSelection.create(doc, position),
   });
   view.updateState(next);
 }
 
+function textOffsetToPosition(doc: ProseMirrorNode, textOffset: number): number {
+  let pos = -1;
+  let count = 0;
+  doc.descendants((node, p) => {
+    if (pos !== -1) return false;
+    if (node.isText) {
+      const len = (node.text ?? "").length;
+      if (count + len >= textOffset) {
+        pos = p + (textOffset - count);
+        return false;
+      }
+      count += len;
+    }
+    return true;
+  });
+  if (pos !== -1) return pos;
+  let firstTextblock = -1;
+  doc.descendants((node, p) => {
+    if (firstTextblock !== -1) return false;
+    if (node.isTextblock) {
+      firstTextblock = p + 1;
+      return false;
+    }
+    return true;
+  });
+  return firstTextblock === -1 ? 0 : firstTextblock;
+}
+
+function endOfLastTextblock(doc: ProseMirrorNode): number {
+  let pos = -1;
+  doc.descendants((node, p) => {
+    if (node.isTextblock) pos = p + 1 + node.content.size;
+    return true;
+  });
+  return pos === -1 ? 0 : pos;
+}
+
 function applySelectionKey(view: EditorView, chord: Chord): void {
   if (chord.shift || chord.ctrl || chord.alt || chord.meta) return;
-  if (chord.key !== "ArrowLeft" && chord.key !== "ArrowRight") return;
-
   const { selection, doc } = view.state;
   if (!selection.empty) return;
 
-  const delta = chord.key === "ArrowLeft" ? -1 : 1;
-  const position = selection.from + delta;
-  if (position < 1 || position > doc.content.size) return;
+  if (chord.key === "ArrowLeft" || chord.key === "ArrowRight") {
+    const delta = chord.key === "ArrowLeft" ? -1 : 1;
+    const position = selection.from + delta;
+    if (position < 1 || position > doc.content.size) return;
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(doc, position)));
+    return;
+  }
 
-  view.dispatch(view.state.tr.setSelection(TextSelection.create(doc, position)));
+  if (chord.key === "ArrowUp" || chord.key === "ArrowDown") {
+    const target = adjacentTextblockPosition(doc, selection.from, chord.key === "ArrowDown");
+    if (target === null) return;
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(doc, target)));
+  }
+}
+
+function adjacentTextblockPosition(
+  doc: ProseMirrorNode,
+  from: number,
+  forward: boolean,
+): number | null {
+  const $from = doc.resolve(from);
+  const currentIndex = $from.depth >= 1 ? $from.index(0) : -1;
+  let offset = 0;
+  let target: number | null = null;
+  for (let i = 0; i < doc.childCount; i += 1) {
+    const child = doc.child(i);
+    if (child.isTextblock) {
+      if (forward && i > currentIndex) {
+        target = offset + 1;
+        break;
+      }
+      if (!forward && i < currentIndex) {
+        target = offset + 1 + child.content.size;
+      }
+    }
+    offset += child.nodeSize;
+  }
+  return target;
 }
 
 function isMac(): boolean {

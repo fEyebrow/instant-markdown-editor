@@ -11,7 +11,7 @@ import {
   serializeLiveItalicPendingMarkdown,
 } from "./italic.ts";
 import { liveStrong, serializeLiveStrongPendingMarkdown, strongKeymap } from "./strong.ts";
-import { thematicBreakKeymap } from "./thematic-break.ts";
+import { thematicBreakKeymap, thematicBreakLeaveLine } from "./thematic-break.ts";
 
 export const featureMarkSpecs = {
   ...italicMarkSpecs,
@@ -34,7 +34,7 @@ export function serializeFeatureMarkdown(markdown: string): string {
 }
 
 export function createFeaturePlugins(schema: Schema) {
-  return [liveItalic(schema), liveStrong(schema), liveCode(schema)];
+  return [liveItalic(schema), liveStrong(schema), liveCode(schema), thematicBreakLeaveLine(schema)];
 }
 
 export function createFeatureKeymaps(schema: Schema) {
