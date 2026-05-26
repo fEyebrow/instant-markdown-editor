@@ -29,6 +29,15 @@ import {
   strikethroughMarkRankEntries,
   strikethroughMarkSpecs,
 } from "./strikethrough.ts";
+import {
+  liveSubscript,
+  serializeLiveSubscriptPendingMarkdown,
+  subscriptKeymap,
+  subscriptMarkdownParseSpecs,
+  subscriptMarkdownSerializeSpecs,
+  subscriptMarkRankEntries,
+  subscriptMarkSpecs,
+} from "./subscript.ts";
 import { liveStrong, serializeLiveStrongPendingMarkdown, strongKeymap } from "./strong.ts";
 import { thematicBreakKeymap, thematicBreakLeaveLine } from "./thematic-break.ts";
 import { orderedListInputRules } from "./ordered-list.ts";
@@ -37,32 +46,38 @@ import { unorderedListInputRules, unorderedListKeymap } from "./unordered-list.t
 export const featureMarkSpecs = {
   ...italicMarkSpecs,
   ...strikethroughMarkSpecs,
+  ...subscriptMarkSpecs,
   ...highlightMarkSpecs,
 };
 
 export const featureMarkdownParseSpecs = {
   ...italicMarkdownParseSpecs,
   ...strikethroughMarkdownParseSpecs,
+  ...subscriptMarkdownParseSpecs,
   ...highlightMarkdownParseSpecs,
 };
 
 export const featureMarkdownSerializeSpecs = {
   ...italicMarkdownSerializeSpecs,
   ...strikethroughMarkdownSerializeSpecs,
+  ...subscriptMarkdownSerializeSpecs,
   ...highlightMarkdownSerializeSpecs,
 };
 
 export const featureMarkRankEntries = [
   ...italicMarkRankEntries,
   ...strikethroughMarkRankEntries,
+  ...subscriptMarkRankEntries,
   ...highlightMarkRankEntries,
 ];
 
 export function serializeFeatureMarkdown(markdown: string): string {
   return serializeLiveHighlightPendingMarkdown(
-    serializeLiveCodePendingMarkdown(
-      serializeLiveStrongPendingMarkdown(
-        serializeLiveStrikethroughPendingMarkdown(serializeLiveItalicPendingMarkdown(markdown)),
+    serializeLiveSubscriptPendingMarkdown(
+      serializeLiveCodePendingMarkdown(
+        serializeLiveStrongPendingMarkdown(
+          serializeLiveStrikethroughPendingMarkdown(serializeLiveItalicPendingMarkdown(markdown)),
+        ),
       ),
     ),
   );
@@ -73,6 +88,7 @@ export function createFeaturePlugins(schema: Schema) {
     liveItalic(schema),
     liveStrong(schema),
     liveStrikethrough(schema),
+    liveSubscript(schema),
     liveHighlight(schema),
     liveCode(schema),
     thematicBreakLeaveLine(schema),
@@ -90,6 +106,7 @@ export function createFeatureKeymaps(schema: Schema) {
     italicKeymap(schema),
     strongKeymap(schema),
     strikethroughKeymap(schema),
+    subscriptKeymap(schema),
     highlightKeymap(schema),
     codeKeymap(schema),
     unorderedListKeymap(schema),

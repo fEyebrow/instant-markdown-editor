@@ -102,6 +102,11 @@
   text-decoration: line-through;
 }
 
+.ProseMirror .md-live-subscript {
+  font-size: 0.75em;
+  vertical-align: sub;
+}
+
 .ProseMirror mark,
 .ProseMirror .md-live-highlight {
   background: var(--rte-highlight-bg, #fff1a8);

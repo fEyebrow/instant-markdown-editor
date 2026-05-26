@@ -211,8 +211,31 @@ function highlightRule(state: StateInline, silent: boolean): boolean {
   return true;
 }
 
+function subscriptRule(state: StateInline, silent: boolean): boolean {
+  const start = state.pos;
+  if (state.src[start] !== "~" || state.src[start + 1] === "~" || state.src[start - 1] === "~") {
+    return false;
+  }
+
+  const end = state.src.indexOf("~", start + 1);
+  if (end === -1 || state.src[end + 1] === "~") return false;
+
+  const inner = state.src.slice(start + 1, end);
+  if (inner.trim() === "" || inner.includes("\n")) return false;
+
+  if (!silent) {
+    state.push("sub_open", "sub", 1).markup = "~";
+    const token = state.push("text", "", 0);
+    token.content = inner;
+    state.push("sub_close", "sub", -1).markup = "~";
+  }
+  state.pos = end + 1;
+  return true;
+}
+
 const tokenizer = MarkdownIt("commonmark", { html: false });
 tokenizer.inline.ruler.before("emphasis", "highlight", highlightRule);
+tokenizer.inline.ruler.before("emphasis", "subscript", subscriptRule);
 tokenizer.enable("strikethrough");
 
 const tokenSpecs: Record<string, ParseSpec> = {

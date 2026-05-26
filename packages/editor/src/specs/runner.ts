@@ -214,6 +214,7 @@ const DEFAULT_TAGS: Record<string, TagSerializer> = {
     return params ? `<pre data-params="${escapeAttribute(params)}">${c}</pre>` : `<pre>${c}</pre>`;
   },
   CODE: (c) => `<code>${c}</code>`,
+  SUB: (c) => `<sub>${c}</sub>`,
   OL: (c, el) => {
     const start = el.getAttribute("start");
     return start ? `<ol start="${escapeAttribute(start)}">${c}</ol>` : `<ol>${c}</ol>`;
@@ -303,6 +304,7 @@ function serializeNode(
   if (node.classList.contains("md-live-em")) return `<i>${content}</i>`;
   if (node.classList.contains("md-live-strong")) return `<b>${content}</b>`;
   if (node.classList.contains("md-live-strikethrough")) return `<s>${content}</s>`;
+  if (node.classList.contains("md-live-subscript")) return `<sub>${content}</sub>`;
   if (node.classList.contains("md-live-highlight")) return `<mark>${content}</mark>`;
   if (node.classList.contains("md-live-code")) return `<code>${content}</code>`;
 
