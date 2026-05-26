@@ -75,13 +75,13 @@ function serializeMarkdown(doc: EditorState["doc"]): string {
 }
 
 export { editorSchema };
-export { EDITOR_SPEC_FEATURES } from "./specs.ts";
-export type { EditorSpecCase, EditorSpecCheckpoint, EditorSpecFeature } from "./specs.ts";
+export { EDITOR_SPEC_FEATURES } from "./specs/index.ts";
+export type { EditorSpecCase, EditorSpecCheckpoint, EditorSpecFeature } from "./specs/index.ts";
 export {
   applyAction,
   applyActions,
   parseChord,
   projectEditorView,
   setMarkdownWithCursor,
-} from "./spec-runner.ts";
-export type { Chord, ProjectionOptions } from "./spec-runner.ts";
+} from "./specs/runner.ts";
+export type { Chord, ProjectionOptions } from "./specs/runner.ts";

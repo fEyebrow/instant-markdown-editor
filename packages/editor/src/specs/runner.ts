@@ -1,8 +1,8 @@
 import type { Node as ProseMirrorNode } from "prosemirror-model";
 import { EditorState, TextSelection } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
-import type { EditorHandle } from "./index.ts";
-import { markdownParser } from "./markdown/parser.ts";
+import type { EditorHandle } from "../index.ts";
+import { markdownParser } from "../markdown/parser.ts";
 
 export interface Chord {
   key: string;
