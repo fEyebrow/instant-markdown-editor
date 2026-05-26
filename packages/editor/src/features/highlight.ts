@@ -1,6 +1,10 @@
 import type { MarkSpec, Schema } from "prosemirror-model";
 import type { Command } from "prosemirror-state";
-import { liveInlineMark, reopenPendingInlineMarkOnBackspace } from "./live-inline-mark.ts";
+import {
+  liveInlineMark,
+  reopenPendingInlineMarkOnArrow,
+  reopenPendingInlineMarkOnBackspace,
+} from "./live-inline-mark.ts";
 
 export const highlightMarkSpecs = {
   highlight: {
@@ -38,6 +42,8 @@ export function serializeLiveHighlightPendingMarkdown(markdown: string): string 
 
 export function highlightKeymap(schema: Schema): Record<string, Command> {
   return {
+    ArrowLeft: reopenPendingInlineMarkOnArrow(schema, CONFIG, "left"),
+    ArrowRight: reopenPendingInlineMarkOnArrow(schema, CONFIG, "right"),
     Backspace: reopenPendingInlineMarkOnBackspace(schema, CONFIG),
   };
 }

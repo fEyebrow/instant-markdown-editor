@@ -77,6 +77,55 @@ export function reopenPendingInlineMarkOnBackspace(
   };
 }
 
+export function reopenPendingInlineMarkOnArrow(
+  schema: Schema,
+  config: Pick<LiveInlineMarkConfig, "mark" | "open" | "close">,
+  direction: "left" | "right",
+): Command {
+  const mark = schema.marks[config.mark];
+  return (state, dispatch) => {
+    const source = committedMarkAtBoundary(state, mark, direction);
+    if (!source) return false;
+
+    const text = `${config.open}${source.text}${config.close}`;
+    const selectionOffset =
+      direction === "left" ? text.length - Math.min(config.close.length, 1) : 1;
+
+    if (dispatch) {
+      const tr = state.tr.replaceWith(source.from, source.to, schema.text(text));
+      tr.setSelection(TextSelection.create(tr.doc, source.from + selectionOffset));
+      tr.removeStoredMark(mark);
+      dispatch(tr);
+    }
+    return true;
+  };
+}
+
+function committedMarkAtBoundary(
+  state: Parameters<Command>[0],
+  mark: MarkType,
+  direction: "left" | "right",
+): PendingRange | null {
+  const { from, empty } = state.selection;
+  if (!empty) return null;
+
+  let range: PendingRange | null = null;
+  state.doc.descendants((node, pos) => {
+    if (range) return false;
+    if (!node.isText || !mark.isInSet(node.marks) || !node.text) return true;
+
+    const start = pos;
+    const end = pos + node.nodeSize;
+    if ((direction === "left" && from === end) || (direction === "right" && from === start)) {
+      range = { from: start, to: end, text: node.text };
+      return false;
+    }
+    return true;
+  });
+
+  return range;
+}
+
 function pendingBeforeCommittedSpace(
   state: Parameters<Command>[0],
   mark: MarkType,
