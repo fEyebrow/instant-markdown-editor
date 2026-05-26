@@ -36,6 +36,19 @@ export const liveStrikethroughSpec = {
       ],
     },
     {
+      id: "live-strikethrough-commit-before-plain-text",
+      title: "Commit before plain text",
+      initialMarkdown: "|",
+      keyevents: ["~", "~", "1", "~", "~", "a"],
+      checkpoints: [
+        {
+          step: 6,
+          expectedProjection: "<p><s>1</s>a|</p>",
+          expectedMarkdown: "~~1~~a",
+        },
+      ],
+    },
+    {
       id: "live-strikethrough-reveal-pending-at-mark-boundaries",
       title: "Reveal pending markers at mark boundaries",
       initialMarkdown: "|",

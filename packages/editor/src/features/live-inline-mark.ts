@@ -39,11 +39,13 @@ export function liveInlineMark(schema: Schema, config: LiveInlineMarkConfig): Pl
       if (!match) return null;
 
       const inner = match[1];
+      const boundary = match[2] ?? "";
       const patternStart = $from.pos - match[0].length;
       const tr = newState.tr;
       const markedText = newState.schema.text(inner, [mark.create()]);
-      const spaceText = newState.schema.text("\u00a0");
-      tr.replaceWith(patternStart, $from.pos, [markedText, spaceText]);
+      const boundaryText =
+        boundary === "" ? [] : [newState.schema.text(boundary === " " ? "\u00a0" : boundary)];
+      tr.replaceWith(patternStart, $from.pos, [markedText, ...boundaryText]);
       tr.removeStoredMark(mark);
       return tr;
     },

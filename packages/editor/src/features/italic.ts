@@ -31,7 +31,7 @@ const CONFIG = {
   open: "*",
   close: "*",
   pending: /(?<!\*)\*([^*\s]+)\*(?!\*)/g,
-  commit: /(?<!\*)\*([^*\s]+)\*(?!\*)[ \u00a0]$/,
+  commit: /(?<!\*)\*([^*\s]+)\*(?!\*)([ \u00a0]|[^*])$/,
   liveClass: "md-live-em",
 };
 const ESCAPED_PENDING_MARKER = /\\\*([^*\s\\]+)\\\*/g;

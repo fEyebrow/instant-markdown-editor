@@ -36,6 +36,45 @@ export const liveItalicSpec = {
       ],
     },
     {
+      id: "live-italic-commit-before-plain-text",
+      title: "Commit before plain text",
+      initialMarkdown: "|",
+      keyevents: ["*", "1", "*", "a"],
+      checkpoints: [
+        {
+          step: 4,
+          expectedProjection: "<p><i>1</i>a|</p>",
+          expectedMarkdown: "*1*a",
+        },
+      ],
+    },
+    {
+      id: "live-italic-commit-when-cursor-leaves-source",
+      title: "Commit when cursor leaves source",
+      initialMarkdown: "\\*1\\*|x",
+      keyevents: ["ArrowRight"],
+      checkpoints: [
+        {
+          step: 1,
+          expectedProjection: "<p><i>1</i>x|</p>",
+          expectedMarkdown: "*1*x",
+        },
+      ],
+    },
+    {
+      id: "live-italic-keeps-source-before-current-delimiter",
+      title: "Keep source before current delimiter",
+      initialMarkdown: "|",
+      keyevents: ["*", "1", "*", "*"],
+      checkpoints: [
+        {
+          step: 4,
+          expectedProjection: "<p>*1**|</p>",
+          expectedMarkdown: "*1*\\*",
+        },
+      ],
+    },
+    {
       id: "live-italic-reveal-pending-at-mark-boundaries",
       title: "Reveal pending markers at mark boundaries",
       initialMarkdown: "|",

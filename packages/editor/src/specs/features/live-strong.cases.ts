@@ -22,5 +22,18 @@ export const liveStrongSpec = {
         },
       ],
     },
+    {
+      id: "live-strong-commit-before-plain-text",
+      title: "Commit before plain text",
+      initialMarkdown: "|",
+      keyevents: ["*", "*", "1", "*", "*", "a"],
+      checkpoints: [
+        {
+          step: 6,
+          expectedProjection: "<p><b>1</b>a|</p>",
+          expectedMarkdown: "**1**a",
+        },
+      ],
+    },
   ],
 } satisfies EditorSpecFeatureDefinition;
