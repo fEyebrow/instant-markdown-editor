@@ -1,9 +1,9 @@
 import type { MarkSpec, Schema } from "prosemirror-model";
 import type { Command } from "prosemirror-state";
 import {
-  liveInlineMark,
-  reopenPendingInlineMarkOnArrow,
-  reopenPendingInlineMarkOnBackspace,
+  createLiveInlineMarkFeature,
+  createLiveInlineMarkKeymap,
+  type LiveInlineMarkSpec,
 } from "./live-inline-mark.ts";
 
 export const highlightMarkSpecs = {
@@ -27,12 +27,10 @@ export const highlightMarkRankEntries: [string, number][] = [["highlight", 2.75]
 
 const CONFIG = {
   mark: "highlight",
-  open: "==",
-  close: "==",
-  pending: /(?<!=)==([^=\s]+)==(?!=)/g,
-  commit: /(?<!=)==([^=\s]+)==(?!=)([ \u00a0]|[^=])$/,
+  delimiter: "==",
   liveClass: "md-live-highlight",
-};
+  revealOnArrow: true,
+} satisfies LiveInlineMarkSpec;
 
 const ESCAPED_PENDING_MARKER = /\\?=\\?=([^=\s\\]+)\\?=\\?=/g;
 
@@ -41,13 +39,9 @@ export function serializeLiveHighlightPendingMarkdown(markdown: string): string 
 }
 
 export function highlightKeymap(schema: Schema): Record<string, Command> {
-  return {
-    ArrowLeft: reopenPendingInlineMarkOnArrow(schema, CONFIG, "left"),
-    ArrowRight: reopenPendingInlineMarkOnArrow(schema, CONFIG, "right"),
-    Backspace: reopenPendingInlineMarkOnBackspace(schema, CONFIG),
-  };
+  return createLiveInlineMarkKeymap(schema, CONFIG);
 }
 
 export function liveHighlight(schema: Schema) {
-  return liveInlineMark(schema, CONFIG);
+  return createLiveInlineMarkFeature(schema, CONFIG);
 }

@@ -6,6 +6,7 @@ import {
   projectEditorView,
   setMarkdownWithCursor,
 } from "@rte/editor";
+import type { Selection } from "prosemirror-state";
 
 interface Snapshot {
   index: number;
@@ -171,7 +172,17 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
   );
   let currentStep = 0;
   let playTimer: number | null = null;
+  let preservedReplaySelection: Selection | null = null;
   let snapshots: Snapshot[] = [];
+
+  root.addEventListener("mousedown", (event) => {
+    const target = event.target;
+    if (!(target instanceof HTMLElement)) return;
+    const action = target.closest<HTMLElement>("[data-action]")?.dataset.action;
+    if (action === "step" || action === "play") {
+      preservedReplaySelection = editor.view.state.selection;
+    }
+  });
 
   root.addEventListener("click", async (event) => {
     const target = event.target;
@@ -206,6 +217,7 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
       return;
     }
 
+    restoreReplaySelection();
     const keyevent = specCase.keyevents[currentStep];
     applyActions(editor.view, [keyevent]);
     currentStep += 1;
@@ -236,6 +248,14 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
       playTimer = null;
     }
     playButton.textContent = "Play";
+  }
+
+  function restoreReplaySelection(): void {
+    if (!preservedReplaySelection) return;
+    const selection = preservedReplaySelection;
+    preservedReplaySelection = null;
+    if (!selection.$from.doc.eq(editor.view.state.doc)) return;
+    editor.view.dispatch(editor.view.state.tr.setSelection(selection));
   }
 
   function updateOutputs(): void {

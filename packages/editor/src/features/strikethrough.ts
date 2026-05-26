@@ -1,6 +1,10 @@
 import type { MarkSpec, Schema } from "prosemirror-model";
 import type { Command } from "prosemirror-state";
-import { liveInlineMark, reopenPendingInlineMarkOnBackspace } from "./live-inline-mark.ts";
+import {
+  createLiveInlineMarkFeature,
+  createLiveInlineMarkKeymap,
+  type LiveInlineMarkSpec,
+} from "./live-inline-mark.ts";
 
 export const strikethroughMarkSpecs = {
   strikethrough: {
@@ -23,12 +27,9 @@ export const strikethroughMarkRankEntries: [string, number][] = [["strikethrough
 
 const CONFIG = {
   mark: "strikethrough",
-  open: "~~",
-  close: "~~",
-  pending: /(?<!~)~~([^~\s]+)~~(?!~)/g,
-  commit: /(?<!~)~~([^~\s]+)~~(?!~)([ \u00a0]|[^~])$/,
+  delimiter: "~~",
   liveClass: "md-live-strikethrough",
-};
+} satisfies LiveInlineMarkSpec;
 const ESCAPED_PENDING_MARKER = /\\?~\\?~([^~\s\\]+)\\?~\\?~/g;
 
 export function serializeLiveStrikethroughPendingMarkdown(markdown: string): string {
@@ -36,11 +37,9 @@ export function serializeLiveStrikethroughPendingMarkdown(markdown: string): str
 }
 
 export function strikethroughKeymap(schema: Schema): Record<string, Command> {
-  return {
-    Backspace: reopenPendingInlineMarkOnBackspace(schema, CONFIG),
-  };
+  return createLiveInlineMarkKeymap(schema, CONFIG);
 }
 
 export function liveStrikethrough(schema: Schema) {
-  return liveInlineMark(schema, CONFIG);
+  return createLiveInlineMarkFeature(schema, CONFIG);
 }

@@ -1,6 +1,10 @@
 import type { MarkSpec, Schema } from "prosemirror-model";
 import type { Command } from "prosemirror-state";
-import { liveInlineMark, reopenPendingInlineMarkOnBackspace } from "./live-inline-mark.ts";
+import {
+  createLiveInlineMarkFeature,
+  createLiveInlineMarkKeymap,
+  type LiveInlineMarkSpec,
+} from "./live-inline-mark.ts";
 
 export const subscriptMarkSpecs = {
   subscript: {
@@ -23,12 +27,11 @@ export const subscriptMarkRankEntries: [string, number][] = [["subscript", 2.625
 
 const CONFIG = {
   mark: "subscript",
-  open: "~",
-  close: "~",
-  pending: /(?<!~)~([^~\s]+)~(?!~)/g,
-  commit: /(?<!~)~([^~\s]+)~(?!~)([ \u00a0]|[^~])$/,
+  delimiter: "~",
   liveClass: "md-live-subscript",
-};
+  allowDelimiterFallback: true,
+  moveTypedTextAfterStartBoundary: true,
+} satisfies LiveInlineMarkSpec;
 
 const ESCAPED_PENDING_MARKER = /\\?~([^~\s\\]+)\\?~/g;
 
@@ -37,11 +40,9 @@ export function serializeLiveSubscriptPendingMarkdown(markdown: string): string 
 }
 
 export function subscriptKeymap(schema: Schema): Record<string, Command> {
-  return {
-    Backspace: reopenPendingInlineMarkOnBackspace(schema, CONFIG),
-  };
+  return createLiveInlineMarkKeymap(schema, CONFIG);
 }
 
 export function liveSubscript(schema: Schema) {
-  return liveInlineMark(schema, CONFIG);
+  return createLiveInlineMarkFeature(schema, CONFIG);
 }

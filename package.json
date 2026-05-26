@@ -9,6 +9,8 @@
     "prepare": "vp config"
   },
   "devDependencies": {
+    "@tsdown/css": "catalog:",
+    "@typescript/native-preview": "catalog:",
     "vite-plus": "catalog:"
   },
   "engines": {

@@ -41,6 +41,24 @@ export const liveSubscriptSpec = {
       ],
     },
     {
+      id: "live-subscript-fallback-from-unclosed-strikethrough",
+      title: "Fallback from unclosed strikethrough",
+      initialMarkdown: "|",
+      keyevents: ["~", "~", "1", "~", " "],
+      checkpoints: [
+        {
+          step: 4,
+          expectedProjection: "<p>~<pending>~</pending><sub>1</sub><pending>~</pending>|</p>",
+          expectedMarkdown: "\\~~1~",
+        },
+        {
+          step: 5,
+          expectedProjection: "<p>~<sub>1</sub> |</p>",
+          expectedMarkdown: "\\~~1~\u00a0",
+        },
+      ],
+    },
+    {
       id: "live-subscript-empty-source-stays-text",
       title: "Empty and blank source stays plain text",
       initialMarkdown: "|",
@@ -101,6 +119,32 @@ export const liveSubscriptSpec = {
           step: 1,
           expectedProjection: "<p><sub>1</sub> |a</p>",
           expectedMarkdown: "~1~ a",
+        },
+      ],
+    },
+    {
+      id: "live-subscript-type-at-mark-start",
+      title: "Typing at mark start keeps the new source after existing content",
+      initialMarkdown: "|~1~",
+      keyevents: ["d"],
+      checkpoints: [
+        {
+          step: 1,
+          expectedProjection: "<p>1|<pending>~</pending><sub>d</sub><pending>~</pending></p>",
+          expectedMarkdown: "1~d~",
+        },
+      ],
+    },
+    {
+      id: "live-subscript-arrow-left-before-trailing-text",
+      title: "Arrow left enters only the trailing text boundary",
+      initialMarkdown: "1~d~|d",
+      keyevents: ["ArrowLeft"],
+      checkpoints: [
+        {
+          step: 1,
+          expectedProjection: "<p>1<pending>~</pending><sub>d</sub>|<pending>~</pending>d</p>",
+          expectedMarkdown: "1~d~d",
         },
       ],
     },

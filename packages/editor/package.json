@@ -8,12 +8,9 @@
   ],
   "type": "module",
   "exports": {
-    ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
-    },
-    "./style.css": "./src/style.css",
-    "./package.json": "./package.json"
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json",
+    "./style.css": "./dist/style.css"
   },
   "publishConfig": {
     "access": "public",

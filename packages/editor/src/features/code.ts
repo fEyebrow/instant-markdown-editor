@@ -1,15 +1,17 @@
 import type { Schema } from "prosemirror-model";
 import type { Command } from "prosemirror-state";
-import { liveInlineMark, reopenPendingInlineMarkOnBackspace } from "./live-inline-mark.ts";
+import {
+  createLiveInlineMarkFeature,
+  createLiveInlineMarkKeymap,
+  type LiveInlineMarkSpec,
+} from "./live-inline-mark.ts";
 
 const CONFIG = {
   mark: "code",
-  open: "`",
-  close: "`",
-  pending: /`([^`\s]+)`/g,
-  commit: /`([^`\s]+)`([ \u00a0]|[^`])$/,
+  delimiter: "`",
   liveClass: "md-live-code",
-};
+  allowDelimiterFallback: true,
+} satisfies LiveInlineMarkSpec;
 
 const ESCAPED_PENDING_MARKER = /\\`([^`\s\\]+)\\`/g;
 
@@ -18,11 +20,9 @@ export function serializeLiveCodePendingMarkdown(markdown: string): string {
 }
 
 export function codeKeymap(schema: Schema): Record<string, Command> {
-  return {
-    Backspace: reopenPendingInlineMarkOnBackspace(schema, CONFIG),
-  };
+  return createLiveInlineMarkKeymap(schema, CONFIG);
 }
 
 export function liveCode(schema: Schema) {
-  return liveInlineMark(schema, CONFIG);
+  return createLiveInlineMarkFeature(schema, CONFIG);
 }

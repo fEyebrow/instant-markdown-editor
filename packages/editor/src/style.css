@@ -102,14 +102,22 @@
   text-decoration: line-through;
 }
 
+.ProseMirror sub,
 .ProseMirror .md-live-subscript {
   font-size: 0.75em;
-  vertical-align: sub;
+  line-height: 0;
+  position: relative;
+  top: 0.3em;
+  vertical-align: baseline;
 }
 
+.ProseMirror sup,
 .ProseMirror .md-live-superscript {
   font-size: 0.75em;
-  vertical-align: super;
+  line-height: 0;
+  position: relative;
+  top: -0.45em;
+  vertical-align: baseline;
 }
 
 .ProseMirror mark,

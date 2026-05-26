@@ -28,6 +28,39 @@ _避免_：realtime mark、live display
 - **Block pending marker** — 仅 ATX heading 在内容非空时使用，`#` 字符以灰色显示；commit 后 trigger 字符被消耗，pending 不再出现。其他 block trigger 无 pending 阶段。
   _避免_：syntax marker、hidden marker
 
+**Source projection（源文本投影）**：
+一种 **Live inline mark** 的编辑状态：Markdown delimiter 以真实可编辑字符出现，内容同时按对应 **Inline mark** 样式显示。光标进入已 commit 的 **Live inline mark** 并重新显示 **Inline pending marker** 时，即进入 **Source projection**。
+组合 **Live inline mark** 逐层进入 **Source projection**：光标先触达外层 mark 时只展开外层 source；继续移动触达内层 mark 边界时，内层 mark 再展开 source。
+当光标位于外层 **Source projection** 内、但相邻内层 **Live inline mark** 仍处于 committed 状态时，输入普通字符归属外层 source layer，不自动继承内层 committed mark。
+**Source projection** 中的 Markdown delimiter 是真实可编辑字符；在 **Source projection** 内选区替换、输入或删除都按普通 Markdown source 编辑。进入或离开 **Source projection** 本身不代表用户内容变更，只有在 **Source projection** 内的输入、删除或替换才是用户内容变更。
+_避免_：fake source、widget source、visual source
+
+**Delimiter fallback（分隔符降级匹配）**：
+当同一 delimiter family 的长 delimiter 规则无法形成完整非空 **Live inline mark** source 时，允许短 delimiter 规则使用其中的字符形成 **Live inline mark**。例如 `**1*` 中 strong 不成立，但第二个 `*` 与 closing `*` 可形成 italic；`~~1~` 中 strikethrough 不成立，但第二个 `~` 与 closing `~` 可形成 subscript。若长 delimiter 规则已经成立，则不进行降级匹配：`**1**` 是 strong，`~~1~~` 是 strikethrough。
+只有 resolver 识别出的 source range 显示 **Inline pending marker** 和 live 样式；未被识别的字符保持普通文本，例如 `==1=` 完全保持普通文本。
+_避免_：partial parse、loose match
+
+**Crossing inline mark（交叉行内标记）**：
+两个 **Live inline mark** source ranges 互相交叉但不形成包含关系，例如 `*==1*==`。交叉时只保留优先级更高的 **Live inline mark**，另一个保持普通文本。嵌套组合不属于交叉，允许多个 **Inline mark** 同时作用于内容。
+_避免_：overlap style、mixed nesting
+
+**Inline mark priority（行内标记优先级）**：
+用于解决 **Crossing inline mark** 和同位置 delimiter 竞争。inline code 最高；长 delimiter 高于同 family 短 delimiter；当前优先级从高到低为 inline code、strong / strikethrough、highlight、italic / subscript / superscript。优先级相同时，source 更长者优先；仍相同时，起点更靠左者优先；仍相同时，按 registry 顺序稳定排序。
+_避免_：style importance、visual priority
+
+**Inline code isolation（行内代码隔离）**：
+inline code 的内容是 **Inline mark** 解析隔离区。inline code 内的字符保持 literal，不解析 italic、strong、strikethrough、highlight、subscript 或 superscript；外部 **Live inline mark** 也不能使用 inline code 内的 delimiter 作为 closing delimiter。
+inline code 自身仍是 **Live inline mark**，参与逐层 **Source projection**、**Inline commit** 和 re-enter 行为；隔离只作用于 inline code 内容内部的其他 **Inline mark** 解析。
+_避免_：code priority、code nesting rule
+
+**Inline commit boundary（行内提交边界）**：
+当一个 **Live inline mark** 处于 **Source projection** 且 source 已完整、非空时，输入非当前 closing delimiter 的普通字符会先 **Inline commit** 当前 source layer，再把该字符插入到当前 source layer 外侧；若当前 source layer 位于外层 **Source projection** 内，该字符仍留在外层 source layer 的上下文中。输入当前 closing delimiter 字符不会提前 commit，而是继续交给 **Inline mark** 解析。光标移出当前 source layer 时，当前 source layer **Inline commit**；光标进入内层 committed **Live inline mark** 边界时，只展开内层 **Source projection**，不提交外层 source layer。
+_避免_：space rule、typing boundary
+
+**Re-enter（重新进入）**：
+光标或选区进入已 committed 的 **Live inline mark** 边界或内部时，该 mark 按逐层规则进入 **Source projection**。**Re-enter** 由 selection 所在位置驱动，不限于特定键盘事件；方向键、鼠标点击、Shift 选区和程序化 selection 都应遵循同一语义。
+_避免_：arrow reopen、cursor hack
+
 **Commit（提交）**：
 **Live inline mark**、Heading trigger 或 Thematic break trigger 完成最终化的状态转换。行为有别：
 

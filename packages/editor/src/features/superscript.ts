@@ -1,6 +1,10 @@
 import type { MarkSpec, Schema } from "prosemirror-model";
 import type { Command } from "prosemirror-state";
-import { liveInlineMark, reopenPendingInlineMarkOnBackspace } from "./live-inline-mark.ts";
+import {
+  createLiveInlineMarkFeature,
+  createLiveInlineMarkKeymap,
+  type LiveInlineMarkSpec,
+} from "./live-inline-mark.ts";
 
 export const superscriptMarkSpecs = {
   superscript: {
@@ -23,12 +27,9 @@ export const superscriptMarkRankEntries: [string, number][] = [["superscript", 2
 
 const CONFIG = {
   mark: "superscript",
-  open: "^",
-  close: "^",
-  pending: /(?<!\^)\^([^^\s]+)\^(?!\^)/g,
-  commit: /(?<!\^)\^([^^\s]+)\^(?!\^)([ \u00a0]|[^^])$/,
+  delimiter: "^",
   liveClass: "md-live-superscript",
-};
+} satisfies LiveInlineMarkSpec;
 
 const ESCAPED_PENDING_MARKER = /\\?\^([^^\s\\]+)\\?\^/g;
 
@@ -37,11 +38,9 @@ export function serializeLiveSuperscriptPendingMarkdown(markdown: string): strin
 }
 
 export function superscriptKeymap(schema: Schema): Record<string, Command> {
-  return {
-    Backspace: reopenPendingInlineMarkOnBackspace(schema, CONFIG),
-  };
+  return createLiveInlineMarkKeymap(schema, CONFIG);
 }
 
 export function liveSuperscript(schema: Schema) {
-  return liveInlineMark(schema, CONFIG);
+  return createLiveInlineMarkFeature(schema, CONFIG);
 }

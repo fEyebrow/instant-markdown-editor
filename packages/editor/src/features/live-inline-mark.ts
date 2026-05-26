@@ -10,6 +10,16 @@ interface LiveInlineMarkConfig {
   pending: RegExp;
   commit: RegExp;
   liveClass: string;
+  moveTypedTextAfterStartBoundary?: boolean;
+}
+
+export interface LiveInlineMarkSpec {
+  mark: string;
+  delimiter: string;
+  liveClass: string;
+  allowDelimiterFallback?: boolean;
+  moveTypedTextAfterStartBoundary?: boolean;
+  revealOnArrow?: boolean;
 }
 
 interface PendingRange {
@@ -18,10 +28,73 @@ interface PendingRange {
   text: string;
 }
 
+export function createLiveInlineMarkFeature(schema: Schema, spec: LiveInlineMarkSpec): Plugin {
+  return liveInlineMark(schema, liveInlineMarkConfig(spec));
+}
+
+export function createLiveInlineMarkKeymap(
+  schema: Schema,
+  spec: LiveInlineMarkSpec,
+): Record<string, Command> {
+  const config = liveInlineMarkConfig(spec);
+  const keymap: Record<string, Command> = {
+    ArrowLeft: reopenPendingInlineMarkBeforeTrailingText(schema, config),
+    Backspace: reopenPendingInlineMarkOnBackspace(schema, config),
+  };
+  if (spec.revealOnArrow) {
+    keymap.ArrowLeft = chainCommands(
+      reopenPendingInlineMarkBeforeTrailingText(schema, config),
+      reopenPendingInlineMarkOnArrow(schema, config, "left"),
+    );
+    keymap.ArrowRight = reopenPendingInlineMarkOnArrow(schema, config, "right");
+  }
+  return keymap;
+}
+
+function liveInlineMarkConfig(spec: LiveInlineMarkSpec): LiveInlineMarkConfig {
+  const delimiter = escapeRegex(spec.delimiter);
+  const delimiterChar = escapeRegex(spec.delimiter.at(0) ?? "");
+  const leadingGuard = spec.allowDelimiterFallback ? "" : `(?<!${delimiterChar})`;
+  const trailingGuard = `(?!${delimiterChar})`;
+  const source = `${leadingGuard}${delimiter}([^${delimiterChar}\\s]+)${delimiter}${trailingGuard}`;
+
+  return {
+    mark: spec.mark,
+    open: spec.delimiter,
+    close: spec.delimiter,
+    pending: new RegExp(source, "g"),
+    commit: new RegExp(`${source}([ \\u00a0]|[^${delimiterChar}])$`),
+    liveClass: spec.liveClass,
+    moveTypedTextAfterStartBoundary: spec.moveTypedTextAfterStartBoundary,
+  };
+}
+
+function escapeRegex(value: string): string {
+  return value.replace(/[\\^$.*+?()[\]{}|]/g, "\\$&");
+}
+
 export function liveInlineMark(schema: Schema, config: LiveInlineMarkConfig): Plugin {
   const mark = schema.marks[config.mark];
   return new Plugin({
     props: {
+      handleTextInput(view, from, to, text) {
+        if (!config.moveTypedTextAfterStartBoundary) return false;
+        if (from !== to || text.length !== 1 || text.trim() === "") return false;
+        if (text === config.open || text === config.close) return false;
+
+        const source = committedMarkAtStart(view.state, mark, from);
+        if (!source) return false;
+
+        const sourceText = `${config.open}${text}${config.close}`;
+        const tr = view.state.tr.replaceWith(source.from, source.to, [
+          view.state.schema.text(source.text),
+          view.state.schema.text(sourceText),
+        ]);
+        tr.setSelection(TextSelection.create(tr.doc, source.from + source.text.length));
+        tr.removeStoredMark(mark);
+        view.dispatch(tr);
+        return true;
+      },
       decorations(state) {
         return DecorationSet.create(state.doc, [
           ...pendingDecorations(state.doc, config),
@@ -101,6 +174,32 @@ export function reopenPendingInlineMarkOnArrow(
   };
 }
 
+function reopenPendingInlineMarkBeforeTrailingText(
+  schema: Schema,
+  config: Pick<LiveInlineMarkConfig, "mark" | "open" | "close">,
+): Command {
+  const mark = schema.marks[config.mark];
+  return (state, dispatch) => {
+    const source = committedMarkAtBoundary(state, mark, "left");
+    if (!source || !hasPlainTextAfter(state, source.to)) return false;
+
+    const text = `${config.open}${source.text}${config.close}`;
+    const selectionOffset = text.length - Math.min(config.close.length, 1);
+
+    if (dispatch) {
+      const tr = state.tr.replaceWith(source.from, source.to, schema.text(text));
+      tr.setSelection(TextSelection.create(tr.doc, source.from + selectionOffset));
+      tr.removeStoredMark(mark);
+      dispatch(tr);
+    }
+    return true;
+  };
+}
+
+function chainCommands(...commands: Command[]): Command {
+  return (state, dispatch, view) => commands.some((command) => command(state, dispatch, view));
+}
+
 function committedMarkAtBoundary(
   state: Parameters<Command>[0],
   mark: MarkType,
@@ -123,6 +222,30 @@ function committedMarkAtBoundary(
     return true;
   });
 
+  return range;
+}
+
+function hasPlainTextAfter(state: Parameters<Command>[0], position: number): boolean {
+  const $pos = state.doc.resolve(position);
+  const next = $pos.nodeAfter;
+  return Boolean(next?.isText && next.text?.trim() && !next.marks.length);
+}
+
+function committedMarkAtStart(
+  state: Parameters<Command>[0],
+  mark: MarkType,
+  from: number,
+): PendingRange | null {
+  let range: PendingRange | null = null;
+  state.doc.descendants((node, pos) => {
+    if (range) return false;
+    if (!node.isText || !mark.isInSet(node.marks) || !node.text) return true;
+    if (pos === from) {
+      range = { from: pos, to: pos + node.nodeSize, text: node.text };
+      return false;
+    }
+    return true;
+  });
   return range;
 }
 

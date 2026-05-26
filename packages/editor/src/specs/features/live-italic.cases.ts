@@ -36,6 +36,24 @@ export const liveItalicSpec = {
       ],
     },
     {
+      id: "live-italic-fallback-from-unclosed-strong",
+      title: "Fallback from unclosed strong",
+      initialMarkdown: "|",
+      keyevents: ["*", "*", "1", "*", " "],
+      checkpoints: [
+        {
+          step: 4,
+          expectedProjection: "<p>*<pending>*</pending><i>1</i><pending>*</pending>|</p>",
+          expectedMarkdown: "\\**1*",
+        },
+        {
+          step: 5,
+          expectedProjection: "<p>*<i>1</i> |</p>",
+          expectedMarkdown: "\\**1*\u00a0",
+        },
+      ],
+    },
+    {
       id: "live-italic-commit-before-plain-text",
       title: "Commit before plain text",
       initialMarkdown: "|",
@@ -91,6 +109,19 @@ export const liveItalicSpec = {
           title: "cursor reaches mark start",
           expectedProjection: "<p>|<pending>*</pending><i>1</i><pending>*</pending> </p>",
           expectedMarkdown: "*1*\u00a0",
+        },
+      ],
+    },
+    {
+      id: "live-italic-arrow-left-before-trailing-text",
+      title: "Arrow left enters only the trailing text boundary",
+      initialMarkdown: "*d*|x",
+      keyevents: ["ArrowLeft"],
+      checkpoints: [
+        {
+          step: 1,
+          expectedProjection: "<p><pending>*</pending><i>d</i>|<pending>*</pending>x</p>",
+          expectedMarkdown: "*d*x",
         },
       ],
     },

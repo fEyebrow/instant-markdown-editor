@@ -1,4 +1,5 @@
 import type { Schema } from "prosemirror-model";
+import type { Command, Plugin } from "prosemirror-state";
 import { atxHeading, atxHeadingKeymap } from "./atx-heading.ts";
 import { autolinkKeymap, liveAutolink } from "./autolink.ts";
 import { blockquoteInputRules } from "./blockquote.ts";
@@ -107,7 +108,7 @@ export function serializeFeatureMarkdown(markdown: string): string {
   );
 }
 
-export function createFeaturePlugins(schema: Schema) {
+export function createFeaturePlugins(schema: Schema): Plugin[] {
   return [
     liveItalic(schema),
     liveStrong(schema),
@@ -130,7 +131,7 @@ export function createFeaturePlugins(schema: Schema) {
   ];
 }
 
-export function createFeatureKeymaps(schema: Schema) {
+export function createFeatureKeymaps(schema: Schema): Record<string, Command>[] {
   return [
     thematicBreakKeymap,
     atxHeadingKeymap,
