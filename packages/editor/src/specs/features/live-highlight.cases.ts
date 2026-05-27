@@ -98,7 +98,7 @@ export const liveHighlightSpec = {
       id: "live-highlight-commits-inside-italic-source-layer",
       title: "Commits inside italic source layer",
       initialMarkdown: "|",
-      keyevents: ["*", "=", "=", "1", "=", "=", "*", " ", "ArrowLeft", "ArrowLeft"],
+      keyevents: ["*", "=", "=", "1", "=", "=", "*", " ", "ArrowLeft", "ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
           step: 8,
@@ -117,6 +117,13 @@ export const liveHighlightSpec = {
           title: "ArrowLeft moves through the outer closing delimiter",
           expectedProjection:
             "<p><pending>*</pending><pending>==</pending><mark><i>1</i></mark><pending>==</pending>|<pending>*</pending> </p>",
+          expectedMarkdown: "*==1==*\u00a0",
+        },
+        {
+          step: 11,
+          title: "ArrowLeft moves through the inner closing delimiter one character at a time",
+          expectedProjection:
+            "<p><pending>*</pending><pending>==</pending><mark><i>1</i></mark><pending>=|=</pending><pending>*</pending> </p>",
           expectedMarkdown: "*==1==*\u00a0",
         },
       ],

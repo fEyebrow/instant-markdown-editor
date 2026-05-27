@@ -34,6 +34,13 @@ export function createLiveInlineMarkFeature(schema: Schema, spec: LiveInlineMark
   return liveInlineMark(schema, liveInlineMarkConfig(spec));
 }
 
+export function createLiveInlineMarkFeatures(
+  schema: Schema,
+  specs: readonly LiveInlineMarkSpec[],
+): Plugin[] {
+  return [liveInlineMarkController(schema, specs.map(liveInlineMarkConfig))];
+}
+
 export function createLiveInlineMarkKeymap(
   schema: Schema,
   spec: LiveInlineMarkSpec,
@@ -51,6 +58,29 @@ export function createLiveInlineMarkKeymap(
     keymap.ArrowRight = reopenPendingInlineMarkOnArrow(schema, config, "right");
   }
   return keymap;
+}
+
+export function createLiveInlineMarkKeymaps(
+  schema: Schema,
+  specs: readonly LiveInlineMarkSpec[],
+): Record<string, Command>[] {
+  return specs.map((spec) => createLiveInlineMarkKeymap(schema, spec));
+}
+
+export function createLiveInlineMarkKeymapController(
+  schema: Schema,
+  specs: readonly LiveInlineMarkSpec[],
+): Record<string, Command> {
+  const commandsByKey = new Map<string, Command[]>();
+  for (const spec of specs) {
+    for (const [key, command] of Object.entries(createLiveInlineMarkKeymap(schema, spec))) {
+      commandsByKey.set(key, [...(commandsByKey.get(key) ?? []), command]);
+    }
+  }
+
+  return Object.fromEntries(
+    [...commandsByKey.entries()].map(([key, commands]) => [key, chainCommands(...commands)]),
+  );
 }
 
 const registeredConfigs = new Map<string, LiveInlineMarkConfig>();
@@ -85,68 +115,121 @@ export function liveInlineMark(schema: Schema, config: LiveInlineMarkConfig): Pl
   return new Plugin({
     props: {
       handleTextInput(view, from, to, text) {
-        if (!config.moveTypedTextAfterStartBoundary) return false;
-        if (from !== to || text.length !== 1 || text.trim() === "") return false;
-        if (text === config.open || text === config.close) return false;
-
-        const source = committedMarkAtStart(view.state, mark, from);
-        if (!source) return false;
-
-        const sourceText = `${config.open}${text}${config.close}`;
-        const siblingMarks = source.marks.filter((m) => m.type !== mark);
-        const tr = view.state.tr.replaceWith(source.from, source.to, [
-          view.state.schema.text(source.text, siblingMarks),
-          view.state.schema.text(sourceText, siblingMarks),
-        ]);
-        tr.setSelection(TextSelection.create(tr.doc, source.from + source.text.length));
-        tr.removeStoredMark(mark);
-        view.dispatch(tr);
-        return true;
+        return handleLiveInlineMarkTextInput(view, from, to, text, mark, config);
       },
       decorations(state) {
-        return DecorationSet.create(state.doc, [
-          ...pendingDecorations(state.doc, config),
-          ...boundaryDecorations(state, mark, config),
-        ]);
+        return DecorationSet.create(
+          state.doc,
+          liveInlineMarkDecorations(state, [{ config, mark }]),
+        );
       },
     },
     appendTransaction(_trs, _oldState, newState) {
-      const { $from, empty } = newState.selection;
-      if (!empty) return null;
-      if (!$from.parent.isTextblock) return null;
-
-      const before = $from.parent.textBetween(0, $from.parentOffset, "\n", "\ufffc");
-      const match = config.commit.exec(before);
-      if (!match) return null;
-
-      const inner = match[1];
-      const boundary = match[2] ?? "";
-      const patternStart = $from.pos - match[0].length;
-      if (
-        textRangeHasMarkName($from.parent, patternStart - $from.start(), match[0].length, "code")
-      ) {
-        return null;
-      }
-      const tr = newState.tr;
-      const innerStart = match[0].indexOf(inner);
-      const innerFrom = patternStart - $from.start() + innerStart;
-      const innerTo = innerFrom + inner.length;
-      const markSet = mark.create().addToSet([]);
-      const markedText = inlineSourceNodesFromRange(
-        newState.schema,
-        $from.parent,
-        innerFrom,
-        innerTo,
-        markSet,
-        config,
-      );
-      const boundaryText =
-        boundary === "" ? [] : [newState.schema.text(boundary === " " ? "\u00a0" : boundary)];
-      tr.replaceWith(patternStart, $from.pos, [...markedText, ...boundaryText]);
-      tr.removeStoredMark(mark);
-      return tr;
+      return commitCompleteLiveInlineMarkSource(newState, mark, config);
     },
   });
+}
+
+function liveInlineMarkController(
+  schema: Schema,
+  configs: readonly LiveInlineMarkConfig[],
+): Plugin {
+  const entries = configs.map((config) => ({ config, mark: schema.marks[config.mark] }));
+  return new Plugin({
+    props: {
+      handleTextInput(view, from, to, text) {
+        return entries.some(({ config, mark }) =>
+          handleLiveInlineMarkTextInput(view, from, to, text, mark, config),
+        );
+      },
+      decorations(state) {
+        return DecorationSet.create(state.doc, liveInlineMarkDecorations(state, entries));
+      },
+    },
+    appendTransaction(_trs, _oldState, newState) {
+      for (const { config, mark } of entries) {
+        const tr = commitCompleteLiveInlineMarkSource(newState, mark, config);
+        if (tr) return tr;
+      }
+      return null;
+    },
+  });
+}
+
+function handleLiveInlineMarkTextInput(
+  view: Parameters<NonNullable<Plugin["props"]["handleTextInput"]>>[0],
+  from: number,
+  to: number,
+  text: string,
+  mark: MarkType,
+  config: LiveInlineMarkConfig,
+): boolean {
+  if (!config.moveTypedTextAfterStartBoundary) return false;
+  if (from !== to || text.length !== 1 || text.trim() === "") return false;
+  if (text === config.open || text === config.close) return false;
+
+  const source = committedMarkAtStart(view.state, mark, from);
+  if (!source) return false;
+
+  const sourceText = `${config.open}${text}${config.close}`;
+  const siblingMarks = source.marks.filter((m) => m.type !== mark);
+  const tr = view.state.tr.replaceWith(source.from, source.to, [
+    view.state.schema.text(source.text, siblingMarks),
+    view.state.schema.text(sourceText, siblingMarks),
+  ]);
+  tr.setSelection(TextSelection.create(tr.doc, source.from + source.text.length));
+  tr.removeStoredMark(mark);
+  view.dispatch(tr);
+  return true;
+}
+
+function liveInlineMarkDecorations(
+  state: EditorState,
+  entries: readonly { config: LiveInlineMarkConfig; mark: MarkType }[],
+): Decoration[] {
+  return entries.flatMap(({ config, mark }) => [
+    ...pendingDecorations(state.doc, config),
+    ...boundaryDecorations(state, mark, config),
+  ]);
+}
+
+function commitCompleteLiveInlineMarkSource(
+  newState: EditorState,
+  mark: MarkType,
+  config: LiveInlineMarkConfig,
+) {
+  const { $from, empty } = newState.selection;
+  if (!empty) return null;
+  if (!$from.parent.isTextblock) return null;
+
+  const before = $from.parent.textBetween(0, $from.parentOffset, "\n", "\ufffc");
+  const match = config.commit.exec(before);
+  if (!match) return null;
+
+  const inner = match[1];
+  const boundary = match[2] ?? "";
+  const patternStart = $from.pos - match[0].length;
+  if (textRangeHasMarkName($from.parent, patternStart - $from.start(), match[0].length, "code")) {
+    return null;
+  }
+  const tr = newState.tr;
+  const innerStart = match[0].indexOf(inner);
+  const innerFrom = patternStart - $from.start() + innerStart;
+  const innerTo = innerFrom + inner.length;
+  const markSet = mark.create().addToSet([]);
+  const markedText = inlineSourceNodesFromRange(
+    newState.schema,
+    $from.parent,
+    innerFrom,
+    innerTo,
+    markSet,
+    config,
+  );
+  const boundaryText =
+    boundary === "" ? [] : [newState.schema.text(boundary === " " ? "\u00a0" : boundary)];
+  tr.replaceWith(patternStart, $from.pos, [...markedText, ...boundaryText]);
+  tr.removeStoredMark(mark);
+  return tr;
 }
 
 function inlineSourceNodesFromRange(

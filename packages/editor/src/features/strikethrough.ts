@@ -1,10 +1,5 @@
-import type { MarkSpec, Schema } from "prosemirror-model";
-import type { Command } from "prosemirror-state";
-import {
-  createLiveInlineMarkFeature,
-  createLiveInlineMarkKeymap,
-  type LiveInlineMarkSpec,
-} from "./live-inline-mark.ts";
+import type { MarkSpec } from "prosemirror-model";
+import type { LiveInlineMarkSpec } from "./live-inline-mark.ts";
 
 export const strikethroughMarkSpecs = {
   strikethrough: {
@@ -25,7 +20,7 @@ export const strikethroughMarkdownSerializeSpecs = {
 
 export const strikethroughMarkRankEntries: [string, number][] = [["strikethrough", 2.5]];
 
-const CONFIG = {
+export const liveStrikethroughSpec = {
   mark: "strikethrough",
   delimiter: "~~",
   liveClass: "md-live-strikethrough",
@@ -34,12 +29,4 @@ const ESCAPED_PENDING_MARKER = /\\?~\\?~([^~\s\\]+)\\?~\\?~/g;
 
 export function serializeLiveStrikethroughPendingMarkdown(markdown: string): string {
   return markdown.replace(ESCAPED_PENDING_MARKER, "~~$1~~");
-}
-
-export function strikethroughKeymap(schema: Schema): Record<string, Command> {
-  return createLiveInlineMarkKeymap(schema, CONFIG);
-}
-
-export function liveStrikethrough(schema: Schema) {
-  return createLiveInlineMarkFeature(schema, CONFIG);
 }

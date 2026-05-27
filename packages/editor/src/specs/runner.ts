@@ -313,13 +313,8 @@ function serializeNode(
   if (node.classList.contains("md-block-pending"))
     return `<block-pending>${content}</block-pending>`;
   if (node.classList.contains("md-block-pending-content")) return `<strong>${content}</strong>`;
-  if (node.classList.contains("md-live-em")) return `<i>${content}</i>`;
-  if (node.classList.contains("md-live-strong")) return `<b>${content}</b>`;
-  if (node.classList.contains("md-live-strikethrough")) return `<s>${content}</s>`;
-  if (node.classList.contains("md-live-subscript")) return `<sub>${content}</sub>`;
-  if (node.classList.contains("md-live-superscript")) return `<sup>${content}</sup>`;
-  if (node.classList.contains("md-live-highlight")) return `<mark>${content}</mark>`;
-  if (node.classList.contains("md-live-code")) return `<code>${content}</code>`;
+  const liveInlineProjection = serializeLiveInlineMarkProjection(node, content);
+  if (liveInlineProjection) return liveInlineProjection;
   if (node.classList.contains("md-live-link-label")) return `<link-label>${content}</link-label>`;
   if (node.classList.contains("md-live-link-url")) return `<link-url>${content}</link-url>`;
   if (node.classList.contains("md-live-autolink-url")) return `<link-url>${content}</link-url>`;
@@ -348,6 +343,23 @@ function serializeNode(
 
   const serializer = tags[node.tagName];
   return serializer ? serializer(content, node) : content;
+}
+
+function serializeLiveInlineMarkProjection(node: HTMLElement, content: string): string | null {
+  const wrappers = [
+    ["md-live-em", (value: string) => `<i>${value}</i>`],
+    ["md-live-strong", (value: string) => `<b>${value}</b>`],
+    ["md-live-strikethrough", (value: string) => `<s>${value}</s>`],
+    ["md-live-subscript", (value: string) => `<sub>${value}</sub>`],
+    ["md-live-superscript", (value: string) => `<sup>${value}</sup>`],
+    ["md-live-highlight", (value: string) => `<mark>${value}</mark>`],
+    ["md-live-code", (value: string) => `<code>${value}</code>`],
+  ] as const;
+  const projected = wrappers.reduce(
+    (value, [className, wrap]) => (node.classList.contains(className) ? wrap(value) : value),
+    content,
+  );
+  return projected === content ? null : projected;
 }
 
 function normalizeText(value: string): string {

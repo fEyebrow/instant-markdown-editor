@@ -3,47 +3,47 @@ import type { Command, Plugin } from "prosemirror-state";
 import { atxHeading, atxHeadingKeymap } from "./atx-heading.ts";
 import { autolinkKeymap, liveAutolink } from "./autolink.ts";
 import { blockquoteInputRules } from "./blockquote.ts";
-import { codeKeymap, liveCode, serializeLiveCodePendingMarkdown } from "./code.ts";
+import { liveCodeSpec, serializeLiveCodePendingMarkdown } from "./code.ts";
 import {
-  highlightKeymap,
   highlightMarkdownParseSpecs,
   highlightMarkdownSerializeSpecs,
   highlightMarkRankEntries,
   highlightMarkSpecs,
-  liveHighlight,
+  liveHighlightSpec,
   serializeLiveHighlightPendingMarkdown,
 } from "./highlight.ts";
 import {
-  italicKeymap,
   italicMarkdownParseSpecs,
   italicMarkdownSerializeSpecs,
   italicMarkRankEntries,
   italicMarkSpecs,
-  liveItalic,
+  liveItalicSpec,
   serializeLiveItalicPendingMarkdown,
 } from "./italic.ts";
 import {
-  liveStrikethrough,
+  createLiveInlineMarkFeatures,
+  createLiveInlineMarkKeymapController,
+  type LiveInlineMarkSpec,
+} from "./live-inline-mark.ts";
+import {
+  liveStrikethroughSpec,
   serializeLiveStrikethroughPendingMarkdown,
-  strikethroughKeymap,
   strikethroughMarkdownParseSpecs,
   strikethroughMarkdownSerializeSpecs,
   strikethroughMarkRankEntries,
   strikethroughMarkSpecs,
 } from "./strikethrough.ts";
 import {
-  liveSubscript,
+  liveSubscriptSpec,
   serializeLiveSubscriptPendingMarkdown,
-  subscriptKeymap,
   subscriptMarkdownParseSpecs,
   subscriptMarkdownSerializeSpecs,
   subscriptMarkRankEntries,
   subscriptMarkSpecs,
 } from "./subscript.ts";
 import {
-  liveSuperscript,
+  liveSuperscriptSpec,
   serializeLiveSuperscriptPendingMarkdown,
-  superscriptKeymap,
   superscriptMarkdownParseSpecs,
   superscriptMarkdownSerializeSpecs,
   superscriptMarkRankEntries,
@@ -53,10 +53,21 @@ import { linkKeymap, liveLink, serializeLiveLinkPendingMarkdown } from "./link.t
 import { imageKeymap, liveImage } from "./image.ts";
 import { emojiKeymap, liveEmoji } from "./emoji.ts";
 import { liveTaskItem, taskItemInputRules, taskItemKeymap } from "./task-item.ts";
-import { liveStrong, serializeLiveStrongPendingMarkdown, strongKeymap } from "./strong.ts";
+import { liveStrongSpec, serializeLiveStrongPendingMarkdown } from "./strong.ts";
 import { thematicBreakKeymap, thematicBreakLeaveLine } from "./thematic-break.ts";
 import { orderedListInputRules } from "./ordered-list.ts";
 import { unorderedListInputRules, unorderedListKeymap } from "./unordered-list.ts";
+
+const liveInlineMarkSpecs = [
+  liveItalicSpec,
+  liveStrongSpec,
+  liveStrikethroughSpec,
+  liveSubscriptSpec,
+  liveSuperscriptSpec,
+  liveHighlightSpec,
+] satisfies readonly LiveInlineMarkSpec[];
+
+const liveCodeSpecs = [liveCodeSpec] satisfies readonly LiveInlineMarkSpec[];
 
 export const featureMarkSpecs = {
   ...italicMarkSpecs,
@@ -110,19 +121,14 @@ export function serializeFeatureMarkdown(markdown: string): string {
 
 export function createFeaturePlugins(schema: Schema): Plugin[] {
   return [
-    liveItalic(schema),
-    liveStrong(schema),
-    liveStrikethrough(schema),
-    liveSubscript(schema),
-    liveSuperscript(schema),
-    liveHighlight(schema),
+    ...createLiveInlineMarkFeatures(schema, liveInlineMarkSpecs),
     liveImage(schema),
     liveEmoji(schema),
     liveTaskItem(schema),
     taskItemInputRules(schema),
     liveLink(schema),
     liveAutolink(schema),
-    liveCode(schema),
+    ...createLiveInlineMarkFeatures(schema, liveCodeSpecs),
     thematicBreakLeaveLine(schema),
     atxHeading(schema),
     unorderedListInputRules(schema),
@@ -135,17 +141,12 @@ export function createFeatureKeymaps(schema: Schema): Record<string, Command>[] 
   return [
     thematicBreakKeymap,
     atxHeadingKeymap,
-    italicKeymap(schema),
-    strongKeymap(schema),
-    strikethroughKeymap(schema),
-    subscriptKeymap(schema),
-    superscriptKeymap(schema),
-    highlightKeymap(schema),
+    createLiveInlineMarkKeymapController(schema, liveInlineMarkSpecs),
     imageKeymap(schema),
     emojiKeymap(schema),
     autolinkKeymap(schema),
     linkKeymap(schema),
-    codeKeymap(schema),
+    createLiveInlineMarkKeymapController(schema, liveCodeSpecs),
     unorderedListKeymap(schema),
     taskItemKeymap(schema),
   ];

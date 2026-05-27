@@ -1,10 +1,5 @@
-import type { MarkSpec, Schema } from "prosemirror-model";
-import type { Command } from "prosemirror-state";
-import {
-  createLiveInlineMarkFeature,
-  createLiveInlineMarkKeymap,
-  type LiveInlineMarkSpec,
-} from "./live-inline-mark.ts";
+import type { MarkSpec } from "prosemirror-model";
+import type { LiveInlineMarkSpec } from "./live-inline-mark.ts";
 
 export const superscriptMarkSpecs = {
   superscript: {
@@ -25,7 +20,7 @@ export const superscriptMarkdownSerializeSpecs = {
 
 export const superscriptMarkRankEntries: [string, number][] = [["superscript", 2.65]];
 
-const CONFIG = {
+export const liveSuperscriptSpec = {
   mark: "superscript",
   delimiter: "^",
   liveClass: "md-live-superscript",
@@ -35,12 +30,4 @@ const ESCAPED_PENDING_MARKER = /\\?\^([^^\s\\]+)\\?\^/g;
 
 export function serializeLiveSuperscriptPendingMarkdown(markdown: string): string {
   return markdown.replace(ESCAPED_PENDING_MARKER, "^$1^");
-}
-
-export function superscriptKeymap(schema: Schema): Record<string, Command> {
-  return createLiveInlineMarkKeymap(schema, CONFIG);
-}
-
-export function liveSuperscript(schema: Schema) {
-  return createLiveInlineMarkFeature(schema, CONFIG);
 }

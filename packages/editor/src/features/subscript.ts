@@ -1,10 +1,5 @@
-import type { MarkSpec, Schema } from "prosemirror-model";
-import type { Command } from "prosemirror-state";
-import {
-  createLiveInlineMarkFeature,
-  createLiveInlineMarkKeymap,
-  type LiveInlineMarkSpec,
-} from "./live-inline-mark.ts";
+import type { MarkSpec } from "prosemirror-model";
+import type { LiveInlineMarkSpec } from "./live-inline-mark.ts";
 
 export const subscriptMarkSpecs = {
   subscript: {
@@ -25,7 +20,7 @@ export const subscriptMarkdownSerializeSpecs = {
 
 export const subscriptMarkRankEntries: [string, number][] = [["subscript", 2.625]];
 
-const CONFIG = {
+export const liveSubscriptSpec = {
   mark: "subscript",
   delimiter: "~",
   liveClass: "md-live-subscript",
@@ -37,12 +32,4 @@ const ESCAPED_PENDING_MARKER = /\\?~([^~\s\\]+)\\?~/g;
 
 export function serializeLiveSubscriptPendingMarkdown(markdown: string): string {
   return markdown.replace(ESCAPED_PENDING_MARKER, "~$1~");
-}
-
-export function subscriptKeymap(schema: Schema): Record<string, Command> {
-  return createLiveInlineMarkKeymap(schema, CONFIG);
-}
-
-export function liveSubscript(schema: Schema) {
-  return createLiveInlineMarkFeature(schema, CONFIG);
 }
