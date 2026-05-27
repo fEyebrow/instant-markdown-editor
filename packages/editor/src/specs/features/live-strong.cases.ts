@@ -48,5 +48,18 @@ export const liveStrongSpec = {
         },
       ],
     },
+    {
+      id: "live-strong-commits-inside-highlight-source-layer",
+      title: "Commits inside highlight source layer",
+      initialMarkdown: "|",
+      keyevents: ["=", "=", "*", "*", "1", "*", "*", "=", "=", " "],
+      checkpoints: [
+        {
+          step: 10,
+          expectedProjection: "<p><mark><b>1</b></mark> |</p>",
+          expectedMarkdown: "**==1==**\u00a0",
+        },
+      ],
+    },
   ],
 } satisfies EditorSpecFeatureDefinition;

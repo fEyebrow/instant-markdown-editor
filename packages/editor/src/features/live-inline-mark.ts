@@ -1,4 +1,4 @@
-import type { MarkType, Node, Schema } from "prosemirror-model";
+import type { Mark, MarkType, Node, Schema } from "prosemirror-model";
 import type { Command, EditorState } from "prosemirror-state";
 import { Plugin, TextSelection } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
@@ -7,6 +7,7 @@ interface LiveInlineMarkConfig {
   mark: string;
   open: string;
   close: string;
+  delimiterLength: number;
   pending: RegExp;
   commit: RegExp;
   liveClass: string;
@@ -26,6 +27,7 @@ interface PendingRange {
   from: number;
   to: number;
   text: string;
+  marks: readonly Mark[];
 }
 
 export function createLiveInlineMarkFeature(schema: Schema, spec: LiveInlineMarkSpec): Plugin {
@@ -51,6 +53,8 @@ export function createLiveInlineMarkKeymap(
   return keymap;
 }
 
+const registeredConfigs = new Map<string, LiveInlineMarkConfig>();
+
 function liveInlineMarkConfig(spec: LiveInlineMarkSpec): LiveInlineMarkConfig {
   const delimiter = escapeRegex(spec.delimiter);
   const delimiterChar = escapeRegex(spec.delimiter.at(0) ?? "");
@@ -58,15 +62,18 @@ function liveInlineMarkConfig(spec: LiveInlineMarkSpec): LiveInlineMarkConfig {
   const trailingGuard = `(?!${delimiterChar})`;
   const source = `${leadingGuard}${delimiter}([^${delimiterChar}\\s]+)${delimiter}${trailingGuard}`;
 
-  return {
+  const config = {
     mark: spec.mark,
     open: spec.delimiter,
     close: spec.delimiter,
+    delimiterLength: spec.delimiter.length,
     pending: new RegExp(source, "g"),
     commit: new RegExp(`${source}([ \\u00a0]|[^${delimiterChar}])$`),
     liveClass: spec.liveClass,
     moveTypedTextAfterStartBoundary: spec.moveTypedTextAfterStartBoundary,
   };
+  registeredConfigs.set(`${config.mark}:${config.open}:${config.close}`, config);
+  return config;
 }
 
 function escapeRegex(value: string): string {
@@ -86,9 +93,10 @@ export function liveInlineMark(schema: Schema, config: LiveInlineMarkConfig): Pl
         if (!source) return false;
 
         const sourceText = `${config.open}${text}${config.close}`;
+        const siblingMarks = source.marks.filter((m) => m.type !== mark);
         const tr = view.state.tr.replaceWith(source.from, source.to, [
-          view.state.schema.text(source.text),
-          view.state.schema.text(sourceText),
+          view.state.schema.text(source.text, siblingMarks),
+          view.state.schema.text(sourceText, siblingMarks),
         ]);
         tr.setSelection(TextSelection.create(tr.doc, source.from + source.text.length));
         tr.removeStoredMark(mark);
@@ -120,14 +128,115 @@ export function liveInlineMark(schema: Schema, config: LiveInlineMarkConfig): Pl
         return null;
       }
       const tr = newState.tr;
-      const markedText = newState.schema.text(inner, [mark.create()]);
+      const innerStart = match[0].indexOf(inner);
+      const innerFrom = patternStart - $from.start() + innerStart;
+      const innerTo = innerFrom + inner.length;
+      const markSet = mark.create().addToSet([]);
+      const markedText = inlineSourceNodesFromRange(
+        newState.schema,
+        $from.parent,
+        innerFrom,
+        innerTo,
+        markSet,
+        config,
+      );
       const boundaryText =
         boundary === "" ? [] : [newState.schema.text(boundary === " " ? "\u00a0" : boundary)];
-      tr.replaceWith(patternStart, $from.pos, [markedText, ...boundaryText]);
+      tr.replaceWith(patternStart, $from.pos, [...markedText, ...boundaryText]);
       tr.removeStoredMark(mark);
       return tr;
     },
   });
+}
+
+function inlineSourceNodesFromRange(
+  schema: Schema,
+  parent: Node,
+  from: number,
+  to: number,
+  marks: readonly Mark[],
+  currentConfig: LiveInlineMarkConfig,
+): Node[] {
+  const nodes: Node[] = [];
+  let offset = 0;
+  parent.forEach((child) => {
+    const childFrom = offset;
+    const childTo = offset + child.nodeSize;
+    offset = childTo;
+    if (!child.isText || !child.text || childTo <= from || childFrom >= to) return;
+
+    const textFrom = Math.max(from, childFrom) - childFrom;
+    const textTo = Math.min(to, childTo) - childFrom;
+    nodes.push(
+      ...inlineSourceNodes(
+        schema,
+        child.text.slice(textFrom, textTo),
+        mergeMarkSets(child.marks, marks),
+        currentConfig,
+      ),
+    );
+  });
+  return nodes;
+}
+
+function inlineSourceNodes(
+  schema: Schema,
+  text: string,
+  marks: readonly Mark[],
+  currentConfig: LiveInlineMarkConfig,
+): Node[] {
+  const match = firstNestedSource(text, currentConfig);
+  if (!match) return text ? [schema.text(text, marks)] : [];
+
+  const nestedMark = schema.marks[match.config.mark];
+  if (!nestedMark) return [schema.text(text, marks)];
+
+  return [
+    ...inlineSourceNodes(schema, text.slice(0, match.from), marks, currentConfig),
+    ...inlineSourceNodes(schema, match.inner, nestedMark.create().addToSet(marks), match.config),
+    ...inlineSourceNodes(schema, text.slice(match.to), marks, currentConfig),
+  ];
+}
+
+function mergeMarkSets(existing: readonly Mark[], base: readonly Mark[]): readonly Mark[] {
+  return existing.reduce<readonly Mark[]>((markSet, mark) => mark.addToSet(markSet), base);
+}
+
+interface NestedSourceMatch {
+  config: LiveInlineMarkConfig;
+  from: number;
+  to: number;
+  inner: string;
+}
+
+function firstNestedSource(
+  text: string,
+  currentConfig: LiveInlineMarkConfig,
+): NestedSourceMatch | null {
+  let best: NestedSourceMatch | null = null;
+  for (const config of registeredConfigs.values()) {
+    if (config === currentConfig) continue;
+    config.pending.lastIndex = 0;
+    const match = config.pending.exec(text);
+    config.pending.lastIndex = 0;
+    if (!match) continue;
+
+    const from = match.index;
+    const candidate = {
+      config,
+      from,
+      to: from + match[0].length,
+      inner: match[1],
+    };
+    if (
+      !best ||
+      candidate.from < best.from ||
+      (candidate.from === best.from && config.delimiterLength > best.config.delimiterLength)
+    ) {
+      best = candidate;
+    }
+  }
+  return best;
 }
 
 export function reopenPendingInlineMarkOnBackspace(
@@ -140,9 +249,13 @@ export function reopenPendingInlineMarkOnBackspace(
     if (!pending) return false;
 
     if (dispatch) {
-      const text = `${config.open}${pending.text}${config.close}`;
-      const tr = state.tr.replaceWith(pending.from, pending.to, schema.text(text));
-      tr.setSelection(TextSelection.create(tr.doc, pending.from + text.length));
+      const totalLength = config.open.length + pending.text.length + config.close.length;
+      const tr = state.tr.replaceWith(
+        pending.from,
+        pending.to,
+        reopenedSourceNodes(schema, pending.marks, mark, pending.text, config),
+      );
+      tr.setSelection(TextSelection.create(tr.doc, pending.from + totalLength));
       tr.removeStoredMark(mark);
       dispatch(tr);
     }
@@ -160,12 +273,16 @@ export function reopenPendingInlineMarkOnArrow(
     const source = committedMarkAtBoundary(state, mark, direction);
     if (!source) return false;
 
-    const text = `${config.open}${source.text}${config.close}`;
+    const totalLength = config.open.length + source.text.length + config.close.length;
     const selectionOffset =
-      direction === "left" ? text.length - Math.min(config.close.length, 1) : 1;
+      direction === "left" ? totalLength - Math.min(config.close.length, 1) : 1;
 
     if (dispatch) {
-      const tr = state.tr.replaceWith(source.from, source.to, schema.text(text));
+      const tr = state.tr.replaceWith(
+        source.from,
+        source.to,
+        reopenedSourceNodes(schema, source.marks, mark, source.text, config),
+      );
       tr.setSelection(TextSelection.create(tr.doc, source.from + selectionOffset));
       tr.removeStoredMark(mark);
       dispatch(tr);
@@ -183,17 +300,42 @@ function reopenPendingInlineMarkBeforeTrailingText(
     const source = committedMarkAtBoundary(state, mark, "left");
     if (!source || !hasPlainTextAfter(state, source.to)) return false;
 
-    const text = `${config.open}${source.text}${config.close}`;
-    const selectionOffset = text.length - Math.min(config.close.length, 1);
+    const totalLength = config.open.length + source.text.length + config.close.length;
+    const selectionOffset = totalLength - Math.min(config.close.length, 1);
 
     if (dispatch) {
-      const tr = state.tr.replaceWith(source.from, source.to, schema.text(text));
+      const tr = state.tr.replaceWith(
+        source.from,
+        source.to,
+        reopenedSourceNodes(schema, source.marks, mark, source.text, config),
+      );
       tr.setSelection(TextSelection.create(tr.doc, source.from + selectionOffset));
       tr.removeStoredMark(mark);
       dispatch(tr);
     }
     return true;
   };
+}
+
+function reopenedSourceNodes(
+  schema: Schema,
+  existingMarks: readonly Mark[],
+  mark: MarkType,
+  innerText: string,
+  config: Pick<LiveInlineMarkConfig, "open" | "close">,
+): Node[] {
+  const innerMarks = existingMarks.filter((m) => m.type !== mark);
+  const outerMarks = outerSiblingMarks(existingMarks, mark);
+  return [
+    schema.text(config.open, outerMarks),
+    schema.text(innerText, innerMarks),
+    schema.text(config.close, outerMarks),
+  ];
+}
+
+function outerSiblingMarks(marks: readonly Mark[], mark: MarkType): readonly Mark[] {
+  const rank = markRank(mark);
+  return marks.filter((m) => m.type !== mark && markRank(m.type) < rank);
 }
 
 function chainCommands(...commands: Command[]): Command {
@@ -216,7 +358,7 @@ function committedMarkAtBoundary(
     const start = pos;
     const end = pos + node.nodeSize;
     if ((direction === "left" && from === end) || (direction === "right" && from === start)) {
-      range = { from: start, to: end, text: node.text };
+      range = { from: start, to: end, text: node.text, marks: node.marks };
       return false;
     }
     return true;
@@ -228,7 +370,7 @@ function committedMarkAtBoundary(
 function hasPlainTextAfter(state: Parameters<Command>[0], position: number): boolean {
   const $pos = state.doc.resolve(position);
   const next = $pos.nodeAfter;
-  return Boolean(next?.isText && next.text?.trim() && !next.marks.length);
+  return Boolean(next?.isText && next.text && !next.marks.length);
 }
 
 function committedMarkAtStart(
@@ -241,7 +383,7 @@ function committedMarkAtStart(
     if (range) return false;
     if (!node.isText || !mark.isInSet(node.marks) || !node.text) return true;
     if (pos === from) {
-      range = { from: pos, to: pos + node.nodeSize, text: node.text };
+      range = { from: pos, to: pos + node.nodeSize, text: node.text, marks: node.marks };
       return false;
     }
     return true;
@@ -271,7 +413,7 @@ function pendingBeforeCommittedSpace(
     if (!previous.isText || !mark.isInSet(previous.marks) || !previous.text) break;
 
     const from = $from.start() + offset - previous.nodeSize;
-    return { from, to: $from.pos, text: previous.text };
+    return { from, to: $from.pos, text: previous.text, marks: previous.marks };
   }
 
   return null;
@@ -334,14 +476,36 @@ function boundaryDecorations(
 
     const start = pos;
     const end = pos + node.nodeSize;
-    if (from !== start && from !== end) return true;
+    if (from < start || from > end) return true;
+    const atBoundary = from === start || from === end;
+    if (!atBoundary && !hasReopenedInnerSource(node, mark)) return true;
 
-    decos.push(markerWidget(start, config.open, from === start ? 1 : -1));
-    decos.push(markerWidget(end, config.close, from === end ? -1 : 1));
+    const rank = markRank(mark);
+    const openSide = from === start ? 1000 + rank : -1000 + rank;
+    const closeSide = from === end ? -1000 - rank : 1000 - rank;
+    decos.push(markerWidget(start, config.open, openSide));
+    decos.push(markerWidget(end, config.close, closeSide));
     return true;
   });
 
   return decos;
+}
+
+function markRank(mark: MarkType): number {
+  return Object.keys(mark.schema.marks).indexOf(mark.name);
+}
+
+function hasReopenedInnerSource(node: Node, mark: MarkType): boolean {
+  if (!node.text) return false;
+  if (node.marks.some((m) => m.type.name === "code")) return false;
+  for (const config of registeredConfigs.values()) {
+    if (config.mark === mark.name) continue;
+    config.pending.lastIndex = 0;
+    const matched = config.pending.test(node.text);
+    config.pending.lastIndex = 0;
+    if (matched) return true;
+  }
+  return false;
 }
 
 function markerWidget(pos: number, text: string, side: number): Decoration {

@@ -106,8 +106,8 @@ export const liveItalicSpec = {
         },
         {
           step: 6,
-          title: "cursor reaches mark start",
-          expectedProjection: "<p>|<pending>*</pending><i>1</i><pending>*</pending> </p>",
+          title: "cursor moves through closing delimiter",
+          expectedProjection: "<p><pending>*</pending><i>1</i>|<pending>*</pending> </p>",
           expectedMarkdown: "*1*\u00a0",
         },
       ],

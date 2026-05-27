@@ -67,8 +67,8 @@ export const liveSuperscriptSpec = {
         },
         {
           step: 6,
-          title: "cursor reaches mark start",
-          expectedProjection: "<p>|<pending>^</pending><sup>1</sup><pending>^</pending> </p>",
+          title: "cursor moves through closing delimiter",
+          expectedProjection: "<p><pending>^</pending><sup>1</sup>|<pending>^</pending> </p>",
           expectedMarkdown: "^1^\u00a0",
         },
       ],

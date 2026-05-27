@@ -103,8 +103,8 @@ export const liveSubscriptSpec = {
         },
         {
           step: 6,
-          title: "cursor reaches mark start",
-          expectedProjection: "<p>|<pending>~</pending><sub>1</sub><pending>~</pending> </p>",
+          title: "cursor moves through closing delimiter",
+          expectedProjection: "<p><pending>~</pending><sub>1</sub>|<pending>~</pending> </p>",
           expectedMarkdown: "~1~\u00a0",
         },
       ],
