@@ -12,7 +12,7 @@ export const liveItalicSpec = {
       checkpoints: [
         {
           step: 3,
-          expectedProjection: "<p><pending>*</pending><i>1</i><pending>*</pending>|</p>",
+          expectedProjection: "<p><pending>*</pending><i>1</i><pending>*|</pending></p>",
           expectedMarkdown: "*1*",
         },
         {
@@ -30,7 +30,7 @@ export const liveItalicSpec = {
       checkpoints: [
         {
           step: 2,
-          expectedProjection: "<p><pending>*</pending><i>1</i><pending>*</pending>|</p>",
+          expectedProjection: "<p><pending>*</pending><i>1</i><pending>*|</pending></p>",
           expectedMarkdown: "*1*",
         },
       ],
@@ -43,7 +43,7 @@ export const liveItalicSpec = {
       checkpoints: [
         {
           step: 4,
-          expectedProjection: "<p>*<pending>*</pending><i>1</i><pending>*</pending>|</p>",
+          expectedProjection: "<p>*<pending>*</pending><i>1</i><pending>*|</pending></p>",
           expectedMarkdown: "\\**1*",
         },
         {
@@ -107,7 +107,7 @@ export const liveItalicSpec = {
         {
           step: 6,
           title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>*</pending><i>1</i>|<pending>*</pending> </p>",
+          expectedProjection: "<p><pending>*</pending><i>1</i><pending>|*</pending> </p>",
           expectedMarkdown: "*1*\u00a0",
         },
       ],
@@ -120,7 +120,7 @@ export const liveItalicSpec = {
       checkpoints: [
         {
           step: 1,
-          expectedProjection: "<p><pending>*</pending><i>d</i>|<pending>*</pending>x</p>",
+          expectedProjection: "<p><pending>*</pending><i>d</i><pending>|*</pending>x</p>",
           expectedMarkdown: "*d*x",
         },
       ],

@@ -35,7 +35,7 @@ export const liveAutolinkSpec = {
         {
           step: 21,
           expectedProjection:
-            "<p><pending><</pending><link-url>https://example.com</link-url><pending>></pending>|</p>",
+            "<p><pending><</pending><link-url>https://example.com</link-url><pending>>|</pending></p>",
           expectedMarkdown: "<https://example.com>",
         },
       ],
@@ -49,7 +49,7 @@ export const liveAutolinkSpec = {
         {
           step: 13,
           expectedProjection:
-            "<p><pending><</pending><link-url>http://e.co</link-url><pending>></pending>|</p>",
+            "<p><pending><</pending><link-url>http://e.co</link-url><pending>>|</pending></p>",
           expectedMarkdown: "<http://e.co>",
         },
       ],
@@ -75,7 +75,7 @@ export const liveAutolinkSpec = {
       checkpoints: [
         {
           step: 13,
-          expectedProjection: "<p><<link-url>https://e.co</link-url>|</p>",
+          expectedProjection: "<p><<link-url>https://e.co|</link-url></p>",
           expectedMarkdown: "<https://e.co",
         },
       ],
@@ -117,7 +117,7 @@ export const liveAutolinkSpec = {
       checkpoints: [
         {
           step: 15,
-          expectedProjection: "<p><<link-url>https://e.co</link-url>|</p>",
+          expectedProjection: "<p><<link-url>https://e.co|</link-url></p>",
           expectedMarkdown: "<https://e.co",
         },
       ],
@@ -160,7 +160,7 @@ export const liveAutolinkSpec = {
       checkpoints: [
         {
           step: 16,
-          expectedProjection: '<p><a href="https://e.co">https://e.co</a>|</p>',
+          expectedProjection: '<p><a href="https://e.co">https://e.co|</a></p>',
           expectedMarkdown: "<https://e.co>",
         },
       ],

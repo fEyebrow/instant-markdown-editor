@@ -271,8 +271,72 @@ export interface ProjectionOptions {
 export function projectEditorView(editor: EditorHandle, options: ProjectionOptions = {}): string {
   const tags = { ...DEFAULT_TAGS, ...options.tags };
   const viewRoot = editor.view.dom;
-  const cursor = editor.view.domAtPos(editor.view.state.selection.from);
+  const cursor = projectionCursor(editor.view.domAtPos(editor.view.state.selection.from));
   return serializeNode(viewRoot, cursor, tags) || "|";
+}
+
+function projectionCursor(cursor: { node: Node; offset: number }): { node: Node; offset: number } {
+  if (cursor.node.nodeType === Node.TEXT_NODE) return cursor;
+  if (!(cursor.node instanceof HTMLElement)) return cursor;
+
+  const right = firstProjectableText(cursor.node, cursor.offset);
+  if (right) return { node: right, offset: 0 };
+
+  const left = lastProjectableText(cursor.node, cursor.offset);
+  if (left) return { node: left, offset: normalizeText(left.textContent ?? "").length };
+
+  return cursor;
+}
+
+function firstProjectableText(node: HTMLElement, offset: number): Text | null {
+  for (let i = offset; i < node.childNodes.length; i += 1) {
+    const text = firstProjectableTextIn(node.childNodes[i]);
+    if (text) return text;
+  }
+  return null;
+}
+
+function firstProjectableTextIn(node: Node): Text | null {
+  if (node.nodeType === Node.TEXT_NODE) return node as Text;
+  if (!canTraverseProjectionNode(node)) return null;
+
+  for (const child of Array.from(node.childNodes)) {
+    const text = firstProjectableTextIn(child);
+    if (text) return text;
+  }
+  return null;
+}
+
+function lastProjectableText(node: HTMLElement, offset: number): Text | null {
+  for (let i = Math.min(offset, node.childNodes.length) - 1; i >= 0; i -= 1) {
+    const text = lastProjectableTextIn(node.childNodes[i]);
+    if (text) return text;
+  }
+  return null;
+}
+
+function lastProjectableTextIn(node: Node): Text | null {
+  if (node.nodeType === Node.TEXT_NODE) return node as Text;
+  if (!canTraverseProjectionNode(node)) return null;
+
+  const children = Array.from(node.childNodes);
+  for (let i = children.length - 1; i >= 0; i -= 1) {
+    const text = lastProjectableTextIn(children[i]);
+    if (text) return text;
+  }
+  return null;
+}
+
+function canTraverseProjectionNode(node: Node): node is HTMLElement {
+  if (!(node instanceof HTMLElement)) return false;
+  if (node.tagName === "BR" && node.classList.contains("ProseMirror-trailingBreak")) return false;
+  if (node.classList.contains("ProseMirror-separator")) return false;
+  if (node.classList.contains("md-task-checkbox")) return false;
+  if (node.classList.contains("md-emoji-icon")) return false;
+  if (node.classList.contains("md-emoji-source-icon")) return false;
+  if (node.classList.contains("md-emoji-popup")) return false;
+  if (node.tagName === "SPAN" && node.hasAttribute("data-shortcode")) return false;
+  return true;
 }
 
 function serializeNode(

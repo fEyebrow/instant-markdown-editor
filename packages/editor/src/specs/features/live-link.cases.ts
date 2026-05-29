@@ -13,7 +13,7 @@ export const liveLinkSpec = {
         {
           step: 6,
           expectedProjection:
-            "<p><pending>[</pending><link-label>x</link-label><pending>](</pending><link-url>y</link-url><pending>)</pending>|</p>",
+            "<p><pending>[</pending><link-label>x</link-label><pending>](</pending><link-url>y</link-url><pending>)|</pending></p>",
           expectedMarkdown: "[x](y)",
         },
       ],
@@ -39,7 +39,7 @@ export const liveLinkSpec = {
       checkpoints: [
         {
           step: 8,
-          expectedProjection: '<p><a href="y">x</a>|</p>',
+          expectedProjection: '<p><a href="y">x|</a></p>',
           expectedMarkdown: "[x](y)",
         },
       ],
@@ -67,7 +67,7 @@ export const liveLinkSpec = {
         {
           step: 5,
           expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><pending>)</pending>|</p>",
+            "<p><pending>[</pending><pending>](</pending><pending>)|</pending></p>",
           expectedMarkdown: "[]()",
         },
       ],
@@ -101,7 +101,7 @@ export const liveLinkSpec = {
           step: 8,
           title: "repaired source projects again",
           expectedProjection:
-            "<p><pending>[</pending><link-label>x</link-label><pending>](</pending><link-url>y</link-url><pending>)</pending>|</p>",
+            "<p><pending>[</pending><link-label>x</link-label><pending>](</pending><link-url>y</link-url><pending>)|</pending></p>",
           expectedMarkdown: "[x](y)",
         },
       ],
@@ -128,13 +128,13 @@ export const liveLinkSpec = {
         {
           step: 5,
           expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)</pending>|</p>",
+            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)|</pending></p>",
           expectedMarkdown: "[](u)",
         },
         {
           step: 10,
           expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)</pending> <pending>[</pending><pending>](</pending><pending>)</pending>|</p>",
+            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)</pending> <pending>[</pending><pending>](</pending><pending>)|</pending></p>",
           expectedMarkdown: "[](u) []()",
         },
       ],
@@ -148,7 +148,7 @@ export const liveLinkSpec = {
         {
           step: 7,
           expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)</pending>|</p>",
+            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)|</pending></p>",
           expectedMarkdown: "[](u)",
         },
       ],

@@ -12,7 +12,7 @@ export const emojiSpec = {
       checkpoints: [
         {
           step: 2,
-          expectedProjection: "<p><emoji-src>:book:</emoji-src>|</p>",
+          expectedProjection: "<p><emoji-src>:book:|</emoji-src></p>",
           expectedMarkdown: ":book:",
         },
       ],

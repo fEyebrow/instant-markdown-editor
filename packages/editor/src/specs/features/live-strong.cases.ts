@@ -12,7 +12,7 @@ export const liveStrongSpec = {
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>**</pending><b>1</b><pending>**</pending>|</p>",
+          expectedProjection: "<p><pending>**</pending><b>1</b><pending>**|</pending></p>",
           expectedMarkdown: "**1**",
         },
         {

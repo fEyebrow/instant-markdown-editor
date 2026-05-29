@@ -40,7 +40,7 @@ test("loaded image source shows a full-width preview then folds when cursor leav
   );
 
   expect(projectEditorView(editor)).toBe(
-    '<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>ok.png</image-src><pending>)</pending>|<image-preview src="ok.png" alt="x"></p>',
+    '<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>ok.png</image-src><pending>)|</pending><image-preview src="ok.png" alt="x"></p>',
   );
 
   editor.view.dispatch(
@@ -74,7 +74,7 @@ test("broken image source shows broken state and does not fold when cursor leave
   );
 
   expect(projectEditorView(editor)).toBe(
-    "<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>bad.png</image-src><pending>)</pending><image-broken>broken</image-broken>|</p>",
+    "<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>bad.png</image-src><pending>)</pending><image-broken>broken|</image-broken></p>",
   );
   expect(editor.getMarkdown()).toBe("![x](bad.png)");
   editor.destroy();
@@ -89,7 +89,7 @@ test("entering a rendered image expands source with cursor at alt end", () => {
   );
 
   expect(projectEditorView(editor)).toBe(
-    "<p><image-state>image</image-state><pending>![</pending><image-alt>xy</image-alt>|<pending>](</pending><image-src>ok.png</image-src><pending>)</pending><image-loading>loading</image-loading></p>",
+    "<p><image-state>image</image-state><pending>![</pending><image-alt>xy</image-alt><pending>|](</pending><image-src>ok.png</image-src><pending>)</pending><image-loading>loading</image-loading></p>",
   );
   editor.destroy();
 });

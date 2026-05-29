@@ -12,7 +12,7 @@ export const liveSubscriptSpec = {
       checkpoints: [
         {
           step: 3,
-          expectedProjection: "<p><pending>~</pending><sub>1</sub><pending>~</pending>|</p>",
+          expectedProjection: "<p><pending>~</pending><sub>1</sub><pending>~|</pending></p>",
           expectedMarkdown: "~1~",
         },
         {
@@ -30,7 +30,7 @@ export const liveSubscriptSpec = {
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>|</p>",
+          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~|</pending></p>",
           expectedMarkdown: "~~1~~",
         },
         {
@@ -48,7 +48,7 @@ export const liveSubscriptSpec = {
       checkpoints: [
         {
           step: 4,
-          expectedProjection: "<p>~<pending>~</pending><sub>1</sub><pending>~</pending>|</p>",
+          expectedProjection: "<p>~<pending>~</pending><sub>1</sub><pending>~|</pending></p>",
           expectedMarkdown: "\\~~1~",
         },
         {
@@ -104,7 +104,7 @@ export const liveSubscriptSpec = {
         {
           step: 6,
           title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>~</pending><sub>1</sub>|<pending>~</pending> </p>",
+          expectedProjection: "<p><pending>~</pending><sub>1</sub><pending>|~</pending> </p>",
           expectedMarkdown: "~1~\u00a0",
         },
       ],
@@ -130,7 +130,7 @@ export const liveSubscriptSpec = {
       checkpoints: [
         {
           step: 1,
-          expectedProjection: "<p>1|<pending>~</pending><sub>d</sub><pending>~</pending></p>",
+          expectedProjection: "<p>1<pending>|~</pending><sub>d</sub><pending>~</pending></p>",
           expectedMarkdown: "1~d~",
         },
       ],
@@ -143,7 +143,7 @@ export const liveSubscriptSpec = {
       checkpoints: [
         {
           step: 1,
-          expectedProjection: "<p>1<pending>~</pending><sub>d</sub>|<pending>~</pending>d</p>",
+          expectedProjection: "<p>1<pending>~</pending><sub>d</sub><pending>|~</pending>d</p>",
           expectedMarkdown: "1~d~d",
         },
       ],

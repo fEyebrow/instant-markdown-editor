@@ -12,7 +12,7 @@ export const liveHighlightSpec = {
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==</pending>|</p>",
+          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==|</pending></p>",
           expectedMarkdown: "==1==",
         },
         {
@@ -116,7 +116,7 @@ export const liveHighlightSpec = {
           step: 10,
           title: "ArrowLeft moves through the outer closing delimiter",
           expectedProjection:
-            "<p><pending>*</pending><pending>==</pending><mark><i>1</i></mark><pending>==</pending>|<pending>*</pending> </p>",
+            "<p><pending>*</pending><pending>==</pending><mark><i>1</i></mark><pending>==</pending><pending>|*</pending> </p>",
           expectedMarkdown: "*==1==*\u00a0",
         },
         {

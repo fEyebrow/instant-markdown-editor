@@ -12,7 +12,7 @@ export const liveStrikethroughSpec = {
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>|</p>",
+          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~|</pending></p>",
           expectedMarkdown: "~~1~~",
         },
         {
@@ -30,7 +30,7 @@ export const liveStrikethroughSpec = {
       checkpoints: [
         {
           step: 2,
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>|</p>",
+          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~|</pending></p>",
           expectedMarkdown: "~~1~~",
         },
       ],

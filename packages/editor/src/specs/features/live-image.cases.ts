@@ -13,7 +13,7 @@ export const liveImageSpec = {
         {
           step: 7,
           expectedProjection:
-            "<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>y</image-src><pending>)</pending><image-loading>loading</image-loading>|</p>",
+            "<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>y</image-src><pending>)</pending><image-loading>loading|</image-loading></p>",
           expectedMarkdown: "![x](y)",
         },
       ],
@@ -27,13 +27,13 @@ export const liveImageSpec = {
         {
           step: 6,
           expectedProjection:
-            "<p><image-state>image</image-state><pending>![</pending><pending>](</pending><image-src>u</image-src><pending>)</pending><image-loading>loading</image-loading>|</p>",
+            "<p><image-state>image</image-state><pending>![</pending><pending>](</pending><image-src>u</image-src><pending>)</pending><image-loading>loading|</image-loading></p>",
           expectedMarkdown: "![](u)",
         },
         {
           step: 12,
           expectedProjection:
-            "<p><image-state>image</image-state><pending>![</pending><pending>](</pending><image-src>u</image-src><pending>)</pending><image-loading>loading</image-loading> <image-state>image</image-state><pending>![</pending><pending>](</pending><pending>)</pending>|</p>",
+            "<p><image-state>image</image-state><pending>![</pending><pending>](</pending><image-src>u</image-src><pending>)</pending><image-loading>loading</image-loading> <image-state>image</image-state><pending>![</pending><pending>](</pending><pending>)|</pending></p>",
           expectedMarkdown: "![](u) ![]()",
         },
       ],
