@@ -222,6 +222,9 @@ class State {
 
     const progress = (node: ProseMirrorNode | null, _offset: number, index: number) => {
       let marks = node ? sortMarks(node.marks) : [];
+      if (node?.isText) {
+        marks = marks.filter((mark) => !isSourceProjectionMark(parent, index, mark));
+      }
 
       if (node && node.type.name === "hard_break") {
         marks = marks.filter((mark) => {
@@ -345,6 +348,28 @@ function isMarkAhead(parent: ProseMirrorNode, index: number, mark: Mark): boolea
     if (next.type.name !== "hard_break") return mark.isInSet(next.marks);
   }
   return false;
+}
+
+function isSourceProjectionMark(parent: ProseMirrorNode, index: number, mark: Mark): boolean {
+  const spec = markSpecs[mark.type.name];
+  if (!spec) return false;
+  if (index <= 0 || index >= parent.childCount - 1) return false;
+
+  const previous = parent.child(index - 1);
+  const next = parent.child(index + 1);
+  const open = typeof spec.open === "string" ? spec.open : mark.type.name === "code" ? "`" : null;
+  const close =
+    typeof spec.close === "string" ? spec.close : mark.type.name === "code" ? "`" : null;
+  if (!open || !close) return false;
+
+  return (
+    previous.isText &&
+    next.isText &&
+    !mark.isInSet(previous.marks) &&
+    !mark.isInSet(next.marks) &&
+    (previous.text ?? "").endsWith(open) &&
+    (next.text ?? "").startsWith(close)
+  );
 }
 
 function backticksFor(node: ProseMirrorNode, side: number): string {

@@ -1,4 +1,5 @@
 import { defineEditorSpecFeatures } from "./define.ts";
+import { liveInlineMarkSpec } from "./features/live-inline-mark.cases.ts";
 import { liveItalicSpec } from "./features/live-italic.cases.ts";
 import { liveStrongSpec } from "./features/live-strong.cases.ts";
 import { liveStrikethroughSpec } from "./features/live-strikethrough.cases.ts";
@@ -19,6 +20,7 @@ import { blockquoteSpec } from "./features/blockquote.cases.ts";
 import { projectionCursorSpec } from "./features/projection-cursor.cases.ts";
 
 const EDITOR_SPEC_FEATURE_DEFINITIONS = [
+  liveInlineMarkSpec,
   liveItalicSpec,
   liveStrongSpec,
   liveStrikethroughSpec,

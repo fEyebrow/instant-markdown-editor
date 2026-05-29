@@ -36,19 +36,6 @@ export const liveStrongSpec = {
       ],
     },
     {
-      id: "live-strong-arrow-left-before-trailing-text",
-      title: "Arrow left enters only the trailing text boundary",
-      initialMarkdown: "**d**|x",
-      keyevents: ["ArrowLeft"],
-      checkpoints: [
-        {
-          step: 1,
-          expectedProjection: "<p><pending>**</pending><b>d</b><pending>*|*</pending>x</p>",
-          expectedMarkdown: "**d**x",
-        },
-      ],
-    },
-    {
       id: "live-strong-commits-inside-highlight-source-layer",
       title: "Commits inside highlight source layer",
       initialMarkdown: "|",

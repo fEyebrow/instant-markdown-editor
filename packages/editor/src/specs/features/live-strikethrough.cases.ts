@@ -23,19 +23,6 @@ export const liveStrikethroughSpec = {
       ],
     },
     {
-      id: "live-strikethrough-reopen-pending-before-space",
-      title: "Reopen pending markers before trailing space",
-      initialMarkdown: "\\~\\~1\\~\\~|",
-      keyevents: [" ", "Backspace"],
-      checkpoints: [
-        {
-          step: 2,
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~|</pending></p>",
-          expectedMarkdown: "~~1~~",
-        },
-      ],
-    },
-    {
       id: "live-strikethrough-commit-before-plain-text",
       title: "Commit before plain text",
       initialMarkdown: "|",

@@ -20,11 +20,7 @@ import {
   liveItalicSpec,
   serializeLiveItalicPendingMarkdown,
 } from "./italic.ts";
-import {
-  createLiveInlineMarkFeatures,
-  createLiveInlineMarkKeymapController,
-  type LiveInlineMarkSpec,
-} from "./live-inline-mark.ts";
+import { createLiveInlineMarkFeatures, type LiveInlineMarkSpec } from "./live-inline-mark.ts";
 import {
   liveStrikethroughSpec,
   serializeLiveStrikethroughPendingMarkdown,
@@ -141,12 +137,10 @@ export function createFeatureKeymaps(schema: Schema): Record<string, Command>[] 
   return [
     thematicBreakKeymap,
     atxHeadingKeymap,
-    createLiveInlineMarkKeymapController(schema, liveInlineMarkSpecs),
     imageKeymap(schema),
     emojiKeymap(schema),
     autolinkKeymap(schema),
     linkKeymap(schema),
-    createLiveInlineMarkKeymapController(schema, liveCodeSpecs),
     unorderedListKeymap(schema),
     taskItemKeymap(schema),
   ];

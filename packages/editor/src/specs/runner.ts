@@ -165,6 +165,11 @@ function applySelectionKey(view: EditorView, chord: Chord): void {
     const target = adjacentTextblockPosition(doc, selection.from, chord.key === "ArrowDown");
     if (target === null) return;
     view.dispatch(view.state.tr.setSelection(TextSelection.create(doc, target)));
+    return;
+  }
+
+  if (chord.key === "Backspace" && selection.from > 1) {
+    view.dispatch(view.state.tr.delete(selection.from - 1, selection.from));
   }
 }
 
