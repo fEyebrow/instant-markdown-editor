@@ -1,24 +1,5 @@
 import type { Mark, Node as ProseMirrorNode } from "prosemirror-model";
-import {
-  collectInlineFeatures,
-  featureMarkdownSerializeSpecs,
-  featureMarkRankEntries,
-} from "../features/index.ts";
-
-// Stable mark order so emit is deterministic regardless of how marks happen to
-// be stacked in the doc. Lower rank = outer.
-const markRank = new Map<string, number>([
-  ["link", 0],
-  ["strong", 1],
-  ...featureMarkRankEntries,
-  ["code", 3],
-]);
-
-function sortMarks(marks: readonly Mark[]): Mark[] {
-  return [...marks].sort(
-    (a, b) => (markRank.get(a.type.name) ?? 99) - (markRank.get(b.type.name) ?? 99),
-  );
-}
+import { collectInlineFeatures, collectMarkDelims } from "../features/index.ts";
 
 type MarkSpec = {
   open: string | ((state: State, mark: Mark, parent: ProseMirrorNode, index: number) => string);
@@ -27,30 +8,14 @@ type MarkSpec = {
   escape?: boolean;
 };
 
-const markSpecs: Record<string, MarkSpec> = {
-  ...featureMarkdownSerializeSpecs,
-  strong: { open: "**", close: "**", expelEnclosingWhitespace: true },
-  link: {
-    open(state, mark, parent, index) {
-      state.inAutolink = isPlainURL(mark, parent, index);
-      return state.inAutolink ? "<" : "[";
-    },
-    close(state, mark) {
-      const { inAutolink } = state;
-      state.inAutolink = false;
-      if (inAutolink) return ">";
-      const title = mark.attrs.title
-        ? ` "${(mark.attrs.title as string).replace(/"/g, '\\"')}"`
-        : "";
-      return `](${(mark.attrs.href as string).replace(/[()"]/g, "\\$&")}${title})`;
-    },
-  },
-  code: {
-    open: (_state, _mark, parent, index) => backticksFor(parent.child(index), -1),
-    close: (_state, _mark, parent, index) => backticksFor(parent.child(index - 1), 1),
-    escape: false,
-  },
-};
+const markSpecs: Record<string, MarkSpec> = collectMarkDelims() as Record<string, MarkSpec>;
+const markRank = new Map(Object.keys(markSpecs).map((name, index) => [name, index]));
+
+function sortMarks(marks: readonly Mark[]): Mark[] {
+  return [...marks].sort(
+    (a, b) => (markRank.get(a.type.name) ?? 99) - (markRank.get(b.type.name) ?? 99),
+  );
+}
 
 type NodeRenderer = (
   state: State,
@@ -82,12 +47,8 @@ const nodeRenderers: Record<string, NodeRenderer> = {
     state.closeBlock(node);
   },
   bullet_list(state, node) {
-    state.renderList(node, "  ", (i) => {
-      const child = node.child(i);
+    state.renderList(node, "  ", () => {
       const bullet = (node.attrs.bullet as string | undefined) || "*";
-      if (child.type.name === "task_item") {
-        return `${bullet} ${child.attrs.checked ? "[x]" : "[ ]"} `;
-      }
       return `${bullet} `;
     });
   },
@@ -103,21 +64,9 @@ const nodeRenderers: Record<string, NodeRenderer> = {
   list_item(state, node) {
     state.renderContent(node);
   },
-  task_item(state, node) {
-    state.renderContent(node);
-  },
   paragraph(state, node) {
     state.renderInline(node);
     state.closeBlock(node);
-  },
-  image(state, node) {
-    const title = node.attrs.title ? ` "${(node.attrs.title as string).replace(/"/g, '\\"')}"` : "";
-    state.write(
-      `![${state.esc(node.attrs.alt || "")}](${(node.attrs.src as string).replace(/[()]/g, "\\$&")}${title})`,
-    );
-  },
-  emoji(state, node) {
-    state.write(`:${node.attrs.shortcode as string}:`);
   },
   hard_break(state, node, parent, index) {
     for (let i = index + 1; i < parent.childCount; i += 1) {
@@ -231,15 +180,14 @@ class State {
           markNames: feature.markNames,
         })) ?? [],
     );
+    const sourceRanges = inlineSourceRanges.map(({ from, to }) => ({ from, to }));
 
     const progress = (node: ProseMirrorNode | null, offset: number, index: number) => {
       let marks = node ? sortMarks(node.marks) : [];
       if (node?.isText) {
         const textNode = node;
         marks = marks.filter(
-          (mark) =>
-            !isSourceProjectionMark(parent, index, mark) &&
-            !isInlineSourceMark(inlineSourceRanges, offset, textNode.nodeSize, mark),
+          (mark) => !isInlineSourceMark(inlineSourceRanges, offset, textNode.nodeSize, mark),
         );
       }
 
@@ -293,7 +241,7 @@ class State {
 
       const inner = marks.length ? marks[marks.length - 1] : null;
       const sourceRange = node?.isText
-        ? inlineSourceRanges.some((range) => offset >= range.from && offset < range.to)
+        ? sourceRanges.some((range) => offset >= range.from && offset < range.to)
         : false;
       const noEsc = inner ? markSpecs[inner.type.name]?.escape === false : false;
       const len = marks.length - (noEsc ? 1 : 0);
@@ -372,28 +320,6 @@ function isMarkAhead(parent: ProseMirrorNode, index: number, mark: Mark): boolea
   return false;
 }
 
-function isSourceProjectionMark(parent: ProseMirrorNode, index: number, mark: Mark): boolean {
-  const spec = markSpecs[mark.type.name];
-  if (!spec) return false;
-  if (index <= 0 || index >= parent.childCount - 1) return false;
-
-  const previous = parent.child(index - 1);
-  const next = parent.child(index + 1);
-  const open = typeof spec.open === "string" ? spec.open : mark.type.name === "code" ? "`" : null;
-  const close =
-    typeof spec.close === "string" ? spec.close : mark.type.name === "code" ? "`" : null;
-  if (!open || !close) return false;
-
-  return (
-    previous.isText &&
-    next.isText &&
-    !mark.isInSet(previous.marks) &&
-    !mark.isInSet(next.marks) &&
-    (previous.text ?? "").endsWith(open) &&
-    (next.text ?? "").startsWith(close)
-  );
-}
-
 function isInlineSourceMark(
   ranges: Array<{ from: number; to: number; markNames: string[] }>,
   offset: number,
@@ -404,32 +330,6 @@ function isInlineSourceMark(
     (range) =>
       range.markNames.includes(mark.type.name) && offset >= range.from && offset + size <= range.to,
   );
-}
-
-function backticksFor(node: ProseMirrorNode, side: number): string {
-  let len = 0;
-  if (node.isText) {
-    const re = /`+/g;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(node.text ?? ""))) len = Math.max(len, m[0].length);
-  }
-  let result = len > 0 && side > 0 ? " `" : "`";
-  for (let i = 0; i < len; i += 1) result += "`";
-  if (len > 0 && side < 0) result += " ";
-  return result;
-}
-
-function isPlainURL(mark: Mark, parent: ProseMirrorNode, index: number): boolean {
-  if (mark.attrs.title || !/^\w+:/.test(mark.attrs.href as string)) return false;
-  const content = parent.child(index);
-  if (
-    !content.isText ||
-    content.text !== mark.attrs.href ||
-    content.marks[content.marks.length - 1] !== mark
-  ) {
-    return false;
-  }
-  return index === parent.childCount - 1 || !mark.isInSet(parent.child(index + 1).marks);
 }
 
 export const markdownSerializer = {

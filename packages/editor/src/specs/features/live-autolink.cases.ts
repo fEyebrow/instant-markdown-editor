@@ -35,7 +35,7 @@ export const liveAutolinkSpec = {
         {
           step: 21,
           expectedProjection:
-            "<p><pending><</pending><link-url>https://example.com</link-url><pending>></pending>|</p>",
+            '<p><pending><</pending><a href="https://example.com">https://example.com</a><pending>></pending>|</p>',
           expectedMarkdown: "<https://example.com>",
         },
       ],
@@ -49,7 +49,7 @@ export const liveAutolinkSpec = {
         {
           step: 13,
           expectedProjection:
-            "<p><pending><</pending><link-url>http://e.co</link-url><pending>></pending>|</p>",
+            '<p><pending><</pending><a href="http://e.co">http://e.co</a><pending>></pending>|</p>',
           expectedMarkdown: "<http://e.co>",
         },
       ],
@@ -69,33 +69,34 @@ export const liveAutolinkSpec = {
     },
     {
       id: "live-autolink-unfinished-valid-url-styles-url-only",
-      title: "Unfinished valid URL styles URL only",
+      title: "Unfinished valid URL stays plain text",
       initialMarkdown: "",
       keyevents: ["<", "h", "t", "t", "p", "s", ":", "/", "/", "e", ".", "c", "o"],
       checkpoints: [
         {
           step: 13,
-          expectedProjection: "<p><<link-url>https://e.co</link-url>|</p>",
+          expectedProjection: "<p><https://e.co|</p>",
           expectedMarkdown: "<https://e.co",
         },
       ],
     },
     {
       id: "live-autolink-invalid-source-stays-text",
-      title: "Invalid URL source stays plain text",
+      title: "Scheme autolink source projects",
       initialMarkdown: "",
       keyevents: ["<", "f", "t", "p", ":", "/", "/", "e", ".", "c", "o", ">"],
       checkpoints: [
         {
           step: 12,
-          expectedProjection: "<p><ftp://e.co>|</p>",
+          expectedProjection:
+            '<p><pending><</pending><a href="ftp://e.co">ftp://e.co</a><pending>></pending>|</p>',
           expectedMarkdown: "<ftp://e.co>",
         },
       ],
     },
     {
       id: "live-autolink-delete-closing-keeps-url-style",
-      title: "Deleting closing delimiter keeps URL style",
+      title: "Deleting closing delimiter breaks the source mark",
       initialMarkdown: "",
       keyevents: [
         "<",
@@ -117,27 +118,27 @@ export const liveAutolinkSpec = {
       checkpoints: [
         {
           step: 15,
-          expectedProjection: "<p><<link-url>https://e.co</link-url>|</p>",
+          expectedProjection: "<p><https://e.co|</p>",
           expectedMarkdown: "<https://e.co",
         },
       ],
     },
     {
-      id: "live-autolink-commits-on-space",
-      title: "Commit valid autolink on Space",
+      id: "live-autolink-hides-source-on-space",
+      title: "Typing after autolink hides source without changing markdown",
       initialMarkdown: "",
-      keyevents: ["<", "h", "t", "t", "p", "s", ":", "/", "/", "e", ".", "c", "o", ">", "Space"],
+      keyevents: ["<", "h", "t", "t", "p", "s", ":", "/", "/", "e", ".", "c", "o", ">", " "],
       checkpoints: [
         {
           step: 15,
           expectedProjection: '<p><a href="https://e.co">https://e.co</a> |</p>',
-          expectedMarkdown: "<https://e.co>\u00a0",
+          expectedMarkdown: "<https://e.co> ",
         },
       ],
     },
     {
-      id: "live-autolink-commits-on-cursor-leave",
-      title: "Commit valid autolink when cursor leaves",
+      id: "live-autolink-keeps-source-at-right-boundary",
+      title: "Complete autolink source remains intact at the right boundary",
       initialMarkdown: "",
       keyevents: [
         "<",
@@ -160,21 +161,22 @@ export const liveAutolinkSpec = {
       checkpoints: [
         {
           step: 16,
-          expectedProjection: '<p><a href="https://e.co">https://e.co</a>|</p>',
+          expectedProjection:
+            '<p><pending><</pending><a href="https://e.co">https://e.co</a><pending>></pending>|</p>',
           expectedMarkdown: "<https://e.co>",
         },
       ],
     },
     {
-      id: "live-autolink-reenters-rendered-autolink-as-source-projection",
-      title: "Re-enter rendered autolink as source projection",
+      id: "live-autolink-reveals-rendered-source-projection",
+      title: "Reveal rendered autolink source projection",
       initialMarkdown: "<https://e.co>",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
           step: 1,
           expectedProjection:
-            "<p><pending><</pending><link-url>https://e.c</link-url>|<link-url>o</link-url><pending>></pending></p>",
+            '<p><pending><</pending><a href="https://e.co">https://e.co</a>|<pending>></pending></p>',
           expectedMarkdown: "<https://e.co>",
         },
       ],

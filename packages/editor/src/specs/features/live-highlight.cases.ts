@@ -6,7 +6,7 @@ export const liveHighlightSpec = {
   cases: [
     {
       id: "live-highlight-basic",
-      title: "Basic commit flow",
+      title: "Basic Method-B flow",
       initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", " "],
       checkpoints: [

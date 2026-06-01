@@ -13,47 +13,48 @@ export const liveLinkSpec = {
         {
           step: 6,
           expectedProjection:
-            "<p><pending>[</pending><link-label>x</link-label><pending>](</pending><link-url>y</link-url><pending>)</pending>|</p>",
+            '<p><pending>[</pending><a href="y">x</a><pending>](y)</pending>|</p>',
           expectedMarkdown: "[x](y)",
         },
       ],
     },
     {
-      id: "live-link-commits-non-empty-label-on-space",
-      title: "Commit non-empty label on Space",
+      id: "live-link-hides-non-empty-label-on-space",
+      title: "Typing after a complete link hides source without changing markdown",
       initialMarkdown: "",
-      keyevents: ["[", "x", "]", "(", "y", ")", "Space"],
+      keyevents: ["[", "x", "]", "(", "y", ")", " "],
       checkpoints: [
         {
           step: 7,
           expectedProjection: '<p><a href="y">x</a> |</p>',
-          expectedMarkdown: "[x](y)\u00a0",
+          expectedMarkdown: "[x](y) ",
         },
       ],
     },
     {
-      id: "live-link-commits-non-empty-label-on-cursor-leave",
-      title: "Commit non-empty label when cursor leaves",
+      id: "live-link-keeps-source-at-right-boundary",
+      title: "Complete link source remains intact at the right boundary",
       initialMarkdown: "",
       keyevents: ["[", "x", "]", "(", "y", ")", "ArrowLeft", "ArrowRight"],
       checkpoints: [
         {
           step: 8,
-          expectedProjection: '<p><a href="y">x</a>|</p>',
+          expectedProjection:
+            '<p><pending>[</pending><a href="y">x</a><pending>](y)</pending>|</p>',
           expectedMarkdown: "[x](y)",
         },
       ],
     },
     {
-      id: "live-link-reenters-rendered-link-as-source-projection",
-      title: "Re-enter rendered link as source projection",
+      id: "live-link-reveals-rendered-link-source",
+      title: "Reveal rendered link source projection",
       initialMarkdown: "[xy](z)",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
           step: 1,
           expectedProjection:
-            "<p><pending>[</pending><link-label>x</link-label>|<link-label>y</link-label><pending>](</pending><link-url>z</link-url><pending>)</pending></p>",
+            '<p><pending>[</pending><a href="z">xy</a><pending>](z</pending>|<pending>)</pending></p>',
           expectedMarkdown: "[xy](z)",
         },
       ],
@@ -62,13 +63,12 @@ export const liveLinkSpec = {
       id: "live-link-empty-label-stays-source-on-space",
       title: "Empty label stays source projection on Space",
       initialMarkdown: "",
-      keyevents: ["[", "]", "(", ")", "Space"],
+      keyevents: ["[", "]", "(", ")", " "],
       checkpoints: [
         {
           step: 5,
-          expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><pending>)</pending>|</p>",
-          expectedMarkdown: "[]()",
+          expectedProjection: "<p><pending>[</pending><pending>]()</pending> |</p>",
+          expectedMarkdown: "[]() ",
         },
       ],
     },
@@ -101,21 +101,21 @@ export const liveLinkSpec = {
           step: 8,
           title: "repaired source projects again",
           expectedProjection:
-            "<p><pending>[</pending><link-label>x</link-label><pending>](</pending><link-url>y</link-url><pending>)</pending>|</p>",
+            '<p><pending>[</pending><a href="y">x</a><pending>](y)</pending>|</p>',
           expectedMarkdown: "[x](y)",
         },
       ],
     },
     {
-      id: "live-link-empty-href-commits",
-      title: "Empty href commits",
+      id: "live-link-empty-href-keeps-source",
+      title: "Empty href remains Method-B source",
       initialMarkdown: "",
-      keyevents: ["[", "x", "]", "(", ")", "Space"],
+      keyevents: ["[", "x", "]", "(", ")", " "],
       checkpoints: [
         {
           step: 6,
           expectedProjection: "<p><a>x</a> |</p>",
-          expectedMarkdown: "[x]()\u00a0",
+          expectedMarkdown: "[x]() ",
         },
       ],
     },
@@ -128,13 +128,13 @@ export const liveLinkSpec = {
         {
           step: 5,
           expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)</pending>|</p>",
+            "<p><pending>[</pending><pending>](</pending>u<pending>)</pending>|</p>",
           expectedMarkdown: "[](u)",
         },
         {
           step: 10,
           expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)</pending> <pending>[</pending><pending>](</pending><pending>)</pending>|</p>",
+            "<p><pending>[</pending><pending>](</pending>u<pending>)</pending> <pending>[</pending><pending>]()</pending>|</p>",
           expectedMarkdown: "[](u) []()",
         },
       ],
@@ -148,7 +148,7 @@ export const liveLinkSpec = {
         {
           step: 7,
           expectedProjection:
-            "<p><pending>[</pending><pending>](</pending><link-url>u</link-url><pending>)</pending>|</p>",
+            "<p><pending>[</pending><pending>](</pending>u<pending>)</pending>|</p>",
           expectedMarkdown: "[](u)",
         },
       ],

@@ -86,8 +86,8 @@ export const liveInlineMarkSpec = {
 
     // SourceProjection → Committed via trailing space
     {
-      id: "live-inline-mark-commit-on-trailing-space",
-      title: "Trailing space commits source projection",
+      id: "live-inline-mark-hides-source-on-trailing-space",
+      title: "Trailing space hides source projection",
       initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", " ", "x"],
       checkpoints: [
@@ -99,7 +99,7 @@ export const liveInlineMarkSpec = {
         },
         {
           step: 7,
-          title: "continued typing extends plain text after committed mark",
+          title: "continued typing extends plain text after hidden source",
           expectedProjection: "<p><mark>1</mark> x|</p>",
           expectedMarkdown: "==1== x",
         },
@@ -108,8 +108,8 @@ export const liveInlineMarkSpec = {
 
     // SourceProjection → Committed via trailing plain text
     {
-      id: "live-inline-mark-commit-on-trailing-text",
-      title: "Trailing plain character commits source projection",
+      id: "live-inline-mark-hides-source-on-trailing-text",
+      title: "Trailing plain character hides source projection",
       initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", "x"],
       checkpoints: [
@@ -156,14 +156,14 @@ export const liveInlineMarkSpec = {
 
     // Committed → SourceProjection (re-enter at right boundary)
     {
-      id: "live-inline-mark-reenter-at-right-boundary",
-      title: "Selection at committed mark right boundary triggers re-enter",
+      id: "live-inline-mark-reveals-at-right-boundary",
+      title: "Selection at mark right boundary reveals source",
       initialMarkdown: "==1== a",
       keyevents: ["ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
           step: 1,
-          title: "cursor between trailing space and a, mark stays committed",
+          title: "cursor between trailing space and a, source stays hidden",
           expectedProjection: "<p><mark>1</mark> |a</p>",
           expectedMarkdown: "==1== a",
         },

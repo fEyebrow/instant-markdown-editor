@@ -6,7 +6,7 @@ export const liveCodeSpec = {
   cases: [
     {
       id: "live-code-basic",
-      title: "Basic commit flow",
+      title: "Basic Method-B flow",
       initialMarkdown: "",
       keyevents: ["`", "1", "`", " "],
       checkpoints: [
@@ -23,8 +23,8 @@ export const liveCodeSpec = {
       ],
     },
     {
-      id: "live-code-commit-before-plain-text",
-      title: "Commit before plain text",
+      id: "live-code-hides-source-before-plain-text",
+      title: "Hide source before plain text",
       initialMarkdown: "",
       keyevents: ["`", "1", "`", "a"],
       checkpoints: [

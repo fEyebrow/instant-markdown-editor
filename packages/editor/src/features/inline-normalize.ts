@@ -1,8 +1,7 @@
 import type { Mark, Node as PMNode, Schema } from "prosemirror-model";
 import { Plugin, PluginKey, type EditorState } from "prosemirror-state";
 import { syntaxHintsPlugin } from "./inline-decorations.ts";
-import { parseInline, type InlineSpan } from "./inline-parse.ts";
-import { inlineFeatureSpecs } from "./inline-scanners.ts";
+import { parseInline, type InlineFeatureSpec, type InlineSpan } from "./inline-parse.ts";
 
 export type DelimRange = {
   from: number;
@@ -22,11 +21,17 @@ export type NormalizeInlineState = {
 
 export const normalizeInlineKey = new PluginKey<NormalizeInlineState>("normalize-inline");
 
-export function createInlineNormalizePlugins(schema: Schema): Plugin[] {
-  return [normalizeInlinePlugin(schema), syntaxHintsPlugin()];
+export function createInlineNormalizePlugins(
+  schema: Schema,
+  inlineFeatures: InlineFeatureSpec[],
+): Plugin[] {
+  return [normalizeInlinePlugin(schema, inlineFeatures), syntaxHintsPlugin()];
 }
 
-export function normalizeInlinePlugin(schema: Schema): Plugin<NormalizeInlineState> {
+export function normalizeInlinePlugin(
+  schema: Schema,
+  inlineFeatures: InlineFeatureSpec[],
+): Plugin<NormalizeInlineState> {
   return new Plugin<NormalizeInlineState>({
     key: normalizeInlineKey,
     state: {
@@ -40,7 +45,7 @@ export function normalizeInlinePlugin(schema: Schema): Plugin<NormalizeInlineSta
       const plan = normalizeInlineKey.getState(newState);
       if (!plan) return null;
 
-      const markTypes = inlineFeatureSpecs
+      const markTypes = inlineFeatures
         .flatMap((feature) => feature.markNames)
         .map((name) => schema.marks[name])
         .filter((mark): mark is NonNullable<typeof mark> => Boolean(mark));

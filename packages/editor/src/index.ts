@@ -4,11 +4,7 @@ import { history, redo, undo } from "prosemirror-history";
 import { keymap } from "prosemirror-keymap";
 import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
-import {
-  createFeatureKeymaps,
-  createFeaturePlugins,
-  serializeFeatureMarkdown,
-} from "./features/index.ts";
+import { createFeatureKeymaps, createFeaturePlugins } from "./features/index.ts";
 import { markdownPasteParser } from "./markdown/paste.ts";
 import { markdownParser } from "./markdown/parser.ts";
 import { markdownSerializer } from "./markdown/serializer.ts";
@@ -75,7 +71,7 @@ export function createEditor(options: EditorOptions): EditorHandle {
 }
 
 function serializeMarkdown(doc: EditorState["doc"]): string {
-  return serializeFeatureMarkdown(markdownSerializer.serialize(doc));
+  return markdownSerializer.serialize(doc);
 }
 
 export { editorSchema };

@@ -1,4 +1,7 @@
 import type { MarkSpec } from "prosemirror-model";
+import type StateInline from "markdown-it/lib/rules_inline/state_inline.mjs";
+import { markExtRanges, scanFixedDelim } from "./inline-parse.ts";
+import type { FeatureSpec } from "./_types.ts";
 
 export const subscriptMarkSpecs = {
   subscript: {
@@ -9,18 +12,51 @@ export const subscriptMarkSpecs = {
   } as MarkSpec,
 };
 
-export const subscriptMarkdownParseSpecs = {
-  sub: { mark: "subscript" },
-};
+function subscriptRule(state: StateInline, silent: boolean): boolean {
+  const start = state.pos;
+  if (state.src[start] !== "~" || state.src[start + 1] === "~" || state.src[start - 1] === "~") {
+    return false;
+  }
 
-export const subscriptMarkdownSerializeSpecs = {
-  subscript: { open: "~", close: "~", expelEnclosingWhitespace: true },
-};
+  const end = state.src.indexOf("~", start + 1);
+  if (end === -1 || state.src[end + 1] === "~") return false;
 
-export const subscriptMarkRankEntries: [string, number][] = [["subscript", 2.625]];
+  const inner = state.src.slice(start + 1, end);
+  if (inner.trim() === "" || inner.includes("\n")) return false;
 
-const ESCAPED_PENDING_MARKER = /\\?~([^~\s\\]+)\\?~/g;
-
-export function serializeLiveSubscriptPendingMarkdown(markdown: string): string {
-  return markdown.replace(ESCAPED_PENDING_MARKER, "~$1~");
+  if (!silent) {
+    state.push("sub_open", "sub", 1).markup = "~";
+    const token = state.push("text", "", 0);
+    token.content = inner;
+    state.push("sub_close", "sub", -1).markup = "~";
+  }
+  state.pos = end + 1;
+  return true;
 }
+
+export const subscript: FeatureSpec = {
+  name: "subscript",
+  marks: subscriptMarkSpecs,
+  parserTokens: {
+    sub_open: (state, _token, schema) => {
+      state.addText("~");
+      state.openMark(schema.marks.subscript.create());
+    },
+    sub_close: (state, _token, schema) => {
+      state.closeMarkType(schema.marks.subscript);
+      state.addText("~");
+    },
+  },
+  markDelims: {
+    subscript: { open: "", close: "" },
+  },
+  mdItPlugins: [
+    (tokenizer) => tokenizer.inline.ruler.before("emphasis", "subscript", subscriptRule),
+  ],
+  inline: {
+    priority: 1.2,
+    markNames: ["subscript"],
+    scan: (text, consumed) => scanFixedDelim(text, "~", 1, "subscript", consumed),
+    extRanges: (parent) => markExtRanges(parent, "subscript", 1),
+  },
+};

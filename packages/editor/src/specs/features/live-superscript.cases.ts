@@ -6,7 +6,7 @@ export const liveSuperscriptSpec = {
   cases: [
     {
       id: "live-superscript-basic",
-      title: "Basic commit flow",
+      title: "Basic Method-B flow",
       initialMarkdown: "",
       keyevents: ["^", "1", "^", " "],
       checkpoints: [

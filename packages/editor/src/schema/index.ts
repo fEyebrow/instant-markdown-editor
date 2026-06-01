@@ -1,4 +1,4 @@
-import { type MarkSpec, Schema } from "prosemirror-model";
+import { Schema } from "prosemirror-model";
 import { featureMarkSpecs } from "../features/index.ts";
 
 export const editorSchema = new Schema({
@@ -35,7 +35,7 @@ export const editorSchema = new Schema({
 
     heading: {
       attrs: { level: { default: 1 } },
-      content: "(text | image)*",
+      content: "text*",
       group: "block",
       defining: true,
       parseDOM: [
@@ -101,7 +101,7 @@ export const editorSchema = new Schema({
     },
 
     bullet_list: {
-      content: "(list_item | task_item)+",
+      content: "list_item+",
       group: "block",
       attrs: { tight: { default: false } },
       parseDOM: [
@@ -120,58 +120,14 @@ export const editorSchema = new Schema({
     list_item: {
       content: "block+",
       defining: true,
-      parseDOM: [{ tag: "li:not([data-task])" }],
+      parseDOM: [{ tag: "li" }],
       toDOM() {
         return ["li", 0];
       },
     },
 
-    task_item: {
-      content: "block+",
-      attrs: { checked: { default: false } },
-      defining: true,
-      parseDOM: [
-        {
-          tag: "li[data-task]",
-          getAttrs: (dom) => ({ checked: (dom as HTMLElement).hasAttribute("data-checked") }),
-        },
-      ],
-      toDOM(node) {
-        const attrs: Record<string, string | null> = { "data-task": "" };
-        if (node.attrs.checked) attrs["data-checked"] = "";
-        return ["li", attrs, 0];
-      },
-    },
-
     text: {
       group: "inline",
-    },
-
-    image: {
-      inline: true,
-      attrs: {
-        src: {},
-        alt: { default: null },
-        title: { default: null },
-      },
-      group: "inline",
-      draggable: true,
-      parseDOM: [
-        {
-          tag: "img[src]",
-          getAttrs(dom) {
-            const el = dom as HTMLElement;
-            return {
-              src: el.getAttribute("src"),
-              title: el.getAttribute("title"),
-              alt: el.getAttribute("alt"),
-            };
-          },
-        },
-      ],
-      toDOM(node) {
-        return ["img", node.attrs];
-      },
     },
 
     hard_break: {
@@ -183,84 +139,9 @@ export const editorSchema = new Schema({
         return ["br"];
       },
     },
-
-    emoji: {
-      inline: true,
-      attrs: {
-        shortcode: {},
-        emoji: {},
-      },
-      group: "inline",
-      draggable: true,
-      parseDOM: [
-        {
-          tag: "span[data-shortcode]",
-          getAttrs(dom) {
-            const el = dom as HTMLElement;
-            return {
-              shortcode: el.getAttribute("data-shortcode"),
-              emoji: el.textContent,
-            };
-          },
-        },
-      ],
-      toDOM(node) {
-        return [
-          "span",
-          { "data-shortcode": node.attrs.shortcode as string },
-          node.attrs.emoji as string,
-        ];
-      },
-    },
   },
 
   marks: {
     ...featureMarkSpecs,
-
-    strong: {
-      parseDOM: [
-        { tag: "strong" },
-        {
-          tag: "b",
-          getAttrs: (node) => (node as HTMLElement).style.fontWeight !== "normal" && null,
-        },
-        { style: "font-weight=400", clearMark: (m) => m.type.name === "strong" },
-        {
-          style: "font-weight",
-          getAttrs: (value) => /^(bold(er)?|[5-9]\d{2,})$/.test(value as string) && null,
-        },
-      ],
-      toDOM() {
-        return ["strong"];
-      },
-    } as MarkSpec,
-
-    link: {
-      attrs: {
-        href: {},
-        title: { default: null },
-      },
-      inclusive: false,
-      parseDOM: [
-        {
-          tag: "a[href]",
-          getAttrs(dom) {
-            const el = dom as HTMLElement;
-            return { href: el.getAttribute("href"), title: el.getAttribute("title") };
-          },
-        },
-      ],
-      toDOM(node) {
-        return ["a", node.attrs];
-      },
-    } as MarkSpec,
-
-    code: {
-      code: true,
-      parseDOM: [{ tag: "code" }],
-      toDOM() {
-        return ["code"];
-      },
-    } as MarkSpec,
   },
 });

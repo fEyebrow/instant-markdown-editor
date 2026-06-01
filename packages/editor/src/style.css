@@ -160,32 +160,6 @@
   text-underline-offset: 2px;
 }
 
-.ProseMirror .md-live-image-state,
-.ProseMirror .md-live-image-empty,
-.ProseMirror .md-live-image-loading,
-.ProseMirror .md-live-image-broken {
-  color: var(--rte-muted, #6b6375);
-  user-select: none;
-}
-
-.ProseMirror .md-live-image-alt {
-  color: var(--rte-accent, #aa3bff);
-}
-
-.ProseMirror .md-live-image-src {
-  color: var(--rte-muted, #6b6375);
-}
-
-.ProseMirror .md-live-image-preview {
-  display: block;
-  width: 100%;
-  height: auto;
-  margin: 0.5em 0 0;
-  object-fit: contain;
-  user-select: none;
-  pointer-events: none;
-}
-
 .ProseMirror .play-caret {
   display: inline-block;
   width: 1px;

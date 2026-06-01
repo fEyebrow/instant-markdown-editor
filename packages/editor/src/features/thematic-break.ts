@@ -1,6 +1,13 @@
 import type { Schema } from "prosemirror-model";
 import { Plugin, TextSelection } from "prosemirror-state";
 import type { Command } from "prosemirror-state";
+import type { FeatureSpec } from "./_types.ts";
+
+export const thematicBreak: FeatureSpec = {
+  name: "thematic-break",
+  plugins: (schema) => [thematicBreakLeaveLine(schema)],
+  keymaps: () => [thematicBreakKeymap],
+};
 
 const thematicBreakOnEnter: Command = (state, dispatch) => {
   const { $from } = state.selection;

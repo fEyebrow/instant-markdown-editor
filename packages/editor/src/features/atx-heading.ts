@@ -2,8 +2,15 @@ import type { Node as ProseMirrorNode, Schema } from "prosemirror-model";
 import { Plugin, TextSelection } from "prosemirror-state";
 import type { Command, EditorState } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import type { FeatureSpec } from "./_types.ts";
 
 const HEADING_PATTERN = /^(#{1,6}) (.+)$/;
+
+export const atxHeadingFeature: FeatureSpec = {
+  name: "atx-heading",
+  plugins: (schema) => [atxHeading(schema)],
+  keymaps: () => [atxHeadingKeymap],
+};
 
 export interface HeadingTriggerMatch {
   level: number;

@@ -6,7 +6,7 @@ export const liveStrongSpec = {
   cases: [
     {
       id: "live-strong-basic",
-      title: "Basic commit flow",
+      title: "Basic Method-B flow",
       initialMarkdown: "",
       keyevents: ["*", "*", "1", "*", "*", " "],
       checkpoints: [
@@ -23,8 +23,8 @@ export const liveStrongSpec = {
       ],
     },
     {
-      id: "live-strong-commit-before-plain-text",
-      title: "Commit before plain text",
+      id: "live-strong-hides-source-before-plain-text",
+      title: "Hide source before plain text",
       initialMarkdown: "",
       keyevents: ["*", "*", "1", "*", "*", "a"],
       checkpoints: [
@@ -36,7 +36,7 @@ export const liveStrongSpec = {
       ],
     },
     {
-      id: "live-strong-commits-inside-highlight-source-layer",
+      id: "live-strong-projects-inside-highlight-source-layer",
       title: "Commits inside highlight source layer",
       initialMarkdown: "",
       keyevents: ["=", "=", "*", "*", "1", "*", "*", "=", "=", " "],

@@ -1,5 +1,11 @@
 import type { Schema } from "prosemirror-model";
 import { inputRules, wrappingInputRule } from "prosemirror-inputrules";
+import type { FeatureSpec } from "./_types.ts";
+
+export const orderedList: FeatureSpec = {
+  name: "ordered-list",
+  plugins: (schema) => [orderedListInputRules(schema)],
+};
 
 export function orderedListInputRules(schema: Schema) {
   return inputRules({

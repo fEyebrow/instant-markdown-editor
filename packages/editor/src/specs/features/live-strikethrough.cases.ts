@@ -6,7 +6,7 @@ export const liveStrikethroughSpec = {
   cases: [
     {
       id: "live-strikethrough-basic",
-      title: "Basic commit flow",
+      title: "Basic Method-B flow",
       initialMarkdown: "",
       keyevents: ["~", "~", "1", "~", "~", " "],
       checkpoints: [
@@ -23,8 +23,8 @@ export const liveStrikethroughSpec = {
       ],
     },
     {
-      id: "live-strikethrough-commit-before-plain-text",
-      title: "Commit before plain text",
+      id: "live-strikethrough-hides-source-before-plain-text",
+      title: "Hide source before plain text",
       initialMarkdown: "",
       keyevents: ["~", "~", "1", "~", "~", "a"],
       checkpoints: [

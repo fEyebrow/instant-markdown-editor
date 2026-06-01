@@ -175,13 +175,7 @@ const DEFAULT_TAGS: Record<string, TagSerializer> = {
     return start ? `<ol start="${escapeAttribute(start)}">${c}</ol>` : `<ol>${c}</ol>`;
   },
   UL: (c) => `<ul>${c}</ul>`,
-  LI: (c, el) => {
-    if (el.hasAttribute("data-task")) {
-      const checked = el.hasAttribute("data-checked");
-      return `<task-item checked="${checked}">${c}</task-item>`;
-    }
-    return `<li>${c}</li>`;
-  },
+  LI: (c) => `<li>${c}</li>`,
   DIV: (c, el) => {
     if (el.childNodes.length === 1 && el.firstElementChild?.tagName === "HR") return "<hr>";
     return c;
@@ -204,17 +198,6 @@ const DEFAULT_TAGS: Record<string, TagSerializer> = {
     ].join("");
     return `<a${attrs}>${c}</a>`;
   },
-  IMG: (_c, el) => {
-    const src = el.getAttribute("src") ?? "";
-    const alt = el.getAttribute("alt");
-    const title = el.getAttribute("title");
-    const attrs = [
-      `src="${escapeAttribute(src)}"`,
-      alt === null ? "" : ` alt="${escapeAttribute(alt)}"`,
-      title === null ? "" : ` title="${escapeAttribute(title)}"`,
-    ].filter(Boolean);
-    return `<img ${attrs.join(" ")}>`;
-  },
   BR: () => "<br>",
 };
 
@@ -236,10 +219,6 @@ function serializeNode(node: Node, tags: Record<string, TagSerializer>): string 
 
   if (node.tagName === "BR" && node.classList.contains("ProseMirror-trailingBreak")) return "";
   if (node.classList.contains("ProseMirror-separator")) return "";
-  if (node.classList.contains("md-task-checkbox")) return "";
-  if (node.classList.contains("md-emoji-icon")) return "";
-  if (node.classList.contains("md-emoji-source-icon")) return "";
-  if (node.classList.contains("md-emoji-popup")) return "";
   if (node.classList.contains("play-caret")) return "|";
   if (node.classList.contains("play-selection-marker")) return node.textContent ?? "";
 
@@ -264,29 +243,6 @@ function serializeNode(node: Node, tags: Record<string, TagSerializer>): string 
   if (node.classList.contains("md-live-link-label")) return `<link-label>${content}</link-label>`;
   if (node.classList.contains("md-live-link-url")) return `<link-url>${content}</link-url>`;
   if (node.classList.contains("md-live-autolink-url")) return `<link-url>${content}</link-url>`;
-  if (node.classList.contains("md-live-image-state"))
-    return `<image-state>${content}</image-state>`;
-  if (node.classList.contains("md-live-image-alt")) return `<image-alt>${content}</image-alt>`;
-  if (node.classList.contains("md-live-image-src")) return `<image-src>${content}</image-src>`;
-  if (node.classList.contains("md-live-image-empty"))
-    return `<image-empty>${content}</image-empty>`;
-  if (node.classList.contains("md-live-image-loading"))
-    return `<image-loading>${content}</image-loading>`;
-  if (node.classList.contains("md-live-image-broken"))
-    return `<image-broken>${content}</image-broken>`;
-  if (node.classList.contains("md-live-emoji-src")) return `<emoji-src>${content}</emoji-src>`;
-  if (node.classList.contains("md-live-emoji-shortcode"))
-    return `<emoji-src>${content}</emoji-src>`;
-  if (node.tagName === "SPAN" && node.hasAttribute("data-shortcode")) {
-    const shortcode = node.getAttribute("data-shortcode") ?? "";
-    return `<emoji shortcode="${escapeAttribute(shortcode)}">`;
-  }
-  if (node.classList.contains("md-live-image-preview")) {
-    const src = node.getAttribute("src") ?? "";
-    const alt = node.getAttribute("alt") ?? "";
-    return `<image-preview src="${escapeAttribute(src)}" alt="${escapeAttribute(alt)}">`;
-  }
-
   const serializer = tags[node.tagName];
   return serializer ? serializer(content, node) : content;
 }

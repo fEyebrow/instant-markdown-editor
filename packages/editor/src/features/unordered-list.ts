@@ -1,6 +1,13 @@
 import type { Schema } from "prosemirror-model";
 import { inputRules, wrappingInputRule } from "prosemirror-inputrules";
 import { liftListItem, sinkListItem, splitListItem } from "prosemirror-schema-list";
+import type { FeatureSpec } from "./_types.ts";
+
+export const unorderedList: FeatureSpec = {
+  name: "unordered-list",
+  plugins: (schema) => [unorderedListInputRules(schema)],
+  keymaps: (schema) => [unorderedListKeymap(schema)],
+};
 
 export function unorderedListInputRules(schema: Schema) {
   return inputRules({
