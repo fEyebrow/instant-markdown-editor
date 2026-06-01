@@ -1,5 +1,4 @@
 import type { MarkSpec } from "prosemirror-model";
-import type { LiveInlineMarkSpec } from "./live-inline-mark.ts";
 
 export const highlightMarkSpecs = {
   highlight: {
@@ -19,13 +18,6 @@ export const highlightMarkdownSerializeSpecs = {
 };
 
 export const highlightMarkRankEntries: [string, number][] = [["highlight", 2.75]];
-
-export const liveHighlightSpec = {
-  mark: "highlight",
-  delimiter: "==",
-  liveClass: "md-live-highlight",
-  revealOnArrow: true,
-} satisfies LiveInlineMarkSpec;
 
 const ESCAPED_PENDING_MARKER = /\\?=\\?=([^=\s\\]+)\\?=\\?=/g;
 

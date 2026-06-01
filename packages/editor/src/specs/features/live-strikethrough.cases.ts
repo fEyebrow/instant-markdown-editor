@@ -18,7 +18,7 @@ export const liveStrikethroughSpec = {
         {
           step: 6,
           expectedProjection: "<p><s>1</s> |</p>",
-          expectedMarkdown: "~~1~~\u00a0",
+          expectedMarkdown: "~~1~~ ",
         },
       ],
     },
@@ -45,14 +45,14 @@ export const liveStrikethroughSpec = {
           step: 7,
           title: "cursor reaches mark end",
           expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>| </p>",
-          expectedMarkdown: "~~1~~\u00a0",
+          expectedMarkdown: "~~1~~ ",
         },
         {
           step: 8,
           title: "cursor moves through closing delimiter",
           expectedProjection:
             "<p><pending>~~</pending><s>1</s><pending>~</pending>|<pending>~</pending> </p>",
-          expectedMarkdown: "~~1~~\u00a0",
+          expectedMarkdown: "~~1~~ ",
         },
       ],
     },

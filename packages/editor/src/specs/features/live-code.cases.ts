@@ -18,7 +18,7 @@ export const liveCodeSpec = {
         {
           step: 4,
           expectedProjection: "<p><code>1</code> |</p>",
-          expectedMarkdown: "`1`\u00a0",
+          expectedMarkdown: "`1` ",
         },
       ],
     },

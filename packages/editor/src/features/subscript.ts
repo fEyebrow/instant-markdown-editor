@@ -1,5 +1,4 @@
 import type { MarkSpec } from "prosemirror-model";
-import type { LiveInlineMarkSpec } from "./live-inline-mark.ts";
 
 export const subscriptMarkSpecs = {
   subscript: {
@@ -19,14 +18,6 @@ export const subscriptMarkdownSerializeSpecs = {
 };
 
 export const subscriptMarkRankEntries: [string, number][] = [["subscript", 2.625]];
-
-export const liveSubscriptSpec = {
-  mark: "subscript",
-  delimiter: "~",
-  liveClass: "md-live-subscript",
-  allowDelimiterFallback: true,
-  moveTypedTextAfterStartBoundary: true,
-} satisfies LiveInlineMarkSpec;
 
 const ESCAPED_PENDING_MARKER = /\\?~([^~\s\\]+)\\?~/g;
 

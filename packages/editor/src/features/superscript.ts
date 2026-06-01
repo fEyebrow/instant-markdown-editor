@@ -1,5 +1,4 @@
 import type { MarkSpec } from "prosemirror-model";
-import type { LiveInlineMarkSpec } from "./live-inline-mark.ts";
 
 export const superscriptMarkSpecs = {
   superscript: {
@@ -19,12 +18,6 @@ export const superscriptMarkdownSerializeSpecs = {
 };
 
 export const superscriptMarkRankEntries: [string, number][] = [["superscript", 2.65]];
-
-export const liveSuperscriptSpec = {
-  mark: "superscript",
-  delimiter: "^",
-  liveClass: "md-live-superscript",
-} satisfies LiveInlineMarkSpec;
 
 const ESCAPED_PENDING_MARKER = /\\?\^([^^\s\\]+)\\?\^/g;
 

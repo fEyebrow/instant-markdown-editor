@@ -359,6 +359,63 @@ const tokenSpecs: Record<string, ParseSpec> = {
 
 const handlers = buildHandlers(editorSchema, tokenSpecs);
 
+handlers.em_open = (state, tok) => {
+  state.addText(tok.markup || "*");
+  state.openMark(editorSchema.marks.em.create());
+};
+handlers.em_close = (state, tok) => {
+  state.closeMark(editorSchema.marks.em);
+  state.addText(tok.markup || "*");
+};
+handlers.strong_open = (state, tok) => {
+  state.addText(tok.markup || "**");
+  state.openMark(editorSchema.marks.strong.create());
+};
+handlers.strong_close = (state, tok) => {
+  state.closeMark(editorSchema.marks.strong);
+  state.addText(tok.markup || "**");
+};
+handlers.s_open = (state) => {
+  state.addText("~~");
+  state.openMark(editorSchema.marks.strikethrough.create());
+};
+handlers.s_close = (state) => {
+  state.closeMark(editorSchema.marks.strikethrough);
+  state.addText("~~");
+};
+handlers.mark_open = (state) => {
+  state.addText("==");
+  state.openMark(editorSchema.marks.highlight.create());
+};
+handlers.mark_close = (state) => {
+  state.closeMark(editorSchema.marks.highlight);
+  state.addText("==");
+};
+handlers.sub_open = (state) => {
+  state.addText("~");
+  state.openMark(editorSchema.marks.subscript.create());
+};
+handlers.sub_close = (state) => {
+  state.closeMark(editorSchema.marks.subscript);
+  state.addText("~");
+};
+handlers.sup_open = (state) => {
+  state.addText("^");
+  state.openMark(editorSchema.marks.superscript.create());
+};
+handlers.sup_close = (state) => {
+  state.closeMark(editorSchema.marks.superscript);
+  state.addText("^");
+};
+handlers.code_inline = (state, tok) => {
+  const markup = tok.markup || "`";
+  state.addText(markup);
+  state.openMark(editorSchema.marks.code.create());
+  state.addText(stripTrailingNewline(tok.content));
+  state.closeMark(editorSchema.marks.code);
+  state.addText(markup);
+};
+
 const origListItemOpen = handlers["list_item_open"];
 handlers["list_item_open"] = (state, tok, toks, i) => {
   if (tok.attrGet("data-task") !== null) {

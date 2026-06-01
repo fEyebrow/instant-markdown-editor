@@ -1,5 +1,4 @@
 import type { MarkSpec } from "prosemirror-model";
-import type { LiveInlineMarkSpec } from "./live-inline-mark.ts";
 
 export const italicMarkSpecs = {
   em: {
@@ -25,12 +24,6 @@ export const italicMarkdownSerializeSpecs = {
 
 export const italicMarkRankEntries: [string, number][] = [["em", 2]];
 
-export const liveItalicSpec = {
-  mark: "em",
-  delimiter: "*",
-  liveClass: "md-live-em",
-  allowDelimiterFallback: true,
-} satisfies LiveInlineMarkSpec;
 const ESCAPED_PENDING_MARKER = /\\\*([^*\s\\]+)\\\*/g;
 
 export function serializeLiveItalicPendingMarkdown(markdown: string): string {

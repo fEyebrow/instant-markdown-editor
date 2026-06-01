@@ -1,12 +1,73 @@
 import type { EditorSpecFeatureDefinition } from "../types.ts";
 
-// Live inline mark 模块的单层行为测试床。挑选 highlight (==) 作为示例 mark；
-// 这里只验证模块统一管线：Resolver 状态转换、Controller 单步转换、Decorations 真字符装饰。
-// 嵌套行为不在本文件范围内。
+// Inline normalize 模块的行为测试床。挑选 highlight (==) 作为示例 mark；
+// 这里验证 source text 作为唯一真相时的 mark 同步、嵌套/交叉取舍和 delimiter 装饰。
 export const liveInlineMarkSpec = {
   id: "live-inline-mark",
   title: "Live Inline Mark Module",
   cases: [
+    {
+      id: "live-inline-mark-nests-strong-and-em",
+      title: "Nested strong and em remain stable from source text",
+      initialMarkdown: "",
+      keyevents: [
+        "*",
+        "*",
+        "b",
+        "o",
+        "l",
+        "d",
+        " ",
+        "*",
+        "e",
+        "m",
+        "*",
+        "*",
+        "*",
+        "ArrowLeft",
+        "ArrowLeft",
+      ],
+      checkpoints: [
+        {
+          step: 15,
+          title: "outer strong and inner em both project from retained delimiters",
+          expectedProjection:
+            "<p><pending>**</pending><b>bold <pending>*</pending></b><i><b>em</b></i><b><pending>*</pending></b>|<pending>**</pending></p>",
+          expectedMarkdown: "**bold *em***",
+        },
+      ],
+    },
+
+    {
+      id: "live-inline-mark-inline-code-isolates-strong-source",
+      title: "Inline code isolates strong source",
+      initialMarkdown: "`**x**`",
+      keyevents: ["ArrowLeft"],
+      checkpoints: [
+        {
+          step: 1,
+          title: "asterisk delimiter characters stay literal inside code",
+          expectedProjection: "<p><pending>`</pending><code>**x**</code>|<pending>`</pending></p>",
+          expectedMarkdown: "`**x**`",
+        },
+      ],
+    },
+
+    {
+      id: "live-inline-mark-rejects-crossing-lower-priority-source",
+      title: "Crossing lower-priority source is ignored",
+      initialMarkdown: "==*x==*",
+      keyevents: ["ArrowLeft"],
+      checkpoints: [
+        {
+          step: 1,
+          title: "highlight wins and crossing em stays literal",
+          expectedProjection: "<p><pending>==</pending><mark>*x</mark><pending>==</pending>|*</p>",
+          expectedMarkdown: "==*x==*",
+        },
+      ],
+    },
+
     // PlainText → SourceProjection
     {
       id: "live-inline-mark-plain-text-to-source-projection",
@@ -32,15 +93,15 @@ export const liveInlineMarkSpec = {
       checkpoints: [
         {
           step: 6,
-          title: "delimiters removed, boundary space normalized to NBSP",
+          title: "delimiters hide while source text remains",
           expectedProjection: "<p><mark>1</mark> |</p>",
-          expectedMarkdown: "==1==\u00a0",
+          expectedMarkdown: "==1== ",
         },
         {
           step: 7,
           title: "continued typing extends plain text after committed mark",
           expectedProjection: "<p><mark>1</mark> x|</p>",
-          expectedMarkdown: "==1==\u00a0x",
+          expectedMarkdown: "==1== x",
         },
       ],
     },
@@ -54,7 +115,7 @@ export const liveInlineMarkSpec = {
       checkpoints: [
         {
           step: 6,
-          title: "delimiters removed, x stays plain text after committed mark",
+          title: "delimiters hide, x stays plain text after source mark",
           expectedProjection: "<p><mark>1</mark>x|</p>",
           expectedMarkdown: "==1==x",
         },
@@ -87,7 +148,7 @@ export const liveInlineMarkSpec = {
         {
           step: 1,
           title: "delimiter characters stay literal inside code",
-          expectedProjection: "<p><code>==1=|=</code></p>",
+          expectedProjection: "<p><pending>`</pending><code>==1==</code>|<pending>`</pending></p>",
           expectedMarkdown: "`==1==`",
         },
       ],

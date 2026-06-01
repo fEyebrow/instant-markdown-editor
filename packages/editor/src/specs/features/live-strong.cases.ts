@@ -18,7 +18,7 @@ export const liveStrongSpec = {
         {
           step: 6,
           expectedProjection: "<p><b>1</b> |</p>",
-          expectedMarkdown: "**1**\u00a0",
+          expectedMarkdown: "**1** ",
         },
       ],
     },
@@ -44,7 +44,7 @@ export const liveStrongSpec = {
         {
           step: 10,
           expectedProjection: "<p><mark><b>1</b></mark> |</p>",
-          expectedMarkdown: "**==1==**\u00a0",
+          expectedMarkdown: "==**1**== ",
         },
       ],
     },

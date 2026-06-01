@@ -82,6 +82,17 @@
   color: var(--rte-pending, #b8b3c4);
 }
 
+.ProseMirror .syntax-hint {
+  color: var(--rte-pending, #b8b3c4);
+  font-style: normal;
+  font-weight: 400;
+  user-select: none;
+}
+
+.ProseMirror .syntax-hidden {
+  font-size: 0;
+}
+
 .ProseMirror .md-block-pending {
   color: var(--rte-block-pending, #c4c0cd);
 }

@@ -7,9 +7,7 @@ export default defineConfig({
       "@rte/editor/style.css": fileURLToPath(
         new URL("../../packages/editor/src/style.css", import.meta.url),
       ),
-      "@rte/editor": fileURLToPath(
-        new URL("../../packages/editor/src/index.ts", import.meta.url),
-      ),
+      "@rte/editor": fileURLToPath(new URL("../../packages/editor/src/index.ts", import.meta.url)),
     },
   },
 });

@@ -1,5 +1,9 @@
 import type { Mark, Node as ProseMirrorNode } from "prosemirror-model";
-import { featureMarkdownSerializeSpecs, featureMarkRankEntries } from "../features/index.ts";
+import {
+  collectInlineFeatures,
+  featureMarkdownSerializeSpecs,
+  featureMarkRankEntries,
+} from "../features/index.ts";
 
 // Stable mark order so emit is deterministic regardless of how marks happen to
 // be stacked in the doc. Lower rank = outer.
@@ -219,11 +223,24 @@ class State {
     this.atBlockStart = fromBlockStart;
     let active: Mark[] = [];
     let trailing = "";
+    const inlineSourceRanges = collectInlineFeatures().flatMap(
+      (feature) =>
+        feature.extRanges?.(parent).map(([from, to]) => ({
+          from,
+          to,
+          markNames: feature.markNames,
+        })) ?? [],
+    );
 
-    const progress = (node: ProseMirrorNode | null, _offset: number, index: number) => {
+    const progress = (node: ProseMirrorNode | null, offset: number, index: number) => {
       let marks = node ? sortMarks(node.marks) : [];
       if (node?.isText) {
-        marks = marks.filter((mark) => !isSourceProjectionMark(parent, index, mark));
+        const textNode = node;
+        marks = marks.filter(
+          (mark) =>
+            !isSourceProjectionMark(parent, index, mark) &&
+            !isInlineSourceMark(inlineSourceRanges, offset, textNode.nodeSize, mark),
+        );
       }
 
       if (node && node.type.name === "hard_break") {
@@ -275,6 +292,9 @@ class State {
       }
 
       const inner = marks.length ? marks[marks.length - 1] : null;
+      const sourceRange = node?.isText
+        ? inlineSourceRanges.some((range) => offset >= range.from && offset < range.to)
+        : false;
       const noEsc = inner ? markSpecs[inner.type.name]?.escape === false : false;
       const len = marks.length - (noEsc ? 1 : 0);
 
@@ -294,7 +314,9 @@ class State {
           this.text(markString(this, add, true, parent, index), false);
           this.atBlockStart = false;
         }
-        if (noEsc && node.isText) {
+        if (sourceRange && node.isText) {
+          this.text(node.text ?? "", false);
+        } else if (noEsc && node.isText) {
           this.text(
             markString(this, inner!, true, parent, index) +
               (node.text ?? "") +
@@ -369,6 +391,18 @@ function isSourceProjectionMark(parent: ProseMirrorNode, index: number, mark: Ma
     !mark.isInSet(next.marks) &&
     (previous.text ?? "").endsWith(open) &&
     (next.text ?? "").startsWith(close)
+  );
+}
+
+function isInlineSourceMark(
+  ranges: Array<{ from: number; to: number; markNames: string[] }>,
+  offset: number,
+  size: number,
+  mark: Mark,
+): boolean {
+  return ranges.some(
+    (range) =>
+      range.markNames.includes(mark.type.name) && offset >= range.from && offset + size <= range.to,
   );
 }
 

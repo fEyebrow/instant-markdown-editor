@@ -18,7 +18,7 @@ export const liveHighlightSpec = {
         {
           step: 6,
           expectedProjection: "<p><mark>1</mark> |</p>",
-          expectedMarkdown: "==1==\u00a0",
+          expectedMarkdown: "==1== ",
         },
       ],
     },
@@ -43,7 +43,7 @@ export const liveHighlightSpec = {
       checkpoints: [
         {
           step: 1,
-          expectedProjection: "<p><code>==1=|=</code></p>",
+          expectedProjection: "<p><pending>`</pending><code>==1==</code>|<pending>`</pending></p>",
           expectedMarkdown: "`==1==`",
         },
       ],
@@ -58,14 +58,14 @@ export const liveHighlightSpec = {
           step: 7,
           title: "cursor reaches mark end",
           expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==</pending>| </p>",
-          expectedMarkdown: "==1==\u00a0",
+          expectedMarkdown: "==1== ",
         },
         {
           step: 8,
           title: "cursor moves through closing delimiter",
           expectedProjection:
             "<p><pending>==</pending><mark>1</mark><pending>=</pending>|<pending>=</pending> </p>",
-          expectedMarkdown: "==1==\u00a0",
+          expectedMarkdown: "==1== ",
         },
       ],
     },

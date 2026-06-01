@@ -254,6 +254,8 @@ function serializeNode(node: Node, tags: Record<string, TagSerializer>): string 
 
   if (node.classList.contains("ProseMirror")) return content;
   if (node.classList.contains("md-pending")) return `<pending>${content}</pending>`;
+  if (node.classList.contains("syntax-hint")) return `<pending>${content}</pending>`;
+  if (node.classList.contains("syntax-hidden")) return "";
   if (node.classList.contains("md-block-pending"))
     return `<block-pending>${content}</block-pending>`;
   if (node.classList.contains("md-block-pending-content")) return `<strong>${content}</strong>`;

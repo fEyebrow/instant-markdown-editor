@@ -18,7 +18,7 @@ export const liveSubscriptSpec = {
         {
           step: 4,
           expectedProjection: "<p><sub>1</sub> |</p>",
-          expectedMarkdown: "~1~\u00a0",
+          expectedMarkdown: "~1~ ",
         },
       ],
     },
@@ -36,7 +36,7 @@ export const liveSubscriptSpec = {
         {
           step: 6,
           expectedProjection: "<p><s>1</s> |</p>",
-          expectedMarkdown: "~~1~~\u00a0",
+          expectedMarkdown: "~~1~~ ",
         },
       ],
     },
@@ -66,7 +66,7 @@ export const liveSubscriptSpec = {
       checkpoints: [
         {
           step: 1,
-          expectedProjection: "<p><code>~1|~</code></p>",
+          expectedProjection: "<p><pending>`</pending><code>~1~</code>|<pending>`</pending></p>",
           expectedMarkdown: "`~1~`",
         },
       ],
@@ -81,13 +81,13 @@ export const liveSubscriptSpec = {
           step: 5,
           title: "cursor reaches mark end",
           expectedProjection: "<p><pending>~</pending><sub>1</sub><pending>~</pending>| </p>",
-          expectedMarkdown: "~1~\u00a0",
+          expectedMarkdown: "~1~ ",
         },
         {
           step: 6,
           title: "cursor moves through closing delimiter",
           expectedProjection: "<p><pending>~</pending><sub>1</sub>|<pending>~</pending> </p>",
-          expectedMarkdown: "~1~\u00a0",
+          expectedMarkdown: "~1~ ",
         },
       ],
     },
