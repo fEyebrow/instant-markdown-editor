@@ -7,12 +7,12 @@ export const liveSubscriptSpec = {
     {
       id: "live-subscript-basic",
       title: "Basic commit flow",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "1", "~", " "],
       checkpoints: [
         {
           step: 3,
-          expectedProjection: "<p><pending>~</pending><sub>1</sub><pending>~|</pending></p>",
+          expectedProjection: "<p><pending>~</pending><sub>1</sub><pending>~</pending>|</p>",
           expectedMarkdown: "~1~",
         },
         {
@@ -25,12 +25,12 @@ export const liveSubscriptSpec = {
     {
       id: "live-subscript-preserves-strikethrough-priority",
       title: "Preserves strikethrough priority",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "~", "1", "~", "~", " "],
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~|</pending></p>",
+          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>|</p>",
           expectedMarkdown: "~~1~~",
         },
         {
@@ -43,7 +43,7 @@ export const liveSubscriptSpec = {
     {
       id: "live-subscript-empty-source-stays-text",
       title: "Empty and blank source stays plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "~", "ArrowLeft", " ", "ArrowRight"],
       checkpoints: [
         {
@@ -61,7 +61,7 @@ export const liveSubscriptSpec = {
     {
       id: "live-subscript-ignores-inline-code",
       title: "Inline code stays literal",
-      initialMarkdown: "`~1~`|",
+      initialMarkdown: "`~1~`",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
@@ -74,7 +74,7 @@ export const liveSubscriptSpec = {
     {
       id: "live-subscript-reveal-pending-at-mark-boundaries",
       title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "1", "~", " ", "ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
@@ -86,7 +86,7 @@ export const liveSubscriptSpec = {
         {
           step: 6,
           title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>~</pending><sub>1</sub><pending>|~</pending> </p>",
+          expectedProjection: "<p><pending>~</pending><sub>1</sub>|<pending>~</pending> </p>",
           expectedMarkdown: "~1~\u00a0",
         },
       ],
@@ -94,7 +94,7 @@ export const liveSubscriptSpec = {
     {
       id: "live-subscript-markdown-round-trip",
       title: "Markdown round trip",
-      initialMarkdown: "~1~ a|",
+      initialMarkdown: "~1~ a",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
@@ -107,7 +107,7 @@ export const liveSubscriptSpec = {
     {
       id: "live-subscript-does-not-cross-lines",
       title: "Does not cross lines",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "1", "Enter", "1", "~"],
       checkpoints: [
         {

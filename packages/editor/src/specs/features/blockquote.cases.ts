@@ -7,7 +7,7 @@ export const blockquoteSpec = {
     {
       id: "blockquote-trigger",
       title: "'> ' immediately wraps paragraph in a blockquote",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: [">", " "],
       checkpoints: [
         {
@@ -20,7 +20,7 @@ export const blockquoteSpec = {
     {
       id: "blockquote-enter-continues",
       title: "Enter inside a blockquote continues to a new paragraph",
-      initialMarkdown: "> a|",
+      initialMarkdown: "> a",
       keyevents: ["Enter", "b"],
       checkpoints: [
         {

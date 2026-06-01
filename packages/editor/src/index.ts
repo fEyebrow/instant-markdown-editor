@@ -13,11 +13,13 @@ import { markdownPasteParser } from "./markdown/paste.ts";
 import { markdownParser } from "./markdown/parser.ts";
 import { markdownSerializer } from "./markdown/serializer.ts";
 import { editorSchema } from "./schema/index.ts";
+import { cursorRenderPlugin } from "./specs/cursor-render.ts";
 
 export interface EditorOptions {
   mount: HTMLElement;
   initialMarkdown?: string;
   onChange?: (markdown: string) => void;
+  cursorProjection?: boolean;
 }
 
 export interface EditorHandle {
@@ -28,7 +30,7 @@ export interface EditorHandle {
 }
 
 export function createEditor(options: EditorOptions): EditorHandle {
-  const { mount, initialMarkdown = "", onChange } = options;
+  const { mount, initialMarkdown = "", onChange, cursorProjection = false } = options;
 
   const state = EditorState.create({
     doc: markdownParser.parse(initialMarkdown) ?? undefined,
@@ -38,6 +40,7 @@ export function createEditor(options: EditorOptions): EditorHandle {
       keymap({ "Mod-z": undo, "Mod-y": redo, "Mod-Shift-z": redo }),
       ...createFeatureKeymaps(editorSchema).map((bindings) => keymap(bindings)),
       ...createFeaturePlugins(editorSchema),
+      ...(cursorProjection ? [cursorRenderPlugin()] : []),
       keymap(baseKeymap),
     ],
   });
@@ -83,6 +86,6 @@ export {
   applyActions,
   parseChord,
   projectEditorView,
-  setMarkdownWithCursor,
+  setSpecMarkdown,
 } from "./specs/runner.ts";
 export type { Chord, ProjectionOptions } from "./specs/runner.ts";

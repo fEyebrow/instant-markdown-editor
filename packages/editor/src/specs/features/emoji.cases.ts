@@ -7,12 +7,12 @@ export const emojiSpec = {
     {
       id: "emoji-source-projection",
       title: "Known shortcode :book: shows source projection",
-      initialMarkdown: ":book:|",
+      initialMarkdown: ":book:",
       keyevents: ["ArrowLeft", "ArrowRight"],
       checkpoints: [
         {
           step: 2,
-          expectedProjection: "<p><emoji-src>:book:|</emoji-src></p>",
+          expectedProjection: "<p><emoji-src>:book:</emoji-src></p>|",
           expectedMarkdown: ":book:",
         },
       ],
@@ -20,7 +20,7 @@ export const emojiSpec = {
     {
       id: "emoji-unknown-stays-text",
       title: "Unknown shortcode :not_real: stays as plain text",
-      initialMarkdown: ":not_real:|",
+      initialMarkdown: ":not_real:",
       keyevents: ["ArrowLeft", "ArrowRight"],
       checkpoints: [
         {

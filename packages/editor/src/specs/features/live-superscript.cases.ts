@@ -7,12 +7,12 @@ export const liveSuperscriptSpec = {
     {
       id: "live-superscript-basic",
       title: "Basic commit flow",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["^", "1", "^", " "],
       checkpoints: [
         {
           step: 3,
-          expectedProjection: "<p><pending>^</pending><sup>1</sup><pending>^|</pending></p>",
+          expectedProjection: "<p><pending>^</pending><sup>1</sup><pending>^</pending>|</p>",
           expectedMarkdown: "^1^",
         },
         {
@@ -25,7 +25,7 @@ export const liveSuperscriptSpec = {
     {
       id: "live-superscript-empty-source-stays-text",
       title: "Empty and blank source stays plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["^", "^", "ArrowLeft", " ", "ArrowRight"],
       checkpoints: [
         {
@@ -43,7 +43,7 @@ export const liveSuperscriptSpec = {
     {
       id: "live-superscript-ignores-inline-code",
       title: "Inline code stays literal",
-      initialMarkdown: "`^1^`|",
+      initialMarkdown: "`^1^`",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
@@ -56,7 +56,7 @@ export const liveSuperscriptSpec = {
     {
       id: "live-superscript-reveal-pending-at-mark-boundaries",
       title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["^", "1", "^", " ", "ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
@@ -68,7 +68,7 @@ export const liveSuperscriptSpec = {
         {
           step: 6,
           title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>^</pending><sup>1</sup><pending>|^</pending> </p>",
+          expectedProjection: "<p><pending>^</pending><sup>1</sup>|<pending>^</pending> </p>",
           expectedMarkdown: "^1^\u00a0",
         },
       ],
@@ -76,7 +76,7 @@ export const liveSuperscriptSpec = {
     {
       id: "live-superscript-markdown-round-trip",
       title: "Markdown round trip",
-      initialMarkdown: "^1^ a|",
+      initialMarkdown: "^1^ a",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
@@ -89,7 +89,7 @@ export const liveSuperscriptSpec = {
     {
       id: "live-superscript-does-not-cross-lines",
       title: "Does not cross lines",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["^", "1", "Enter", "1", "^"],
       checkpoints: [
         {

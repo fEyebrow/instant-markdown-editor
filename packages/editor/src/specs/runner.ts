@@ -80,72 +80,21 @@ function pressChord(view: EditorView, chord: Chord): void {
   if (!handled) applySelectionKey(view, chord);
 }
 
-export function setMarkdownWithCursor(view: EditorView, markdown: string): void {
-  const markerIndex = markdown.indexOf("|");
-  if (markerIndex === -1) {
-    setMarkdown(view, markdown, null);
-    return;
-  }
-  if (markerIndex !== markdown.lastIndexOf("|")) {
-    throw new Error(`Initial spec markdown must contain at most one cursor marker: ${markdown}`);
+export function setSpecMarkdown(view: EditorView, markdown: string): void {
+  if (markdown.includes("|")) {
+    throw new Error(
+      "initialMarkdown no longer supports cursor marker `|`; cursor starts at document end",
+    );
   }
 
-  const beforeCursor = markdown.slice(0, markerIndex);
-  const markdownWithoutCursor = markdown.slice(0, markerIndex) + markdown.slice(markerIndex + 1);
-  const cursorOffset = markdownParser.parse(beforeCursor).textContent.length;
-  setMarkdown(view, markdownWithoutCursor, cursorOffset);
-}
-
-function setMarkdown(view: EditorView, markdown: string, cursorOffset: number | null): void {
   const doc = markdownParser.parse(markdown);
-  const { schema } = view.state;
-  const position =
-    cursorOffset === null ? endOfLastTextblock(doc) : textOffsetToPosition(doc, cursorOffset);
-
   const next = EditorState.create({
     doc,
-    schema,
+    schema: view.state.schema,
     plugins: view.state.plugins,
-    selection: TextSelection.create(doc, position),
+    selection: TextSelection.atEnd(doc),
   });
   view.updateState(next);
-}
-
-function textOffsetToPosition(doc: ProseMirrorNode, textOffset: number): number {
-  let pos = -1;
-  let count = 0;
-  doc.descendants((node, p) => {
-    if (pos !== -1) return false;
-    if (node.isText) {
-      const len = (node.text ?? "").length;
-      if (count + len >= textOffset) {
-        pos = p + (textOffset - count);
-        return false;
-      }
-      count += len;
-    }
-    return true;
-  });
-  if (pos !== -1) return pos;
-  let firstTextblock = -1;
-  doc.descendants((node, p) => {
-    if (firstTextblock !== -1) return false;
-    if (node.isTextblock) {
-      firstTextblock = p + 1;
-      return false;
-    }
-    return true;
-  });
-  return firstTextblock === -1 ? 0 : firstTextblock;
-}
-
-function endOfLastTextblock(doc: ProseMirrorNode): number {
-  let pos = -1;
-  doc.descendants((node, p) => {
-    if (node.isTextblock) pos = p + 1 + node.content.size;
-    return true;
-  });
-  return pos === -1 ? 0 : pos;
 }
 
 function applySelectionKey(view: EditorView, chord: Chord): void {
@@ -275,86 +224,12 @@ export interface ProjectionOptions {
 
 export function projectEditorView(editor: EditorHandle, options: ProjectionOptions = {}): string {
   const tags = { ...DEFAULT_TAGS, ...options.tags };
-  const viewRoot = editor.view.dom;
-  const cursor = projectionCursor(editor.view.domAtPos(editor.view.state.selection.from));
-  return serializeNode(viewRoot, cursor, tags) || "|";
+  return serializeNode(editor.view.dom, tags) || "|";
 }
 
-function projectionCursor(cursor: { node: Node; offset: number }): { node: Node; offset: number } {
-  if (cursor.node.nodeType === Node.TEXT_NODE) return cursor;
-  if (!(cursor.node instanceof HTMLElement)) return cursor;
-
-  const right = firstProjectableText(cursor.node, cursor.offset);
-  if (right) return { node: right, offset: 0 };
-
-  const left = lastProjectableText(cursor.node, cursor.offset);
-  if (left) return { node: left, offset: normalizeText(left.textContent ?? "").length };
-
-  return cursor;
-}
-
-function firstProjectableText(node: HTMLElement, offset: number): Text | null {
-  for (let i = offset; i < node.childNodes.length; i += 1) {
-    const text = firstProjectableTextIn(node.childNodes[i]);
-    if (text) return text;
-  }
-  return null;
-}
-
-function firstProjectableTextIn(node: Node): Text | null {
-  if (node.nodeType === Node.TEXT_NODE) return node as Text;
-  if (!canTraverseProjectionNode(node)) return null;
-
-  for (const child of Array.from(node.childNodes)) {
-    const text = firstProjectableTextIn(child);
-    if (text) return text;
-  }
-  return null;
-}
-
-function lastProjectableText(node: HTMLElement, offset: number): Text | null {
-  for (let i = Math.min(offset, node.childNodes.length) - 1; i >= 0; i -= 1) {
-    const text = lastProjectableTextIn(node.childNodes[i]);
-    if (text) return text;
-  }
-  return null;
-}
-
-function lastProjectableTextIn(node: Node): Text | null {
-  if (node.nodeType === Node.TEXT_NODE) return node as Text;
-  if (!canTraverseProjectionNode(node)) return null;
-
-  const children = Array.from(node.childNodes);
-  for (let i = children.length - 1; i >= 0; i -= 1) {
-    const text = lastProjectableTextIn(children[i]);
-    if (text) return text;
-  }
-  return null;
-}
-
-function canTraverseProjectionNode(node: Node): node is HTMLElement {
-  if (!(node instanceof HTMLElement)) return false;
-  if (node.tagName === "BR" && node.classList.contains("ProseMirror-trailingBreak")) return false;
-  if (node.classList.contains("ProseMirror-separator")) return false;
-  if (node.classList.contains("md-task-checkbox")) return false;
-  if (node.classList.contains("md-emoji-icon")) return false;
-  if (node.classList.contains("md-emoji-source-icon")) return false;
-  if (node.classList.contains("md-emoji-popup")) return false;
-  if (node.tagName === "SPAN" && node.hasAttribute("data-shortcode")) return false;
-  return true;
-}
-
-function serializeNode(
-  node: Node,
-  cursor: { node: Node; offset: number },
-  tags: Record<string, TagSerializer>,
-): string {
+function serializeNode(node: Node, tags: Record<string, TagSerializer>): string {
   if (node.nodeType === Node.TEXT_NODE) {
-    const text = normalizeText(node.textContent ?? "");
-    if (node === cursor.node) {
-      return `${text.slice(0, cursor.offset)}|${text.slice(cursor.offset)}`;
-    }
-    return text;
+    return normalizeText(node.textContent ?? "");
   }
 
   if (!(node instanceof HTMLElement)) return "";
@@ -365,14 +240,14 @@ function serializeNode(
   if (node.classList.contains("md-emoji-icon")) return "";
   if (node.classList.contains("md-emoji-source-icon")) return "";
   if (node.classList.contains("md-emoji-popup")) return "";
+  if (node.classList.contains("play-caret")) return "|";
+  if (node.classList.contains("play-selection-marker")) return node.textContent ?? "";
 
   const children = Array.from(node.childNodes);
   const parts: string[] = [];
 
-  if (node === cursor.node && cursor.offset === 0) parts.push("|");
-  children.forEach((child, index) => {
-    parts.push(serializeNode(child, cursor, tags));
-    if (node === cursor.node && cursor.offset === index + 1) parts.push("|");
+  children.forEach((child) => {
+    parts.push(serializeNode(child, tags));
   });
 
   const content = parts.join("");

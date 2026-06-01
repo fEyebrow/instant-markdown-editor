@@ -7,12 +7,12 @@ export const liveStrikethroughSpec = {
     {
       id: "live-strikethrough-basic",
       title: "Basic commit flow",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "~", "1", "~", "~", " "],
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~|</pending></p>",
+          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>|</p>",
           expectedMarkdown: "~~1~~",
         },
         {
@@ -25,7 +25,7 @@ export const liveStrikethroughSpec = {
     {
       id: "live-strikethrough-commit-before-plain-text",
       title: "Commit before plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "~", "1", "~", "~", "a"],
       checkpoints: [
         {
@@ -38,7 +38,7 @@ export const liveStrikethroughSpec = {
     {
       id: "live-strikethrough-reveal-pending-at-mark-boundaries",
       title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["~", "~", "1", "~", "~", " ", "ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
@@ -50,7 +50,8 @@ export const liveStrikethroughSpec = {
         {
           step: 8,
           title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~|~</pending> </p>",
+          expectedProjection:
+            "<p><pending>~~</pending><s>1</s><pending>~</pending>|<pending>~</pending> </p>",
           expectedMarkdown: "~~1~~\u00a0",
         },
       ],

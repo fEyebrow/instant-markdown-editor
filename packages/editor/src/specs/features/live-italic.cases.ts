@@ -7,12 +7,12 @@ export const liveItalicSpec = {
     {
       id: "live-italic-basic",
       title: "Basic commit flow",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["*", "1", "*", " "],
       checkpoints: [
         {
           step: 3,
-          expectedProjection: "<p><pending>*</pending><i>1</i><pending>*|</pending></p>",
+          expectedProjection: "<p><pending>*</pending><i>1</i><pending>*</pending>|</p>",
           expectedMarkdown: "*1*",
         },
         {
@@ -25,7 +25,7 @@ export const liveItalicSpec = {
     {
       id: "live-italic-commit-before-plain-text",
       title: "Commit before plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["*", "1", "*", "a"],
       checkpoints: [
         {
@@ -38,7 +38,7 @@ export const liveItalicSpec = {
     {
       id: "live-italic-reveal-pending-at-mark-boundaries",
       title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["*", "1", "*", " ", "ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
@@ -50,7 +50,7 @@ export const liveItalicSpec = {
         {
           step: 6,
           title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>*</pending><i>1</i><pending>|*</pending> </p>",
+          expectedProjection: "<p><pending>*</pending><i>1</i>|<pending>*</pending> </p>",
           expectedMarkdown: "*1*\u00a0",
         },
       ],

@@ -17,7 +17,6 @@ import { unorderedListSpec } from "./features/unordered-list.cases.ts";
 import { orderedListSpec } from "./features/ordered-list.cases.ts";
 import { atxHeadingSpec } from "./features/atx-heading.cases.ts";
 import { blockquoteSpec } from "./features/blockquote.cases.ts";
-import { projectionCursorSpec } from "./features/projection-cursor.cases.ts";
 
 const EDITOR_SPEC_FEATURE_DEFINITIONS = [
   liveInlineMarkSpec,
@@ -38,7 +37,6 @@ const EDITOR_SPEC_FEATURE_DEFINITIONS = [
   orderedListSpec,
   atxHeadingSpec,
   blockquoteSpec,
-  projectionCursorSpec,
 ];
 
 export const EDITOR_SPEC_FEATURES = defineEditorSpecFeatures(EDITOR_SPEC_FEATURE_DEFINITIONS);

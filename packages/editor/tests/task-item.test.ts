@@ -1,5 +1,5 @@
 import { expect, test } from "vite-plus/test";
-import { createEditor, setMarkdownWithCursor } from "../src/index.ts";
+import { createEditor, setSpecMarkdown } from "../src/index.ts";
 
 test("clicking task checkbox toggles checked state", () => {
   const mount = document.createElement("div");
@@ -35,7 +35,7 @@ test("clicking checked checkbox toggles to unchecked", () => {
 test("serializing task list preserves checked state", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
-  setMarkdownWithCursor(editor.view, "- [ ] todo\n- [x] done|");
+  setSpecMarkdown(editor.view, "- [ ] todo\n- [x] done");
 
   expect(editor.getMarkdown()).toBe("* [ ] todo\n* [x] done");
   editor.destroy();

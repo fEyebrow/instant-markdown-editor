@@ -7,12 +7,12 @@ export const liveHighlightSpec = {
     {
       id: "live-highlight-basic",
       title: "Basic commit flow",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", " "],
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==|</pending></p>",
+          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==</pending>|</p>",
           expectedMarkdown: "==1==",
         },
         {
@@ -25,7 +25,7 @@ export const liveHighlightSpec = {
     {
       id: "live-highlight-empty-source-stays-text",
       title: "Empty source stays plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "=", "="],
       checkpoints: [
         {
@@ -38,7 +38,7 @@ export const liveHighlightSpec = {
     {
       id: "live-highlight-ignores-inline-code",
       title: "Inline code stays literal",
-      initialMarkdown: "`==1==`|",
+      initialMarkdown: "`==1==`",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
@@ -51,7 +51,7 @@ export const liveHighlightSpec = {
     {
       id: "live-highlight-reveal-pending-at-mark-boundaries",
       title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", " ", "ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
@@ -63,7 +63,8 @@ export const liveHighlightSpec = {
         {
           step: 8,
           title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>=|=</pending> </p>",
+          expectedProjection:
+            "<p><pending>==</pending><mark>1</mark><pending>=</pending>|<pending>=</pending> </p>",
           expectedMarkdown: "==1==\u00a0",
         },
       ],
@@ -71,7 +72,7 @@ export const liveHighlightSpec = {
     {
       id: "live-highlight-markdown-round-trip",
       title: "Markdown round trip",
-      initialMarkdown: "==1== a|",
+      initialMarkdown: "==1== a",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
@@ -84,7 +85,7 @@ export const liveHighlightSpec = {
     {
       id: "live-highlight-does-not-cross-lines",
       title: "Does not cross lines",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "1", "Enter", "1", "=", "="],
       checkpoints: [
         {

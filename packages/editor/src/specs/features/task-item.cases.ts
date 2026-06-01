@@ -7,7 +7,7 @@ export const taskItemSpec = {
     {
       id: "task-item-unchecked-trigger",
       title: "[ ]  at list item start creates unchecked task item",
-      initialMarkdown: "- |",
+      initialMarkdown: "- ",
       keyevents: ["[", " ", "]", " "],
       checkpoints: [
         {
@@ -20,7 +20,7 @@ export const taskItemSpec = {
     {
       id: "task-item-checked-trigger",
       title: "[x]  at list item start creates checked task item",
-      initialMarkdown: "- |",
+      initialMarkdown: "- ",
       keyevents: ["[", "x", "]", " "],
       checkpoints: [
         {
@@ -33,7 +33,7 @@ export const taskItemSpec = {
     {
       id: "task-item-checked-uppercase-trigger",
       title: "[X]  at list item start creates checked task item (normalized to [x])",
-      initialMarkdown: "- |",
+      initialMarkdown: "- ",
       keyevents: ["[", "X", "]", " "],
       checkpoints: [
         {
@@ -46,7 +46,7 @@ export const taskItemSpec = {
     {
       id: "task-item-enter-creates-sibling-unchecked",
       title: "Enter on non-empty task item creates sibling unchecked task item",
-      initialMarkdown: "- [ ] todo|",
+      initialMarkdown: "- [ ] todo",
       keyevents: ["Enter", "a"],
       checkpoints: [
         {
@@ -60,7 +60,7 @@ export const taskItemSpec = {
     {
       id: "task-item-enter-on-empty-exits-list",
       title: "Enter on empty task item exits to paragraph",
-      initialMarkdown: "- [ ] todo|",
+      initialMarkdown: "- [ ] todo",
       keyevents: ["Enter", "Enter"],
       checkpoints: [
         {
@@ -73,7 +73,7 @@ export const taskItemSpec = {
     {
       id: "task-item-enter-checked-creates-unchecked",
       title: "Enter on checked task item creates unchecked sibling",
-      initialMarkdown: "- [x] done|",
+      initialMarkdown: "- [x] done",
       keyevents: ["Enter", "a"],
       checkpoints: [
         {
@@ -87,7 +87,7 @@ export const taskItemSpec = {
     {
       id: "task-item-tab-sinks",
       title: "Tab sinks task item into nested list",
-      initialMarkdown: "- [ ] a\n- [ ] b|",
+      initialMarkdown: "- [ ] a\n- [ ] b",
       keyevents: ["Tab"],
       checkpoints: [
         {
@@ -101,7 +101,7 @@ export const taskItemSpec = {
     {
       id: "task-item-shift-tab-lifts",
       title: "Shift-Tab lifts nested task item back to parent list",
-      initialMarkdown: "- [ ] a\n- [ ] b|",
+      initialMarkdown: "- [ ] a\n- [ ] b",
       keyevents: ["Tab", "Shift-Tab"],
       checkpoints: [
         {
@@ -115,7 +115,7 @@ export const taskItemSpec = {
     {
       id: "task-item-checked-state-follows-tab",
       title: "Checked state follows task item through Tab",
-      initialMarkdown: "- [ ] a\n- [x] done|",
+      initialMarkdown: "- [ ] a\n- [x] done",
       keyevents: ["Tab"],
       checkpoints: [
         {
@@ -129,7 +129,7 @@ export const taskItemSpec = {
     {
       id: "task-item-markdown-round-trip",
       title: "task list markdown parses and serializes correctly",
-      initialMarkdown: "- [ ] todo\n- [x] done|",
+      initialMarkdown: "- [ ] todo\n- [x] done",
       keyevents: ["ArrowLeft", "ArrowRight"],
       checkpoints: [
         {

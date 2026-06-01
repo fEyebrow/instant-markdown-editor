@@ -7,12 +7,12 @@ export const liveCodeSpec = {
     {
       id: "live-code-basic",
       title: "Basic commit flow",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["`", "1", "`", " "],
       checkpoints: [
         {
           step: 3,
-          expectedProjection: "<p><pending>`</pending><code>1</code><pending>`|</pending></p>",
+          expectedProjection: "<p><pending>`</pending><code>1</code><pending>`</pending>|</p>",
           expectedMarkdown: "`1`",
         },
         {
@@ -25,7 +25,7 @@ export const liveCodeSpec = {
     {
       id: "live-code-commit-before-plain-text",
       title: "Commit before plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["`", "1", "`", "a"],
       checkpoints: [
         {

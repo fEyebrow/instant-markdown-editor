@@ -4,7 +4,7 @@ import {
   EDITOR_SPEC_FEATURES,
   type EditorSpecCase,
   projectEditorView,
-  setMarkdownWithCursor,
+  setSpecMarkdown,
 } from "@rte/editor";
 import type { Selection } from "prosemirror-state";
 
@@ -165,6 +165,7 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
   const editor = createEditor({
     mount,
     onChange: updateOutputs,
+    cursorProjection: true,
   });
 
   const checkpoints = new Map(
@@ -205,7 +206,7 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
 
   function resetEditor(): void {
     stopPlay();
-    setMarkdownWithCursor(editor.view, specCase.initialMarkdown ?? "");
+    setSpecMarkdown(editor.view, specCase.initialMarkdown ?? "");
     currentStep = 0;
     snapshots = [makeSnapshot(0)];
     updateOutputs();

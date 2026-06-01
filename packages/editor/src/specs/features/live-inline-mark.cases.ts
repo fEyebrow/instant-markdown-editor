@@ -11,13 +11,13 @@ export const liveInlineMarkSpec = {
     {
       id: "live-inline-mark-plain-text-to-source-projection",
       title: "Complete source enters source projection",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "="],
       checkpoints: [
         {
           step: 5,
           title: "delimiters render as pending, content carries highlight mark",
-          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==|</pending></p>",
+          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==</pending>|</p>",
           expectedMarkdown: "==1==",
         },
       ],
@@ -27,7 +27,7 @@ export const liveInlineMarkSpec = {
     {
       id: "live-inline-mark-commit-on-trailing-space",
       title: "Trailing space commits source projection",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", " ", "x"],
       checkpoints: [
         {
@@ -49,7 +49,7 @@ export const liveInlineMarkSpec = {
     {
       id: "live-inline-mark-commit-on-trailing-text",
       title: "Trailing plain character commits source projection",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", "x"],
       checkpoints: [
         {
@@ -65,7 +65,7 @@ export const liveInlineMarkSpec = {
     {
       id: "live-inline-mark-empty-source-stays-plain-text",
       title: "Empty source does not enter source projection",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "=", "="],
       checkpoints: [
         {
@@ -81,7 +81,7 @@ export const liveInlineMarkSpec = {
     {
       id: "live-inline-mark-inline-code-isolates-source",
       title: "Source inside inline code is not recognized",
-      initialMarkdown: "`==1==`|",
+      initialMarkdown: "`==1==`",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
@@ -97,7 +97,7 @@ export const liveInlineMarkSpec = {
     {
       id: "live-inline-mark-reenter-at-right-boundary",
       title: "Selection at committed mark right boundary triggers re-enter",
-      initialMarkdown: "==1== a|",
+      initialMarkdown: "==1== a",
       keyevents: ["ArrowLeft", "ArrowLeft"],
       checkpoints: [
         {
@@ -119,13 +119,13 @@ export const liveInlineMarkSpec = {
     {
       id: "live-inline-mark-invalidates-on-delimiter-break",
       title: "Breaking close delimiter invalidates source projection",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "1", "=", "=", "Backspace"],
       checkpoints: [
         {
           step: 5,
           title: "complete source projection",
-          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==|</pending></p>",
+          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==</pending>|</p>",
           expectedMarkdown: "==1==",
         },
         {
@@ -136,6 +136,5 @@ export const liveInlineMarkSpec = {
         },
       ],
     },
-
   ],
 } satisfies EditorSpecFeatureDefinition;

@@ -7,7 +7,7 @@ export const orderedListSpec = {
     {
       id: "ordered-list-trigger",
       title: "'1. ' immediately creates an ordered list",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["1", ".", " "],
       checkpoints: [
         {
@@ -20,7 +20,7 @@ export const orderedListSpec = {
     {
       id: "ordered-list-enter-sibling",
       title: "Enter on a non-empty item creates a sibling item",
-      initialMarkdown: "1. a|",
+      initialMarkdown: "1. a",
       keyevents: ["Enter", "b"],
       checkpoints: [
         {
@@ -33,7 +33,7 @@ export const orderedListSpec = {
     {
       id: "ordered-list-enter-exits-empty-trailing-item",
       title: "Enter on an empty trailing item exits to a paragraph",
-      initialMarkdown: "1. a|",
+      initialMarkdown: "1. a",
       keyevents: ["Enter", "Enter"],
       checkpoints: [
         {
@@ -46,7 +46,7 @@ export const orderedListSpec = {
     {
       id: "ordered-list-tab-sinks-item",
       title: "Tab sinks an item into a nested ordered list",
-      initialMarkdown: "1. a\n2. b|",
+      initialMarkdown: "1. a\n2. b",
       keyevents: ["Tab"],
       checkpoints: [
         {
@@ -59,7 +59,7 @@ export const orderedListSpec = {
     {
       id: "ordered-list-shift-tab-lifts-item",
       title: "Shift-Tab lifts a nested item back to the parent list",
-      initialMarkdown: "1. a\n2. b|",
+      initialMarkdown: "1. a\n2. b",
       keyevents: ["Tab", "Shift-Tab"],
       checkpoints: [
         {
@@ -72,7 +72,7 @@ export const orderedListSpec = {
     {
       id: "ordered-list-markdown-round-trip",
       title: "Markdown ordered lists parse and serialize as lists",
-      initialMarkdown: "1. a\n2. b|",
+      initialMarkdown: "1. a\n2. b",
       keyevents: ["ArrowLeft", "ArrowRight"],
       checkpoints: [
         {

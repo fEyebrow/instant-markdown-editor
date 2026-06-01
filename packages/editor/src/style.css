@@ -174,3 +174,31 @@
   user-select: none;
   pointer-events: none;
 }
+
+.ProseMirror .play-caret {
+  display: inline-block;
+  width: 1px;
+  height: 1em;
+  margin: 0;
+  background: currentColor;
+  vertical-align: -0.15em;
+  animation: play-caret-blink 1s step-end infinite;
+}
+
+@keyframes play-caret-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.ProseMirror-focused .play-caret {
+  display: none;
+}
+
+.ProseMirror .play-selection-marker {
+  color: currentColor;
+}
+
+.ProseMirror-focused .play-selection-marker {
+  display: none;
+}

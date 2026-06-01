@@ -4,15 +4,15 @@ import {
   createEditor,
   EDITOR_SPEC_FEATURES,
   projectEditorView,
-  setMarkdownWithCursor,
+  setSpecMarkdown,
 } from "../src/index.ts";
 
 for (const feature of EDITOR_SPEC_FEATURES) {
   for (const specCase of feature.cases) {
     test(`${feature.id} / ${specCase.id} matches checkpoints`, () => {
       const mount = document.createElement("div");
-      const editor = createEditor({ mount });
-      setMarkdownWithCursor(editor.view, specCase.initialMarkdown ?? "");
+      const editor = createEditor({ mount, cursorProjection: true });
+      setSpecMarkdown(editor.view, specCase.initialMarkdown ?? "");
       const checkpoints = new Map(
         specCase.checkpoints.map((checkpoint) => [checkpoint.step, checkpoint]),
       );

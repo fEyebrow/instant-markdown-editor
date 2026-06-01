@@ -7,7 +7,7 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-basic-source-projection",
       title: "Basic source projection",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: [
         "<",
         "h",
@@ -35,7 +35,7 @@ export const liveAutolinkSpec = {
         {
           step: 21,
           expectedProjection:
-            "<p><pending><</pending><link-url>https://example.com</link-url><pending>>|</pending></p>",
+            "<p><pending><</pending><link-url>https://example.com</link-url><pending>></pending>|</p>",
           expectedMarkdown: "<https://example.com>",
         },
       ],
@@ -43,13 +43,13 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-http-source-projects",
       title: "HTTP source projection",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["<", "h", "t", "t", "p", ":", "/", "/", "e", ".", "c", "o", ">"],
       checkpoints: [
         {
           step: 13,
           expectedProjection:
-            "<p><pending><</pending><link-url>http://e.co</link-url><pending>>|</pending></p>",
+            "<p><pending><</pending><link-url>http://e.co</link-url><pending>></pending>|</p>",
           expectedMarkdown: "<http://e.co>",
         },
       ],
@@ -57,7 +57,7 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-empty-source-stays-text",
       title: "Empty source stays plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["<", ">"],
       checkpoints: [
         {
@@ -70,12 +70,12 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-unfinished-valid-url-styles-url-only",
       title: "Unfinished valid URL styles URL only",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["<", "h", "t", "t", "p", "s", ":", "/", "/", "e", ".", "c", "o"],
       checkpoints: [
         {
           step: 13,
-          expectedProjection: "<p><<link-url>https://e.co|</link-url></p>",
+          expectedProjection: "<p><<link-url>https://e.co</link-url>|</p>",
           expectedMarkdown: "<https://e.co",
         },
       ],
@@ -83,7 +83,7 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-invalid-source-stays-text",
       title: "Invalid URL source stays plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["<", "f", "t", "p", ":", "/", "/", "e", ".", "c", "o", ">"],
       checkpoints: [
         {
@@ -96,7 +96,7 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-delete-closing-keeps-url-style",
       title: "Deleting closing delimiter keeps URL style",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: [
         "<",
         "h",
@@ -117,7 +117,7 @@ export const liveAutolinkSpec = {
       checkpoints: [
         {
           step: 15,
-          expectedProjection: "<p><<link-url>https://e.co|</link-url></p>",
+          expectedProjection: "<p><<link-url>https://e.co</link-url>|</p>",
           expectedMarkdown: "<https://e.co",
         },
       ],
@@ -125,7 +125,7 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-commits-on-space",
       title: "Commit valid autolink on Space",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["<", "h", "t", "t", "p", "s", ":", "/", "/", "e", ".", "c", "o", ">", "Space"],
       checkpoints: [
         {
@@ -138,7 +138,7 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-commits-on-cursor-leave",
       title: "Commit valid autolink when cursor leaves",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: [
         "<",
         "h",
@@ -160,7 +160,7 @@ export const liveAutolinkSpec = {
       checkpoints: [
         {
           step: 16,
-          expectedProjection: '<p><a href="https://e.co">https://e.co|</a></p>',
+          expectedProjection: '<p><a href="https://e.co">https://e.co</a>|</p>',
           expectedMarkdown: "<https://e.co>",
         },
       ],
@@ -168,13 +168,13 @@ export const liveAutolinkSpec = {
     {
       id: "live-autolink-reenters-rendered-autolink-as-source-projection",
       title: "Re-enter rendered autolink as source projection",
-      initialMarkdown: "<https://e.co>|",
+      initialMarkdown: "<https://e.co>",
       keyevents: ["ArrowLeft"],
       checkpoints: [
         {
           step: 1,
           expectedProjection:
-            "<p><pending><</pending><link-url>https://e.c|o</link-url><pending>></pending></p>",
+            "<p><pending><</pending><link-url>https://e.c</link-url>|<link-url>o</link-url><pending>></pending></p>",
           expectedMarkdown: "<https://e.co>",
         },
       ],

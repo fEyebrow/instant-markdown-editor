@@ -7,12 +7,12 @@ export const liveStrongSpec = {
     {
       id: "live-strong-basic",
       title: "Basic commit flow",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["*", "*", "1", "*", "*", " "],
       checkpoints: [
         {
           step: 5,
-          expectedProjection: "<p><pending>**</pending><b>1</b><pending>**|</pending></p>",
+          expectedProjection: "<p><pending>**</pending><b>1</b><pending>**</pending>|</p>",
           expectedMarkdown: "**1**",
         },
         {
@@ -25,7 +25,7 @@ export const liveStrongSpec = {
     {
       id: "live-strong-commit-before-plain-text",
       title: "Commit before plain text",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["*", "*", "1", "*", "*", "a"],
       checkpoints: [
         {
@@ -38,7 +38,7 @@ export const liveStrongSpec = {
     {
       id: "live-strong-commits-inside-highlight-source-layer",
       title: "Commits inside highlight source layer",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["=", "=", "*", "*", "1", "*", "*", "=", "=", " "],
       checkpoints: [
         {

@@ -1,6 +1,6 @@
 import { expect, test } from "vite-plus/test";
 import { filterCandidates, lookupShortcode } from "../src/features/emoji-catalog.ts";
-import { createEditor, setMarkdownWithCursor } from "../src/index.ts";
+import { createEditor, setSpecMarkdown } from "../src/index.ts";
 
 test("lookupShortcode returns entry for known shortcode", () => {
   const entry = lookupShortcode("book");
@@ -40,7 +40,7 @@ test("unknown shortcode stays as plain text", () => {
 test("emoji node re-enters source projection on cursor entry", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount });
-  setMarkdownWithCursor(editor.view, ":book:|");
+  setSpecMarkdown(editor.view, ":book:");
   expect(editor.getMarkdown()).toBe(":book:");
   editor.destroy();
 });

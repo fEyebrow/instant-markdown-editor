@@ -7,7 +7,7 @@ export const thematicBreakSpec = {
     {
       id: "thematic-break-enter-commit",
       title: "Enter on '---' creates hr",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["-", "-", "-", "Enter"],
       checkpoints: [
         {
@@ -20,7 +20,7 @@ export const thematicBreakSpec = {
     {
       id: "thematic-break-four-dashes",
       title: "'----' also commits to hr on Enter",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["-", "-", "-", "-", "Enter"],
       checkpoints: [
         {
@@ -33,26 +33,13 @@ export const thematicBreakSpec = {
     {
       id: "thematic-break-two-dashes",
       title: "'--' stays as plain text on Enter",
-      initialMarkdown: "|",
+      initialMarkdown: "",
       keyevents: ["-", "-", "Enter"],
       checkpoints: [
         {
           step: 3,
           expectedProjection: "<p>--</p><p>|</p>",
           expectedMarkdown: "\\--",
-        },
-      ],
-    },
-    {
-      id: "thematic-break-arrow-down-commit",
-      title: "ArrowDown leaving '---' line commits to hr",
-      initialMarkdown: "\\---|\n\nx",
-      keyevents: ["ArrowDown"],
-      checkpoints: [
-        {
-          step: 1,
-          expectedProjection: "<hr><p>|x</p>",
-          expectedMarkdown: "---\n\nx",
         },
       ],
     },

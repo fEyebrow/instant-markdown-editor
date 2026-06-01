@@ -6,7 +6,7 @@ import {
   createEditor,
   editorSchema,
   projectEditorView,
-  setMarkdownWithCursor,
+  setSpecMarkdown,
 } from "../src/index.ts";
 import {
   imageLoadInfo,
@@ -29,7 +29,7 @@ test("image load info maps empty, loading, loaded, and broken states", () => {
 
 test("loaded image source shows a full-width preview then folds when cursor leaves", () => {
   const mount = document.createElement("div");
-  const editor = createEditor({ mount });
+  const editor = createEditor({ mount, cursorProjection: true });
   applyActions(editor.view, ["!", "[", "x", "]", "(", "ok.png", ")"].join("").split(""));
 
   editor.view.dispatch(
@@ -40,7 +40,7 @@ test("loaded image source shows a full-width preview then folds when cursor leav
   );
 
   expect(projectEditorView(editor)).toBe(
-    '<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>ok.png</image-src><pending>)|</pending><image-preview src="ok.png" alt="x"></p>',
+    '<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>ok.png</image-src><pending>)</pending>|<image-preview src="ok.png" alt="x"></p>',
   );
 
   editor.view.dispatch(
@@ -57,8 +57,8 @@ test("loaded image source shows a full-width preview then folds when cursor leav
 
 test("broken image source shows broken state and does not fold when cursor leaves", () => {
   const mount = document.createElement("div");
-  const editor = createEditor({ mount });
-  setMarkdownWithCursor(editor.view, "![x](bad.png)|");
+  const editor = createEditor({ mount, cursorProjection: true });
+  setSpecMarkdown(editor.view, "![x](bad.png)");
 
   editor.view.dispatch(
     editor.view.state.tr.setMeta(imagePluginKey, {
@@ -74,7 +74,7 @@ test("broken image source shows broken state and does not fold when cursor leave
   );
 
   expect(projectEditorView(editor)).toBe(
-    "<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>bad.png</image-src><pending>)</pending><image-broken>broken|</image-broken></p>",
+    "<p><image-state>image</image-state><pending>![</pending><image-alt>x</image-alt><pending>](</pending><image-src>bad.png</image-src><pending>)</pending><image-broken>broken</image-broken>|</p>",
   );
   expect(editor.getMarkdown()).toBe("![x](bad.png)");
   editor.destroy();
@@ -82,14 +82,14 @@ test("broken image source shows broken state and does not fold when cursor leave
 
 test("entering a rendered image expands source with cursor at alt end", () => {
   const mount = document.createElement("div");
-  const editor = createEditor({ mount, initialMarkdown: "![xy](ok.png)" });
+  const editor = createEditor({ mount, initialMarkdown: "![xy](ok.png)", cursorProjection: true });
 
   editor.view.dispatch(
     editor.view.state.tr.setSelection(TextSelection.create(editor.view.state.doc, 2)),
   );
 
   expect(projectEditorView(editor)).toBe(
-    "<p><image-state>image</image-state><pending>![</pending><image-alt>xy</image-alt><pending>|](</pending><image-src>ok.png</image-src><pending>)</pending><image-loading>loading</image-loading></p>",
+    "<p><image-state>image</image-state><pending>![</pending><image-alt>xy</image-alt>|<pending>](</pending><image-src>ok.png</image-src><pending>)</pending><image-loading>loading</image-loading></p>",
   );
   editor.destroy();
 });
