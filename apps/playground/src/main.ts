@@ -8,6 +8,8 @@ const initial = `# packages/editor playground
 
 \`packages/editor\` is a ProseMirror-based, Typora-style WYSIWYG markdown editor. This playground is a manual surface for trying out its parser, serializer, and live editing behavior.
 
+Press Cmd+/ (or Ctrl+/) to toggle the markdown source view.
+
 ## Inline syntax
 
 Mix *italic*, **bold**, ~~strikethrough~~, H~2~O subscript, E=mc^2^ superscript, ==highlight==, \`inline code\`, a [labelled link](https://prosemirror.net), and an autolink like <https://github.com> all in one paragraph.
@@ -54,17 +56,9 @@ function renderEditor(root: HTMLElement): void {
     <div class="shell shell-soft">
       ${renderTopbar("editor")}
       <main class="page-wrap">
-        <section class="workbench">
-          <div class="workbench-head">
-            <div>
-              <h2>Editor Playground</h2>
-              <p class="hint">Press <kbd>Cmd</kbd>+<kbd>/</kbd> (or <kbd>Ctrl</kbd>+<kbd>/</kbd>) to toggle the markdown source view.</p>
-            </div>
-          </div>
-          <section class="editor-card">
-            <div id="editor"></div>
-            <textarea id="source" class="source-textarea" hidden spellcheck="false"></textarea>
-          </section>
+        <section class="editor-card">
+          <div id="editor"></div>
+          <textarea id="source" class="source-textarea" hidden spellcheck="false"></textarea>
         </section>
       </main>
     </div>

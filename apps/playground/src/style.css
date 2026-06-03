@@ -6,6 +6,9 @@
   --text: #23221e;
   --muted: #8b877f;
   --accent: #4d9b78;
+  --topbar-height: 3.75rem;
+  --page-gap: 0.75rem;
+  --page-bottom-gap: 2rem;
   font:
     15px/1.5 system-ui,
     "Segoe UI",
@@ -60,12 +63,14 @@ pre {
 
 #app,
 .shell {
-  min-height: 100svh;
+  height: 100svh;
+  min-height: 0;
 }
 
 .shell {
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .shell-soft {
@@ -73,11 +78,18 @@ pre {
 }
 
 .topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex: 0 0 auto;
+  min-height: var(--topbar-height);
   padding: 1rem 1.5rem;
+  background: rgba(248, 245, 240, 0.92);
+  backdrop-filter: blur(10px);
 }
 
 .topbar-minimal {
-  border-bottom: 1px solid transparent;
+  border-bottom: 1px solid rgba(235, 230, 220, 0.95);
 }
 
 .brandrow {
@@ -116,34 +128,12 @@ pre {
 
 .page-wrap {
   flex: 1;
-  padding: 1.4rem 1.5rem 2rem;
+  min-height: 0;
+  overflow: auto;
+  padding: 1.4rem 1.5rem var(--page-bottom-gap);
   display: flex;
   justify-content: center;
   align-items: flex-start;
-}
-
-.workbench {
-  width: min(100%, 960px);
-  background: rgba(255, 255, 255, 0.72);
-  border: 1px solid rgba(235, 230, 220, 0.95);
-  border-radius: 14px;
-  box-shadow: 0 12px 40px rgba(97, 85, 60, 0.06);
-  backdrop-filter: blur(10px);
-  padding: 1rem;
-}
-
-.workbench-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.9rem;
-}
-
-.workbench-head h2 {
-  margin: 0;
-  font-size: 1rem;
-  font-weight: 500;
 }
 
 .hint {
@@ -171,6 +161,15 @@ pre {
 .editor-card,
 .editor-stage-surface {
   overflow: hidden;
+  min-height: 0;
+}
+
+.editor-card {
+  width: min(100%, 960px);
+  background: var(--panel);
+  border-color: rgba(235, 230, 220, 0.95);
+  border-radius: 4px;
+  box-shadow: 0 8px 24px rgba(97, 85, 60, 0.05);
 }
 
 .editor-card .ProseMirror,
@@ -226,12 +225,8 @@ pre {
   background: rgba(250, 248, 243, 0.75);
 }
 
-.specs-workbench {
-  width: min(100%, 700px);
-}
-
 .page-wrap-top {
-  padding-top: 0.75rem;
+  padding-top: var(--page-gap);
 }
 
 .specs-shell {
@@ -254,7 +249,9 @@ pre {
 .specs-sidebar {
   padding: 0.85rem;
   position: sticky;
-  top: 0.75rem;
+  top: var(--page-gap);
+  max-height: calc(100svh - var(--topbar-height) - var(--page-gap) - var(--page-bottom-gap));
+  overflow: auto;
 }
 
 .specs-sidebar-head,
@@ -354,6 +351,7 @@ pre {
 
 .editor-stage-surface .ProseMirror {
   min-height: 9rem;
+  max-height: none;
 }
 
 .projection-card {
@@ -484,16 +482,14 @@ pre {
 
   .specs-sidebar {
     position: static;
+    max-height: calc(100svh - var(--topbar-height) - var(--page-bottom-gap) * 2);
   }
 }
 
 @media (max-width: 720px) {
   .page-wrap {
+    --page-bottom-gap: 1rem;
     padding: 1rem;
-  }
-
-  .workbench-head {
-    flex-direction: column;
   }
 
   .brandrow {
