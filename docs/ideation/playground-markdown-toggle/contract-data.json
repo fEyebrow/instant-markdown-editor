@@ -1,0 +1,126 @@
+{
+  "projectName": "Playground Markdown Toggle",
+  "slug": "playground-markdown-toggle",
+  "date": "2026-06-03",
+  "status": "Draft",
+  "supersedes": null,
+  "confidence": {
+    "score": 96,
+    "dimensions": [
+      {
+        "key": "scope",
+        "score": 96,
+        "label": "Scope",
+        "reason": "单栏化、单一 phase、默认文档结构与 in/out-of-scope 都已确认，唯一变量是默认文档措辞。"
+      },
+      {
+        "key": "risk",
+        "score": 95,
+        "label": "Risk",
+        "reason": "依赖的 getMarkdown/setMarkdown 契约已经稳定；仅 playground 层修改，不动 packages/editor。"
+      },
+      {
+        "key": "effort",
+        "score": 96,
+        "label": "Effort",
+        "reason": "改动集中在 apps/playground/src/main.ts + 可能一个 toggle 模块，<5 个文件。"
+      },
+      {
+        "key": "clarity",
+        "score": 98,
+        "label": "Clarity",
+        "reason": "切换形态、双向同步、控件类型、默认文档分段结构都已明确决策。"
+      },
+      {
+        "key": "tests",
+        "score": 92,
+        "label": "Tests",
+        "reason": "playground 不在 spec runner 覆盖范围内，验证以手工测试 + dev server 为主，无自动化覆盖。"
+      }
+    ]
+  },
+  "problem": [
+    "playground 目前是 \"左 WYSIWYG + 右只读 markdown 预览\" 的双栏布局：能看 markdown，但不能直接编辑源文本；同时默认文档过于简短，不足以演示 editor 目前支持的全部 markdown 语法。",
+    "希望把 playground 改成单栏：默认 WYSIWYG 全宽；按 Cmd+/ (Mod+/) 切换到一个可编辑的 markdown 纯文本视图，再按 Cmd+/ 切回 WYSIWYG，textarea 中的修改通过 setMarkdown 同步回富文本编辑器。同时换一份能够覆盖所有 inline 与 block 语法的默认文档，让 playground 同时承担 \"使用入口\" 和 \"功能展示\" 两个角色。"
+  ],
+  "goals": [
+    "playground 单栏化：默认 WYSIWYG 全宽显示，移除现有右侧只读 markdown 预览栏。",
+    "Mod+/ 在 WYSIWYG ↔ 源码 textarea 之间切换，两种视图下快捷键都生效。",
+    "进入源码模式时用 editor.getMarkdown() 填充 textarea；切回 WYSIWYG 时用 editor.setMarkdown() 应用 textarea 的修改。",
+    "默认 initialMarkdown 包含：一段介绍 packages/editor 是什么；一段把全部 inline 语法（emphasis / strikethrough / sub / sup / highlight / link / autolink / inline code）连写在一起的展示文本；每个 block 语法（atx-heading / blockquote / thematic-break / ordered-list / unordered-list）各一段简单展示。",
+    "不在 packages/editor 暴露新接口：已有的 getMarkdown / setMarkdown 已经覆盖需求。"
+  ],
+  "successCriteria": [
+    "首次打开 playground，编辑器区域全宽显示新的默认文档，原右侧 markdown 预览栏不再出现。",
+    "默认文档在 WYSIWYG 中渲染时能看到 emphasis / strikethrough / sub / sup / highlight / link / autolink / inline code 这 8 个 inline 语法的实际效果，以及 atx-heading / blockquote / thematic-break / ordered-list / unordered-list 这 5 个 block 各被展示一次。",
+    "在 WYSIWYG focus 时按 Mod+/，WYSIWYG DOM 被隐藏 / 卸载，出现一个 textarea，内容等于 editor.getMarkdown() 的结果，textarea 自动获得焦点。",
+    "在 textarea focus 时按 Mod+/，textarea 隐藏，WYSIWYG 重新显示，doc 反映 textarea 的最新内容（通过 editor.setMarkdown）。",
+    "Mod+/ 在两种视图下都不会触发浏览器默认行为；在 textarea 中也能切回。",
+    "vp check 与 vp test 不应回退（playground 改动不应影响 packages/editor 类型与已有 spec）。"
+  ],
+  "scope": {
+    "mvp": [
+      {
+        "item": "playground 单栏布局：移除右侧 markdown 预览栏，编辑器全宽。",
+        "reason": "切换体验的前提，与当前双栏布局互斥。"
+      },
+      {
+        "item": "Mod+/ 切换 WYSIWYG ↔ textarea 源码模式（playground 层 window keydown 监听）。",
+        "reason": "核心交互；必须在 WYSIWYG 与 textarea focus 下都能触发。"
+      },
+      {
+        "item": "进入源码模式：editor.getMarkdown() → textarea.value；textarea 接管焦点。",
+        "reason": "源码视图必须显示当前 doc 对应的 markdown。"
+      },
+      {
+        "item": "切回 WYSIWYG：editor.setMarkdown(textarea.value)，doc 应用修改。",
+        "reason": "双向同步，避免用户在源码模式的编辑被丢弃。"
+      },
+      {
+        "item": "新默认 markdown 文档：介绍段 + 全 inline 展示段 + 每个 block 各一段。",
+        "reason": "替代当前简短示例，让 playground 同时承担功能展示。"
+      },
+      {
+        "item": "切换时保留光标 / 滚动位置（两种视图间映射）。",
+        "reason": "高频交互；丢光标会让 Mod+/ 体验断裂。"
+      }
+    ],
+    "full": [],
+    "stretch": [],
+    "outOfScope": [
+      {
+        "item": "在 packages/editor 内实现源码模式 / 暴露新 API。",
+        "reason": "现有 getMarkdown / setMarkdown 已经够用；保持 packages/editor 不感知 playground UI。"
+      },
+      {
+        "item": "textarea 的 markdown 语法高亮 / 集成 CodeMirror。",
+        "reason": "playground 是手动验证用，textarea 即可，避免引入依赖。"
+      },
+      {
+        "item": "在 localStorage 中持久化当前模式或文档内容。",
+        "reason": "playground 行为不需要跨刷新保留。"
+      },
+      {
+        "item": "为 playground 编写 spec runner 用例。",
+        "reason": "playground 不在 specs/ 覆盖范围内，验证以 dev server 手工为主。"
+      }
+    ],
+    "future": [
+      "顶栏增加一个可点击的 \"源码模式\" 按钮，作为 Mod+/ 的视觉补充。",
+      "把源码模式上升为 packages/editor 的内置展示模式。",
+      "playground 提供多份示例文档可切换（cheatsheet / blog post / 长文档等）。"
+    ]
+  },
+  "execution": {
+    "strategy": "Sequential",
+    "phases": [
+      {
+        "title": "Playground source-mode toggle + default doc",
+        "risk": "low",
+        "blocking": true,
+        "specPath": "docs/ideation/playground-markdown-toggle/spec.md",
+        "notes": "改 apps/playground/src/main.ts：移除右侧预览栏，单栏化；新增 toggle 状态（'wysiwyg' | 'source'）与 textarea；window keydown 监听 Mod+/；进入源码用 editor.getMarkdown()，切回用 editor.setMarkdown()；切换时在两种视图间映射光标与滚动位置。替换默认 initialMarkdown 为覆盖所有 inline + block 语法的文档。"
+      }
+    ]
+  }
+}

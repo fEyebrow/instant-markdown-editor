@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Implementation Notes — Phase 1</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font:
+          15px/1.5 system-ui,
+          sans-serif;
+        background: #f6f3ed;
+        color: #23221e;
+      }
+      body {
+        max-width: 760px;
+        margin: 2rem auto;
+        padding: 0 1.25rem;
+      }
+      h1 {
+        font-size: 1.4rem;
+        margin: 0 0 1.5rem;
+      }
+      .note-entry {
+        background: #fff;
+        border: 1px solid #ebe6dc;
+        border-radius: 10px;
+        padding: 1rem 1.1rem;
+        margin-bottom: 1rem;
+      }
+      .note-entry h3 {
+        margin: 0 0 0.6rem;
+        font-size: 1rem;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: 7rem 1fr;
+        gap: 0.35rem 0.85rem;
+        margin: 0;
+      }
+      dt {
+        color: #8b877f;
+        font-size: 0.82rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      dd {
+        margin: 0;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        background: #faf8f3;
+        padding: 0 0.25rem;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Implementation Notes — Phase 1</h1>
+    <main>
+      <section class="note-entry">
+        <h3>Component 4 — Avoid adding <code>prosemirror-model</code> as a playground dep</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            Cursor mapping helper needs the <code>Node</code> type, but
+            <code>prosemirror-model</code>
+            is only a transitive dep of the playground (it lives under
+            <code>packages/editor/node_modules</code>).
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Derive the doc type from the exported <code>EditorHandle</code> via
+            <code>EditorHandle["view"]["state"]["doc"]</code> alias, so no new direct dep is needed.
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Add <code>prosemirror-model</code> to <code>apps/playground/package.json</code>.
+            Rejected because the spec scope is "playground only" and dep changes warrant a separate
+            decision.
+          </dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>Component 3 — Single-attach pattern for the window keydown listener</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            Spec says no cleanup is needed for the playground lifetime, but Vite HMR can re-invoke
+            <code>renderEditor</code> on hot updates, stacking listeners.
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Hold the current handler in a module-level <code>toggleListener</code> and remove the
+            prior one before re-attaching, making <code>renderEditor</code> idempotent under HMR.
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Attach at module scope outside <code>renderEditor</code>. Rejected because the listener
+            closes over the <code>state</code> object created inside <code>renderEditor</code>.
+          </dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>Component 2 — Scope <code>[hidden]</code> fallback to the editor card</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            Spec's failure-mode mitigation suggests
+            <code>[hidden] { display: none }</code> as a global fallback against CSS overrides.
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Scope the rule to <code>.editor-card &gt; [hidden]</code> and drop
+            <code>!important</code> — narrow enough to do its job without colliding with future
+            <code>[hidden]</code> usages on other pages (e.g. specs view).
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Global <code>[hidden] { display: none !important; }</code>. Rejected as too broad.
+          </dd>
+        </dl>
+      </section>
+    </main>
+  </body>
+</html>

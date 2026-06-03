@@ -179,6 +179,26 @@ pre {
   padding: 1rem 1.1rem;
 }
 
+.source-textarea {
+  display: block;
+  width: 100%;
+  min-height: 18rem;
+  padding: 1rem 1.1rem;
+  margin: 0;
+  border: 0;
+  outline: none;
+  resize: vertical;
+  background: var(--panel);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.editor-card > [hidden] {
+  display: none;
+}
+
 .side-card {
   overflow: hidden;
 }
