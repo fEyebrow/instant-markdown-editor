@@ -63,9 +63,6 @@ export const autolink: FeatureSpec = {
       },
     } as MarkSpec,
   },
-  markDelims: {
-    autolink: { open: "", close: "" },
-  },
   inline: {
     priority: 2.5,
     markNames: ["autolink"],

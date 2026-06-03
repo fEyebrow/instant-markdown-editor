@@ -14,8 +14,10 @@ import { unorderedListSpec } from "./features/unordered-list.cases.ts";
 import { orderedListSpec } from "./features/ordered-list.cases.ts";
 import { atxHeadingSpec } from "./features/atx-heading.cases.ts";
 import { blockquoteSpec } from "./features/blockquote.cases.ts";
+import { inlineSerializationSpec } from "./features/inline-serialization.cases.ts";
 
 const EDITOR_SPEC_FEATURE_DEFINITIONS = [
+  inlineSerializationSpec,
   liveInlineMarkSpec,
   liveItalicSpec,
   liveStrongSpec,

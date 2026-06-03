@@ -47,9 +47,6 @@ export const subscript: FeatureSpec = {
       state.addText("~");
     },
   },
-  markDelims: {
-    subscript: { open: "", close: "" },
-  },
   mdItPlugins: [
     (tokenizer) => tokenizer.inline.ruler.before("emphasis", "subscript", subscriptRule),
   ],

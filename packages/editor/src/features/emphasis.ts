@@ -192,11 +192,6 @@ export const emphasis: FeatureSpec = {
     },
   },
 
-  markDelims: {
-    em: { open: "", close: "" },
-    strong: { open: "", close: "" },
-  },
-
   inline: {
     priority: 2,
     markNames: ["em", "strong"],

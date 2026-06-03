@@ -39,7 +39,7 @@ export const thematicBreakSpec = {
         {
           step: 3,
           expectedProjection: "<p>--</p><p>|</p>",
-          expectedMarkdown: "\\--",
+          expectedMarkdown: "--",
         },
       ],
     },

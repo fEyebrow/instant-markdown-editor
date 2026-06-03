@@ -45,9 +45,6 @@ export const superscript: FeatureSpec = {
       state.addText("^");
     },
   },
-  markDelims: {
-    superscript: { open: "", close: "" },
-  },
   mdItPlugins: [
     (tokenizer) => tokenizer.inline.ruler.before("emphasis", "superscript", superscriptRule),
   ],

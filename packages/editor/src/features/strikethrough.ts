@@ -24,9 +24,6 @@ export const strikethrough: FeatureSpec = {
       state.addText("~~");
     },
   },
-  markDelims: {
-    strikethrough: { open: "", close: "" },
-  },
   mdItPlugins: [(tokenizer) => tokenizer.enable("strikethrough")],
   inline: {
     priority: 1,

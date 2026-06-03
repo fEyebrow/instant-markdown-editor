@@ -135,9 +135,6 @@ export const link: FeatureSpec = {
       if (mark) state.addText(closeDelimText(mark));
     },
   },
-  markDelims: {
-    link: { open: "", close: "" },
-  },
   inline: {
     priority: 3,
     markNames: ["link"],

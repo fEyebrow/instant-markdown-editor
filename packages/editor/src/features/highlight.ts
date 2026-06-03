@@ -45,9 +45,6 @@ export const highlight: FeatureSpec = {
       state.addText("==");
     },
   },
-  markDelims: {
-    highlight: { open: "", close: "" },
-  },
   mdItPlugins: [
     (tokenizer) => tokenizer.inline.ruler.before("emphasis", "highlight", highlightRule),
   ],

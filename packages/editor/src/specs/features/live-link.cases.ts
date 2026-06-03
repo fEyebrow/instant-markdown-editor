@@ -67,7 +67,7 @@ export const liveLinkSpec = {
         {
           step: 4,
           expectedProjection: "<p>[x](|</p>",
-          expectedMarkdown: "\\[x\\](",
+          expectedMarkdown: "[x](",
         },
       ],
     },
@@ -81,7 +81,7 @@ export const liveLinkSpec = {
           step: 7,
           title: "broken source is plain text",
           expectedProjection: "<p>[x](y|</p>",
-          expectedMarkdown: "\\[x\\](y",
+          expectedMarkdown: "[x](y",
         },
         {
           step: 8,

@@ -13,7 +13,7 @@ export const atxHeadingSpec = {
         {
           step: 3,
           expectedProjection: "<p><block-pending>#</block-pending> <strong>d</strong>|</p>",
-          expectedMarkdown: "\\# d",
+          expectedMarkdown: "# d",
         },
       ],
     },
@@ -80,7 +80,7 @@ export const atxHeadingSpec = {
           title: "pending visible inside list item",
           expectedProjection:
             "<ul><li><p><block-pending>#</block-pending> <strong>d</strong>|</p></li></ul>",
-          expectedMarkdown: "* \\# d",
+          expectedMarkdown: "* # d",
         },
         {
           step: 4,
@@ -101,7 +101,7 @@ export const atxHeadingSpec = {
           title: "pending visible inside blockquote",
           expectedProjection:
             "<blockquote><p><block-pending>#</block-pending> <strong>d</strong>|</p></blockquote>",
-          expectedMarkdown: "> \\# d",
+          expectedMarkdown: "> # d",
         },
         {
           step: 4,
@@ -121,7 +121,7 @@ export const atxHeadingSpec = {
           step: 4,
           title: "pending persists after typing more content",
           expectedProjection: "<p><block-pending>#</block-pending> <strong>dd</strong>|</p>",
-          expectedMarkdown: "\\# dd",
+          expectedMarkdown: "# dd",
         },
         {
           step: 5,

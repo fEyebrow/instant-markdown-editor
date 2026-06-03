@@ -61,9 +61,6 @@ export const code: FeatureSpec = {
       state.addText(markup);
     },
   },
-  markDelims: {
-    code: { open: "", close: "", escape: false },
-  },
   inline: {
     priority: 0,
     markNames: ["code"],

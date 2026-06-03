@@ -15,7 +15,7 @@ import { strikethrough } from "./strikethrough.ts";
 import { subscript } from "./subscript.ts";
 import { superscript } from "./superscript.ts";
 import { thematicBreak } from "./thematic-break.ts";
-import type { FeatureSpec, MarkdownTokenHandler, SerializerMarkSpec } from "./_types.ts";
+import type { FeatureSpec, MarkdownTokenHandler } from "./_types.ts";
 import { unorderedList } from "./unordered-list.ts";
 
 export const featureSpecs: FeatureSpec[] = [
@@ -48,11 +48,6 @@ export const featureParserTokens: Record<string, MarkdownTokenHandler> = Object.
   ...featureSpecs.map((feature) => feature.parserTokens ?? {}),
 );
 
-export const featureMarkDelims: Record<string, SerializerMarkSpec> = Object.assign(
-  {},
-  ...featureSpecs.map((feature) => feature.markDelims ?? {}),
-);
-
 export function configureFeatureMarkdownIt(tokenizer: MarkdownIt): void {
   for (const plugin of collectMdItPlugins()) plugin(tokenizer);
 }
@@ -63,10 +58,6 @@ export function collectMdItPlugins(): Array<(tokenizer: MarkdownIt) => void> {
 
 export function collectParserTokens(): Record<string, MarkdownTokenHandler> {
   return featureParserTokens;
-}
-
-export function collectMarkDelims(): Record<string, SerializerMarkSpec> {
-  return featureMarkDelims;
 }
 
 export function createFeaturePlugins(schema: Schema): Plugin[] {

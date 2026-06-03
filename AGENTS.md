@@ -16,6 +16,8 @@
   - `inline-decorations.ts` syntax hints：按光标位置把真实 delimiter 显示成 pending 或隐藏
   - `<feature>.ts` 单个 feature 的 FeatureSpec；inline 类还要声明 `scan` / `priority` / `markNames` / `extRanges`
 - `markdown/` Markdown ↔ ProseMirror 双向（parser / serializer / paste）
+  - `parser.ts` Markdown → PM doc：通过 markdown-it token 和 feature parserTokens 建 doc；inline Markdown delimiter 作为真实 text 保留，同时附加 semantic marks，后续由 normalize / decorations 负责识别与显示
+  - `serializer.ts` PM doc → Markdown：block node 仍按语义输出 heading / blockquote / list / code fence / hard_break；inline serialization 是纯 source-retained，只输出 PM doc 中保留的 inline text，不根据 marks 合成 delimiter，也不 escape 普通 inline Markdown 字符
 - `specs/` 行为 spec：`features/*.cases.ts` → `specs/index.ts` registry
 - `specs/runner.ts` spec 执行入口：`applyActions` 模拟输入 / 按键，`setSpecMarkdown` 用 Markdown 初始化编辑器，`projectEditorView` 把当前 EditorView DOM 投影成稳定 HTML-like 字符串，用于断言 cursor、pending marker、hidden delimiter、live mark 样式等用户可见状态
 

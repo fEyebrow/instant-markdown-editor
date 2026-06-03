@@ -39,12 +39,12 @@ export const liveSubscriptSpec = {
         {
           step: 2,
           expectedProjection: "<p>~~|</p>",
-          expectedMarkdown: "\\~\\~",
+          expectedMarkdown: "~~",
         },
         {
           step: 5,
           expectedProjection: "<p>~ ~|</p>",
-          expectedMarkdown: "\\~ \\~",
+          expectedMarkdown: "~ ~",
         },
       ],
     },
@@ -70,7 +70,7 @@ export const liveSubscriptSpec = {
         {
           step: 5,
           expectedProjection: "<p>~1</p><p>1~|</p>",
-          expectedMarkdown: "\\~1\n\n1\\~",
+          expectedMarkdown: "~1\n\n1~",
         },
       ],
     },
