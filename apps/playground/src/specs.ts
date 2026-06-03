@@ -23,21 +23,21 @@ export function renderSpecs(root: HTMLElement): void {
   let activeFeatureId = FEATURES[0]?.id ?? "";
 
   root.innerHTML = `
-    <div class="shell shell-soft">
-      <header class="topbar topbar-minimal">
+    <div class="shell docs-shell">
+      <header class="topbar">
         <div class="brandrow">
           <a class="brandmark" href="/">Typora</a>
-          <nav class="topnav topnav-minimal" aria-label="Sections">
-            <a class="navlink navlink-minimal" href="/">Editor</a>
-            <a class="navlink navlink-minimal active" href="/specs">Specs</a>
+          <nav class="topnav" aria-label="Sections">
+            <a class="navlink" href="/">Editor</a>
+            <a class="navlink active" href="/specs">Specs</a>
           </nav>
         </div>
       </header>
-      <main class="page-wrap page-wrap-top">
+      <main class="page-wrap page-wrap-top specs-page-wrap">
         <section class="specs-shell">
           <aside class="specs-sidebar">
             <div class="specs-sidebar-head">
-              <h2>Features</h2>
+              <h2>Cases</h2>
             </div>
             <nav id="feature-list" class="feature-list" aria-label="Feature specs"></nav>
           </aside>

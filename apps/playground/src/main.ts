@@ -6,9 +6,9 @@ import { renderSpecs } from "./specs.ts";
 
 const initial = `# packages/editor playground
 
-\`packages/editor\` is a ProseMirror-based, Typora-style WYSIWYG markdown editor. This playground is a manual surface for trying out its parser, serializer, and live editing behavior.
+\`packages/editor\` is a ProseMirror-based, Typora-style WYSIWYG Markdown editor. This playground lets you try the editing model before reading the implementation.
 
-Press Cmd+/ (or Ctrl+/) to toggle the markdown source view.
+Press Cmd+/ (or Ctrl+/) to compare the rendered editor with retained Markdown source.
 
 ## Inline syntax
 
@@ -161,12 +161,12 @@ function textOffsetToDocPos(doc: EditorDoc, targetOffset: number): number {
 
 function renderTopbar(active: "editor" | "specs"): string {
   return `
-    <header class="topbar topbar-minimal">
+    <header class="topbar">
       <div class="brandrow">
         <a class="brandmark" href="/">Typora</a>
-        <nav class="topnav topnav-minimal" aria-label="Sections">
-          <a class="navlink navlink-minimal${active === "editor" ? " active" : ""}" href="/">Editor</a>
-          <a class="navlink navlink-minimal${active === "specs" ? " active" : ""}" href="/specs">Specs</a>
+        <nav class="topnav" aria-label="Sections">
+          <a class="navlink${active === "editor" ? " active" : ""}" href="/">Editor</a>
+          <a class="navlink${active === "specs" ? " active" : ""}" href="/specs">Specs</a>
         </nav>
       </div>
     </header>
