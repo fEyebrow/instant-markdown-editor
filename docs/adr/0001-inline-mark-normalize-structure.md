@@ -2,7 +2,7 @@
 
 ## 背景
 
-Inline mark 既是 Markdown source，也是编辑器里的语义样式。用户输入 `*text*`、`**text**`、`==text==`、`` `text` ``、`[text](url)` 这类 source 时，编辑器需要立即显示对应样式；同时 delimiter 仍然是真实文档字符，用户可以继续编辑、删除或补齐它们。
+Inline mark 既是 Markdown source，也是编辑器里的语义样式。用户输入 `*text*`、`**text**`、`==text==`、`text`、`[text](url)` 这类 source 时，编辑器需要立即显示对应样式；同时 delimiter 仍然是真实文档字符，用户可以继续编辑、删除或补齐它们。
 
 这带来一个核心问题：如果每个 inline mark 都自己处理输入、识别 source、同步 mark、隐藏 delimiter 和序列化，很快会出现多套规则。它们会在嵌套、冲突、inline code isolation、删除 delimiter、Markdown round trip 等场景里互相打架。
 
