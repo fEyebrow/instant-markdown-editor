@@ -5,53 +5,15 @@ export const liveItalicSpec = {
   title: "Live Italic",
   cases: [
     {
-      id: "live-italic-basic",
-      title: "Basic Method-B flow",
+      id: "live-italic-source-projects",
+      title: "'*1*' projects as italic source and serializes as Markdown",
       initialMarkdown: "",
-      keyevents: ["*", "1", "*", " "],
+      keyevents: ["*", "1", "*"],
       checkpoints: [
         {
           step: 3,
           expectedProjection: "<p><pending>*</pending><i>1</i><pending>*</pending>|</p>",
           expectedMarkdown: "*1*",
-        },
-        {
-          step: 4,
-          expectedProjection: "<p><i>1</i> |</p>",
-          expectedMarkdown: "*1* ",
-        },
-      ],
-    },
-    {
-      id: "live-italic-hides-source-before-plain-text",
-      title: "Hide source before plain text",
-      initialMarkdown: "",
-      keyevents: ["*", "1", "*", "a"],
-      checkpoints: [
-        {
-          step: 4,
-          expectedProjection: "<p><i>1</i>a|</p>",
-          expectedMarkdown: "*1*a",
-        },
-      ],
-    },
-    {
-      id: "live-italic-reveal-pending-at-mark-boundaries",
-      title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "",
-      keyevents: ["*", "1", "*", " ", "ArrowLeft", "ArrowLeft"],
-      checkpoints: [
-        {
-          step: 5,
-          title: "cursor reaches mark end",
-          expectedProjection: "<p><pending>*</pending><i>1</i><pending>*</pending>| </p>",
-          expectedMarkdown: "*1* ",
-        },
-        {
-          step: 6,
-          title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>*</pending><i>1</i>|<pending>*</pending> </p>",
-          expectedMarkdown: "*1* ",
         },
       ],
     },

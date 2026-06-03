@@ -5,54 +5,15 @@ export const liveStrikethroughSpec = {
   title: "Live Strikethrough",
   cases: [
     {
-      id: "live-strikethrough-basic",
-      title: "Basic Method-B flow",
+      id: "live-strikethrough-source-projects",
+      title: "'~~1~~' projects as strikethrough source and serializes as Markdown",
       initialMarkdown: "",
-      keyevents: ["~", "~", "1", "~", "~", " "],
+      keyevents: ["~", "~", "1", "~", "~"],
       checkpoints: [
         {
           step: 5,
           expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>|</p>",
           expectedMarkdown: "~~1~~",
-        },
-        {
-          step: 6,
-          expectedProjection: "<p><s>1</s> |</p>",
-          expectedMarkdown: "~~1~~ ",
-        },
-      ],
-    },
-    {
-      id: "live-strikethrough-hides-source-before-plain-text",
-      title: "Hide source before plain text",
-      initialMarkdown: "",
-      keyevents: ["~", "~", "1", "~", "~", "a"],
-      checkpoints: [
-        {
-          step: 6,
-          expectedProjection: "<p><s>1</s>a|</p>",
-          expectedMarkdown: "~~1~~a",
-        },
-      ],
-    },
-    {
-      id: "live-strikethrough-reveal-pending-at-mark-boundaries",
-      title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "",
-      keyevents: ["~", "~", "1", "~", "~", " ", "ArrowLeft", "ArrowLeft"],
-      checkpoints: [
-        {
-          step: 7,
-          title: "cursor reaches mark end",
-          expectedProjection: "<p><pending>~~</pending><s>1</s><pending>~~</pending>| </p>",
-          expectedMarkdown: "~~1~~ ",
-        },
-        {
-          step: 8,
-          title: "cursor moves through closing delimiter",
-          expectedProjection:
-            "<p><pending>~~</pending><s>1</s><pending>~</pending>|<pending>~</pending> </p>",
-          expectedMarkdown: "~~1~~ ",
         },
       ],
     },

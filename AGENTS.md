@@ -29,6 +29,27 @@
 - 绿灯后再重构，并保持 `vp test` 通过。
 - 涉及类型、lint、构建或跨模块契约时，最后跑 `vp check` 或 `pnpm ready`。
 
+## Testing principles
+
+测试是审查，不是给当前实现盖章。好的测试应断言正确的用户可见行为，而不是重复当前代码做了什么；如果测试暴露出实现缺陷，修实现，不要把错误行为写进期望。
+
+写、删或审查测试时，按这棵决策树判断：
+
+1. 测什么？
+   优先测逻辑和规则边界，而不是连接关系。不要只证明某个 handler 调了某个 helper；要证明用户输入、编辑、投影和 Markdown 输出符合规则。
+
+2. 测多少？
+   每个 case 保护一个明确行为拐点，例如触发、commit、非法输入、priority 冲突、crossing 拒绝、inline code 隔离、parse / serialize round trip。避免排列组合式覆盖。
+
+3. 怎么分层？
+   共享架构行为用少量代表性 feature 覆盖；具体 feature 只补它独有的 delimiter、priority、HTML/Markdown 语义和特殊非法输入。
+
+4. 怎么命名？
+   测试名应像需求句子，说明正确行为，而不是实现机制。避免泛泛的 `basic` 成为唯一语义。
+
+5. 怎么取舍？
+   删除或新增测试时问一句：如果没有这个 case，会失去哪条行为约束？答不上来时，多半是重复或噪音。
+
 ## Inline markdown feature guide
 
 只有在添加或修改 inline markdown feature 时，阅读 `docs/inline-mark-feature-guide.md`。其中记录 inline mark architecture、feature 文件职责和新增 inline markdown feature 的 TDD 流程。

@@ -5,8 +5,8 @@ export const liveAutolinkSpec = {
   title: "Live Autolink",
   cases: [
     {
-      id: "live-autolink-basic-source-projection",
-      title: "Basic source projection",
+      id: "live-autolink-https-source-projects",
+      title: "HTTPS autolink projects as a link source and serializes as Markdown",
       initialMarkdown: "",
       keyevents: [
         "<",
@@ -37,6 +37,19 @@ export const liveAutolinkSpec = {
           expectedProjection:
             '<p><pending><</pending><a href="https://example.com">https://example.com</a><pending>></pending>|</p>',
           expectedMarkdown: "<https://example.com>",
+        },
+      ],
+    },
+    {
+      id: "live-autolink-hides-source-on-space",
+      title: "Typing Space after an autolink hides source and preserves Markdown",
+      initialMarkdown: "",
+      keyevents: ["<", "h", "t", "t", "p", "s", ":", "/", "/", "e", ".", "c", "o", ">", " "],
+      checkpoints: [
+        {
+          step: 15,
+          expectedProjection: '<p><a href="https://e.co">https://e.co</a> |</p>',
+          expectedMarkdown: "<https://e.co> ",
         },
       ],
     },
@@ -81,7 +94,7 @@ export const liveAutolinkSpec = {
       ],
     },
     {
-      id: "live-autolink-invalid-source-stays-text",
+      id: "live-autolink-scheme-source-projects",
       title: "Scheme autolink source projects",
       initialMarkdown: "",
       keyevents: ["<", "f", "t", "p", ":", "/", "/", "e", ".", "c", "o", ">"],
@@ -120,50 +133,6 @@ export const liveAutolinkSpec = {
           step: 15,
           expectedProjection: "<p><https://e.co|</p>",
           expectedMarkdown: "<https://e.co",
-        },
-      ],
-    },
-    {
-      id: "live-autolink-hides-source-on-space",
-      title: "Typing after autolink hides source without changing markdown",
-      initialMarkdown: "",
-      keyevents: ["<", "h", "t", "t", "p", "s", ":", "/", "/", "e", ".", "c", "o", ">", " "],
-      checkpoints: [
-        {
-          step: 15,
-          expectedProjection: '<p><a href="https://e.co">https://e.co</a> |</p>',
-          expectedMarkdown: "<https://e.co> ",
-        },
-      ],
-    },
-    {
-      id: "live-autolink-keeps-source-at-right-boundary",
-      title: "Complete autolink source remains intact at the right boundary",
-      initialMarkdown: "",
-      keyevents: [
-        "<",
-        "h",
-        "t",
-        "t",
-        "p",
-        "s",
-        ":",
-        "/",
-        "/",
-        "e",
-        ".",
-        "c",
-        "o",
-        ">",
-        "ArrowLeft",
-        "ArrowRight",
-      ],
-      checkpoints: [
-        {
-          step: 16,
-          expectedProjection:
-            '<p><pending><</pending><a href="https://e.co">https://e.co</a><pending>></pending>|</p>',
-          expectedMarkdown: "<https://e.co>",
         },
       ],
     },

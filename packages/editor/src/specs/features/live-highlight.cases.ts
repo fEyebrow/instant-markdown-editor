@@ -5,20 +5,15 @@ export const liveHighlightSpec = {
   title: "Live Highlight",
   cases: [
     {
-      id: "live-highlight-basic",
-      title: "Basic Method-B flow",
+      id: "live-highlight-source-projects",
+      title: "'==1==' projects as highlight source and serializes as Markdown",
       initialMarkdown: "",
-      keyevents: ["=", "=", "1", "=", "=", " "],
+      keyevents: ["=", "=", "1", "=", "="],
       checkpoints: [
         {
           step: 5,
           expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==</pending>|</p>",
           expectedMarkdown: "==1==",
-        },
-        {
-          step: 6,
-          expectedProjection: "<p><mark>1</mark> |</p>",
-          expectedMarkdown: "==1== ",
         },
       ],
     },
@@ -32,53 +27,6 @@ export const liveHighlightSpec = {
           step: 4,
           expectedProjection: "<p>====|</p>",
           expectedMarkdown: "====",
-        },
-      ],
-    },
-    {
-      id: "live-highlight-ignores-inline-code",
-      title: "Inline code stays literal",
-      initialMarkdown: "`==1==`",
-      keyevents: ["ArrowLeft"],
-      checkpoints: [
-        {
-          step: 1,
-          expectedProjection: "<p><pending>`</pending><code>==1==</code>|<pending>`</pending></p>",
-          expectedMarkdown: "`==1==`",
-        },
-      ],
-    },
-    {
-      id: "live-highlight-reveal-pending-at-mark-boundaries",
-      title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "",
-      keyevents: ["=", "=", "1", "=", "=", " ", "ArrowLeft", "ArrowLeft"],
-      checkpoints: [
-        {
-          step: 7,
-          title: "cursor reaches mark end",
-          expectedProjection: "<p><pending>==</pending><mark>1</mark><pending>==</pending>| </p>",
-          expectedMarkdown: "==1== ",
-        },
-        {
-          step: 8,
-          title: "cursor moves through closing delimiter",
-          expectedProjection:
-            "<p><pending>==</pending><mark>1</mark><pending>=</pending>|<pending>=</pending> </p>",
-          expectedMarkdown: "==1== ",
-        },
-      ],
-    },
-    {
-      id: "live-highlight-markdown-round-trip",
-      title: "Markdown round trip",
-      initialMarkdown: "==1== a",
-      keyevents: ["ArrowLeft"],
-      checkpoints: [
-        {
-          step: 1,
-          expectedProjection: "<p><mark>1</mark> |a</p>",
-          expectedMarkdown: "==1== a",
         },
       ],
     },

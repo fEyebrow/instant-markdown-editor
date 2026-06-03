@@ -5,33 +5,15 @@ export const liveStrongSpec = {
   title: "Live Strong",
   cases: [
     {
-      id: "live-strong-basic",
-      title: "Basic Method-B flow",
+      id: "live-strong-source-projects",
+      title: "'**1**' projects as strong source and serializes as Markdown",
       initialMarkdown: "",
-      keyevents: ["*", "*", "1", "*", "*", " "],
+      keyevents: ["*", "*", "1", "*", "*"],
       checkpoints: [
         {
           step: 5,
           expectedProjection: "<p><pending>**</pending><b>1</b><pending>**</pending>|</p>",
           expectedMarkdown: "**1**",
-        },
-        {
-          step: 6,
-          expectedProjection: "<p><b>1</b> |</p>",
-          expectedMarkdown: "**1** ",
-        },
-      ],
-    },
-    {
-      id: "live-strong-hides-source-before-plain-text",
-      title: "Hide source before plain text",
-      initialMarkdown: "",
-      keyevents: ["*", "*", "1", "*", "*", "a"],
-      checkpoints: [
-        {
-          step: 6,
-          expectedProjection: "<p><b>1</b>a|</p>",
-          expectedMarkdown: "**1**a",
         },
       ],
     },

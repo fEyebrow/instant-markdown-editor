@@ -5,8 +5,8 @@ export const liveLinkSpec = {
   title: "Live Link",
   cases: [
     {
-      id: "live-link-basic-source-projection",
-      title: "Basic source projection",
+      id: "live-link-source-projects",
+      title: "'[x](y)' projects as a link source and serializes as Markdown",
       initialMarkdown: "",
       keyevents: ["[", "x", "]", "(", "y", ")"],
       checkpoints: [
@@ -19,8 +19,8 @@ export const liveLinkSpec = {
       ],
     },
     {
-      id: "live-link-hides-non-empty-label-on-space",
-      title: "Typing after a complete link hides source without changing markdown",
+      id: "live-link-hides-non-empty-source-on-space",
+      title: "Typing Space after a non-empty link hides source and preserves Markdown",
       initialMarkdown: "",
       keyevents: ["[", "x", "]", "(", "y", ")", " "],
       checkpoints: [
@@ -28,20 +28,6 @@ export const liveLinkSpec = {
           step: 7,
           expectedProjection: '<p><a href="y">x</a> |</p>',
           expectedMarkdown: "[x](y) ",
-        },
-      ],
-    },
-    {
-      id: "live-link-keeps-source-at-right-boundary",
-      title: "Complete link source remains intact at the right boundary",
-      initialMarkdown: "",
-      keyevents: ["[", "x", "]", "(", "y", ")", "ArrowLeft", "ArrowRight"],
-      checkpoints: [
-        {
-          step: 8,
-          expectedProjection:
-            '<p><pending>[</pending><a href="y">x</a><pending>](y)</pending>|</p>',
-          expectedMarkdown: "[x](y)",
         },
       ],
     },
@@ -108,7 +94,7 @@ export const liveLinkSpec = {
     },
     {
       id: "live-link-empty-href-keeps-source",
-      title: "Empty href remains Method-B source",
+      title: "Empty href serializes as a link with no href attribute",
       initialMarkdown: "",
       keyevents: ["[", "x", "]", "(", ")", " "],
       checkpoints: [
@@ -136,20 +122,6 @@ export const liveLinkSpec = {
           expectedProjection:
             "<p><pending>[</pending><pending>](</pending>u<pending>)</pending> <pending>[</pending><pending>]()</pending>|</p>",
           expectedMarkdown: "[](u) []()",
-        },
-      ],
-    },
-    {
-      id: "live-link-empty-label-stays-source-on-cursor-leave",
-      title: "Empty label stays source projection when cursor leaves",
-      initialMarkdown: "",
-      keyevents: ["[", "]", "(", "u", ")", "ArrowLeft", "ArrowRight"],
-      checkpoints: [
-        {
-          step: 7,
-          expectedProjection:
-            "<p><pending>[</pending><pending>](</pending>u<pending>)</pending>|</p>",
-          expectedMarkdown: "[](u)",
         },
       ],
     },

@@ -5,20 +5,15 @@ export const liveSuperscriptSpec = {
   title: "Live Superscript",
   cases: [
     {
-      id: "live-superscript-basic",
-      title: "Basic Method-B flow",
+      id: "live-superscript-source-projects",
+      title: "'^1^' projects as superscript source and serializes as Markdown",
       initialMarkdown: "",
-      keyevents: ["^", "1", "^", " "],
+      keyevents: ["^", "1", "^"],
       checkpoints: [
         {
           step: 3,
           expectedProjection: "<p><pending>^</pending><sup>1</sup><pending>^</pending>|</p>",
           expectedMarkdown: "^1^",
-        },
-        {
-          step: 4,
-          expectedProjection: "<p><sup>1</sup> |</p>",
-          expectedMarkdown: "^1^ ",
         },
       ],
     },
@@ -41,41 +36,8 @@ export const liveSuperscriptSpec = {
       ],
     },
     {
-      id: "live-superscript-ignores-inline-code",
-      title: "Inline code stays literal",
-      initialMarkdown: "`^1^`",
-      keyevents: ["ArrowLeft"],
-      checkpoints: [
-        {
-          step: 1,
-          expectedProjection: "<p><pending>`</pending><code>^1^</code>|<pending>`</pending></p>",
-          expectedMarkdown: "`^1^`",
-        },
-      ],
-    },
-    {
-      id: "live-superscript-reveal-pending-at-mark-boundaries",
-      title: "Reveal pending markers at mark boundaries",
-      initialMarkdown: "",
-      keyevents: ["^", "1", "^", " ", "ArrowLeft", "ArrowLeft"],
-      checkpoints: [
-        {
-          step: 5,
-          title: "cursor reaches mark end",
-          expectedProjection: "<p><pending>^</pending><sup>1</sup><pending>^</pending>| </p>",
-          expectedMarkdown: "^1^ ",
-        },
-        {
-          step: 6,
-          title: "cursor moves through closing delimiter",
-          expectedProjection: "<p><pending>^</pending><sup>1</sup>|<pending>^</pending> </p>",
-          expectedMarkdown: "^1^ ",
-        },
-      ],
-    },
-    {
       id: "live-superscript-markdown-round-trip",
-      title: "Markdown round trip",
+      title: "Markdown superscript parses and serializes as superscript",
       initialMarkdown: "^1^ a",
       keyevents: ["ArrowLeft"],
       checkpoints: [
