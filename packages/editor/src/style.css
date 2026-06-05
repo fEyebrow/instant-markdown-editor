@@ -160,6 +160,12 @@
   text-underline-offset: 2px;
 }
 
+.ProseMirror .md-image-widget {
+  display: block;
+  margin: 1em auto;
+  max-width: 100%;
+}
+
 .ProseMirror .play-caret {
   display: inline-block;
   width: 1px;

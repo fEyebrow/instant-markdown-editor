@@ -7,6 +7,7 @@ import { blockquote } from "./blockquote.ts";
 import { code } from "./code.ts";
 import { emphasis } from "./emphasis.ts";
 import { highlight } from "./highlight.ts";
+import { image } from "./image.ts";
 import { createInlineNormalizePlugins } from "./inline-normalize.ts";
 import type { InlineFeatureSpec } from "./inline-parse.ts";
 import { link } from "./link.ts";
@@ -19,6 +20,7 @@ import type { FeatureSpec, MarkdownTokenHandler } from "./_types.ts";
 import { unorderedList } from "./unordered-list.ts";
 
 export const featureSpecs: FeatureSpec[] = [
+  image,
   link,
   strikethrough,
   subscript,

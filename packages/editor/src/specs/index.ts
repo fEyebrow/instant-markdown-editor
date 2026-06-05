@@ -6,6 +6,7 @@ import { liveStrikethroughSpec } from "./features/live-strikethrough.cases.ts";
 import { liveHighlightSpec } from "./features/live-highlight.cases.ts";
 import { liveSubscriptSpec } from "./features/live-subscript.cases.ts";
 import { liveSuperscriptSpec } from "./features/live-superscript.cases.ts";
+import { liveImageSpec } from "./features/live-image.cases.ts";
 import { liveLinkSpec } from "./features/live-link.cases.ts";
 import { liveAutolinkSpec } from "./features/live-autolink.cases.ts";
 import { thematicBreakSpec } from "./features/thematic-break.cases.ts";
@@ -25,6 +26,7 @@ const EDITOR_SPEC_FEATURE_DEFINITIONS = [
   liveHighlightSpec,
   liveSubscriptSpec,
   liveSuperscriptSpec,
+  liveImageSpec,
   liveLinkSpec,
   liveAutolinkSpec,
   thematicBreakSpec,

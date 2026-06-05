@@ -1,0 +1,145 @@
+{
+  "projectName": "Markdown Image Feature",
+  "slug": "markdown-image",
+  "date": "2026-06-05",
+  "status": "Draft",
+  "supersedes": null,
+  "confidence": {
+    "score": 95,
+    "dimensions": [
+      {
+        "key": "clarity",
+        "score": 95,
+        "label": "Problem Clarity",
+        "reason": "Goal locked: add source-retained `![alt](url)` rendering as a Typora-style block-centered widget, parser/serializer round-trip, no upload/drag/resize."
+      },
+      {
+        "key": "scope",
+        "score": 98,
+        "label": "Scope",
+        "reason": "MVP explicitly excludes file paste, drag-drop, resize, alt panel; future tiers listed but not contracted."
+      },
+      {
+        "key": "risk",
+        "score": 92,
+        "label": "Risk",
+        "reason": "Architecture mirrors existing `link.ts` source-retained pattern; widget decoration is a new mechanism but isolated."
+      },
+      {
+        "key": "effort",
+        "score": 95,
+        "label": "Effort",
+        "reason": "One new feature file, one parser token, one widget decoration, one spec cases file; ~6-10 files touched."
+      },
+      {
+        "key": "tests",
+        "score": 95,
+        "label": "Tests",
+        "reason": "Spec cases enumerable by mirroring `live-link.cases.ts`; projection rules per cursor/empty-url state are deterministic."
+      }
+    ]
+  },
+  "problem": [
+    "编辑器目前不识别 `![alt](url)` markdown 图片语法。用户在 source 里写出图片标记时,只看到原始文本,无法获得 Typora 那种 inline 渲染体验。",
+    "项目已有完整的 inline mark 流水线 (parseInline / normalize / decorations),link `[x](y)` 已经走 source-retained 模式。但 image 与 link 有一个关键不同:image 没有可见的 label text,需要在 source 之外额外注入一个 `<img>` widget。这要求在现有架构内引入第一个 widget decoration,且不破坏 ADR-0001 的 source-retained 原则。"
+  ],
+  "goals": [
+    "Source-retained: 文档里始终保留 `![alt](url)` 原始字符;光标进入源范围可编辑,Markdown serializer 输出原文。",
+    "Typora-like 投影: 光标离开源范围时隐藏源文本,只展示 `<img>` widget;widget 始终块级居中显示,即使与文本同段。",
+    "Markdown 双向: markdown-it `image` token 进入 PM 后保留 source-retained 形态,PM 文档 round-trip 回 Markdown 完全一致。",
+    "现有 inline feature 流水线兼容: image 通过 FeatureSpec 注册,parseInline 统一裁决 (priority / consumed / crossing),不绕过 normalize。"
+  ],
+  "successCriteria": [
+    "输入 `![alt](url)` 后,在光标位置不在源范围时,DOM 中看到 `<img src=\"url\" alt=\"alt\">` widget,且源文本被 decoration 隐藏。",
+    "光标移入 `![alt](url)` 任意位置 (openFrom 到 closeTo),源文本全部可见且可编辑,widget 仍可见。",
+    "url 为空时 `![alt]()`: 仍被识别为合法 image source,不渲染 widget,源始终可见 (无论光标位置)。",
+    "Markdown round-trip: `setSpecMarkdown('![a](b)')` → projectEditorView 显示预期投影 → serialize 输出 `![a](b)` 完全一致。",
+    "破坏 source (如 backspace 删 `)`): widget 消失,源文本变回 plain text;补齐后 widget 重新出现。",
+    "image source 不与 link 冲突: `![x](y)` 触发 image,`[x](y)` 触发 link,`x![y](z)` 触发 image 而 `!` 前 plain text 不变。",
+    "alt 内的 inline markdown 不生效: `![**a**](b)` 中 `**a**` 是 alt 的 plain text,不获得 strong mark。",
+    "`vp test` 全绿,`pnpm ready` 通过。"
+  ],
+  "scope": {
+    "mvp": [
+      {
+        "item": "image feature 文件 (packages/editor/src/features/image.ts)",
+        "reason": "声明 image mark schema、parserToken (markdown-it `image` token → source-retained PM text)、inline scan (与 link 同正则,要求前缀 `!`)、priority 与 markNames。"
+      },
+      {
+        "item": "image mark schema (attrs: src, alt, title)",
+        "reason": "marks 容器,用于 normalize 标识 source 区间;mark.attrs 保留 src/alt/title 元数据供 widget 渲染使用。"
+      },
+      {
+        "item": "Widget decoration 机制",
+        "reason": "在 image source 位置插入 `<img>` widget;widget 始终 display:block + margin:auto 居中;url 为空时不创建 widget。属于 inline-decorations.ts 扩展或独立 plugin。"
+      },
+      {
+        "item": "源文本隐藏规则: 光标在 [openFrom, closeTo) 内显源,外面隐源 (仅当 widget 存在时)",
+        "reason": "复用 inline-decorations 现有 forceHidden/forceVisible 机制;empty url 时不隐藏。"
+      },
+      {
+        "item": "Markdown parser token handler (markdown-it `image`)",
+        "reason": "markdown-it 的 `image` 是 self-closing token (非 _open/_close);handler 写为 `![` + openMark(image) + alt text + closeMark + `](src \"title\")`,保留 source-retained 形态。"
+      },
+      {
+        "item": "spec cases: packages/editor/src/specs/features/live-image.cases.ts",
+        "reason": "对照 live-link.cases.ts 镜像编写: source-projects、reveal-on-cursor、hide-on-leave、broken-source、repaired-source、empty-url、no-crossing-with-link、alt-no-inline-markup、roundtrip。注册到 specs/index.ts。"
+      }
+    ],
+    "full": [],
+    "stretch": [
+      {
+        "item": "本地资源 (paste / drag-drop 图片文件)",
+        "reason": "未来 phase: 监听 paste/drop 事件,转 base64 或本地路径插入 `![](data:...)`/`![](relative/path)`。"
+      },
+      {
+        "item": "尺寸控制 (拖角缩放 / `![](url =100px)`)",
+        "reason": "未来 phase: Typora 扩展语法,涉及 NodeView 或 inline HTML。MVP 不做。"
+      },
+      {
+        "item": "Alt 编辑面板",
+        "reason": "未来 phase: 选中 widget 时浮出小面板编辑 alt/title。需要 selectable widget,UI 层工作量大。"
+      }
+    ],
+    "outOfScope": [
+      {
+        "item": "图片上传 / 远程存储",
+        "reason": "纯前端 markdown 编辑器,不涉及任何后端。"
+      },
+      {
+        "item": "alt 内嵌 inline markdown (strong/em/...)",
+        "reason": "与 Typora 一致: alt 当 plain text;parseInline 在 image source 范围内 markConsumed[],其它 feature 不再扫描。"
+      },
+      {
+        "item": "Reference-style 图片 `![alt][ref]` + `[ref]: url`",
+        "reason": "link 也未支持 reference 形式,保持一致。"
+      },
+      {
+        "item": "加载失败的自定义占位 UI",
+        "reason": "MVP 交给浏览器默认 broken-img 行为。"
+      },
+      {
+        "item": "Figure / figcaption block node",
+        "reason": "schema 增加 block node 偏离当前 mark-only inline feature 架构,MVP 不做。"
+      }
+    ],
+    "future": [
+      "支持 HTML `<img>` tag 解析与 round-trip",
+      "拖动调整宽度并写回 markdown",
+      "Alt 编辑浮层面板",
+      "粘贴/拖入图片文件转 base64"
+    ]
+  },
+  "execution": {
+    "strategy": "Sequential",
+    "phases": [
+      {
+        "title": "Phase 1: image feature with source-retained widget",
+        "risk": "medium",
+        "blocking": true,
+        "specPath": "docs/ideation/markdown-image/spec.md",
+        "notes": "Single-phase delivery: schema mark + feature file + parser token + widget decoration + spec cases + playground manual verify."
+      }
+    ]
+  }
+}

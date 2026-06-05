@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en" data-theme="auto">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Implementation Notes — Phase 1: Markdown Image</title>
+    <style>
+      :root {
+        --color-bg: #ffffff;
+        --color-surface: #f8f9fa;
+        --color-border: #dee2e6;
+        --color-text: #212529;
+        --color-text-muted: #6c757d;
+        --color-accent: #4361ee;
+        --color-accent-bg: #eef0ff;
+        --space-2: 8px;
+        --space-3: 12px;
+        --space-4: 16px;
+        --space-5: 24px;
+        --space-6: 32px;
+        --radius-2: 6px;
+        --radius-3: 10px;
+        --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --color-bg: #0f1115;
+          --color-surface: #161a22;
+          --color-border: #2a2f3a;
+          --color-text: #e6e8ef;
+          --color-text-muted: #9ba0ac;
+          --color-accent: #8aa1ff;
+          --color-accent-bg: #1b2240;
+        }
+      }
+      body {
+        margin: 0;
+        background: var(--color-bg);
+        color: var(--color-text);
+        font: 15px/1.6 var(--font-sans);
+      }
+      .doc-header {
+        padding: var(--space-6) var(--space-6) var(--space-4);
+        border-bottom: 1px solid var(--color-border);
+      }
+      .doc-header h1 {
+        margin: 0 0 var(--space-2);
+        font-size: 24px;
+      }
+      .doc-meta {
+        margin: 0;
+        color: var(--color-text-muted);
+        font-size: 13px;
+      }
+      .doc-content {
+        padding: var(--space-5) var(--space-6) var(--space-6);
+        max-width: 880px;
+      }
+      .note-entry {
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-3);
+        padding: var(--space-4) var(--space-5);
+        margin-bottom: var(--space-4);
+        background: var(--color-surface);
+      }
+      .note-entry h3 {
+        margin: 0 0 var(--space-3);
+        font-size: 16px;
+        color: var(--color-accent);
+      }
+      .note-entry dl {
+        margin: 0;
+        display: grid;
+        grid-template-columns: 110px 1fr;
+        gap: var(--space-2) var(--space-4);
+      }
+      .note-entry dt {
+        color: var(--color-text-muted);
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .note-entry dd {
+        margin: 0;
+      }
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.92em;
+        background: var(--color-accent-bg);
+        padding: 1px 6px;
+        border-radius: var(--radius-2);
+      }
+    </style>
+  </head>
+  <body>
+    <header class="doc-header">
+      <h1>Implementation Notes — Phase 1: Markdown Image</h1>
+      <p class="doc-meta">markdown-image · 2026-06-05 · Phase 1</p>
+    </header>
+    <main class="doc-content">
+      <section class="note-entry">
+        <h3>
+          image-widgets — widget position uses <code>openFrom</code> with <code>side: -1</code>
+        </h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            Spec implementation step said "Widget 插入位置：<code>closeTo</code>，side=1". But the
+            spec's case-1 expected projection puts <code>{img}</code> BEFORE the source text:
+            <code>&lt;p&gt;{img}&lt;pending&gt;![x](y)&lt;/pending&gt;|&lt;/p&gt;</code>. A widget
+            at <code>closeTo</code> with <code>side: 1</code> renders AFTER the source in DOM order
+            — the opposite of what the cases assert.
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Use <code>Decoration.widget(blockStart + openFrom, …, { side: -1 })</code>. This puts
+            the widget before the source text in DOM order, matching every checkpoint's expected
+            projection.
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Update the case projections to put <code>{img}</code> AFTER source. Rejected — the cases
+            are the user-visible contract and they're internally consistent; the prose hint in the
+            spec was the inconsistent one.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="note-entry">
+        <h3>image scan — <code>priority: 1.5</code> (not 2 as spec snippet suggests)</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            Spec sample code sets <code>priority: 2</code>. But emphasis is also <code>2</code>, so
+            ordering relies on the <code>featureSpecs</code> array position. Image must consume
+            <code>**</code> in <code>![**a**](b)</code> BEFORE emphasis scans, otherwise strong
+            marks leak into the alt.
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Use <code>priority: 1.5</code>. Image now runs strictly before emphasis regardless of
+            array order, and still before link (3) and autolink (2.5).
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Keep <code>priority: 2</code> and rely on <code>featureSpecs</code> stable sort with
+            image placed before emphasis. Rejected — relying on stable sort + array order is more
+            fragile than an explicit priority gap.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="note-entry">
+        <h3>live-image cases — projection has three <code>&lt;pending&gt;</code> spans, not one</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            Spec prose described the projection as
+            <code>&lt;pending&gt;![x](y)&lt;/pending&gt;</code> (a single contiguous pending block).
+            But ProseMirror splits inline decorations around mark boundaries: the image mark on
+            <code>x</code> renders as a <code>&lt;span class="md-image-source"&gt;</code>, which
+            forces the surrounding <code>syntax-hint</code> decoration into three sibling spans.
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Each case's <code>expectedProjection</code> uses three sequential
+            <code>&lt;pending&gt;</code> blocks (<code>![</code>, alt-text, <code>](url)</code>).
+            User-visible appearance is identical (all the same <code>syntax-hint</code> class), and
+            the test asserts what the projector actually emits.
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Use two delim ranges (open + close) like link, so the alt isn't covered. Rejected — when
+            cursor leaves the source, the alt text would stay visible (not in any delim range),
+            which breaks the "hide source on leave" requirement.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="note-entry">
+        <h3>
+          CSS — added <code>.md-image-widget</code> to <code>packages/editor/src/style.css</code>
+        </h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            Spec listed CSS location as <code>apps/playground/src/styles.css</code>, which doesn't
+            exist. The playground re-uses the editor's stylesheet via
+            <code>@rte/editor/style.css</code>.
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Added
+            <code>.md-image-widget { display: block; margin: 1em auto; max-width: 100% }</code> to
+            <code>packages/editor/src/style.css</code> — same file as other editor
+            <code>.md-*</code> classes.
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Add a new <code>styles.css</code> in the playground. Rejected — the widget is editor
+            behavior, not playground-specific styling.
+          </dd>
+        </dl>
+      </section>
+
+      <section class="note-entry">
+        <h3>live-image-empty-url-keeps-source-visible — uses <code>ArrowDown</code> as no-op</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            The test runner requires at least one <code>keyevent</code> per case. Case 4 (and case
+            8) need to assert state immediately after <code>setSpecMarkdown</code> with no real
+            input.
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            Use a single <code>ArrowDown</code> keyevent. With a single paragraph, the runner's
+            <code>adjacentTextblockPosition</code> returns null and the cursor doesn't move, leaving
+            doc state identical to the post-setSpecMarkdown state.
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            Use <code>ArrowRight</code>. Rejected — at end of paragraph, ArrowRight moves the cursor
+            past the closing token to <code>doc.content.size</code>, putting it outside the visible
+            <code>&lt;p&gt;</code> element.
+          </dd>
+        </dl>
+      </section>
+    </main>
+  </body>
+</html>

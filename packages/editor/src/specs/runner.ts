@@ -198,6 +198,17 @@ const DEFAULT_TAGS: Record<string, TagSerializer> = {
     ].join("");
     return `<a${attrs}>${c}</a>`;
   },
+  IMG: (_c, el) => {
+    const src = el.getAttribute("src") ?? "";
+    const alt = el.getAttribute("alt") ?? "";
+    const title = el.getAttribute("title");
+    const attrs = [
+      ` src="${escapeAttribute(src)}"`,
+      alt ? ` alt="${escapeAttribute(alt)}"` : "",
+      title ? ` title="${escapeAttribute(title)}"` : "",
+    ].join("");
+    return `<img${attrs}>`;
+  },
   BR: () => "<br>",
 };
 
