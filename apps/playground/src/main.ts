@@ -1,6 +1,6 @@
-import "@rte/editor/style.css";
+import "instant-markdown-editor/style.css";
 import "./style.css";
-import { createEditor, type EditorHandle } from "@rte/editor";
+import { createEditor, type EditorHandle } from "instant-markdown-editor";
 import { TextSelection } from "prosemirror-state";
 import { renderSpecs } from "./specs.ts";
 

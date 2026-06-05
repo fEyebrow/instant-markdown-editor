@@ -1,6 +1,6 @@
 {
-  "name": "@rte/editor",
-  "version": "0.0.0",
+  "name": "instant-markdown-editor",
+  "version": "0.1.0",
   "description": "ProseMirror-based markdown editor (Typora-style).",
   "license": "MIT",
   "files": [

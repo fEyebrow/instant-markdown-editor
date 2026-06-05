@@ -24,7 +24,7 @@
 ## Dependencies
 
 - `apps/playground/src/main.ts` — consumed by → `apps/playground/index.html:11` (`<script type="module" src="/src/main.ts">`); only entry point.
-- `apps/playground/src/main.ts:3` — imports `createEditor` from `@rte/editor` (alias → `packages/editor/src/index.ts` via `vite.config.ts`).
+- `apps/playground/src/main.ts:3` — imports `createEditor` from `instant-markdown-editor` (alias → `packages/editor/src/index.ts` via `vite.config.ts`).
 - `apps/playground/src/main.ts:4` — `renderSpecs` from `./specs.ts`; `/specs` route still branches at `main.ts:24-28` — must remain untouched.
 - `apps/playground/src/style.css` — consumed only by `main.ts:2` import; classes `.editor-grid` / `.side-card*` referenced only in this file + `main.ts` (no other call sites).
 - `apps/playground/package.json` — already declares `prosemirror-state` as runtime dep, so `import { TextSelection } from "prosemirror-state"` is allowed without dep changes.
@@ -32,7 +32,7 @@
 ## Conventions
 
 - **Naming**: camelCase functions (`renderEditor`, `renderTopbar`); kebab-case CSS classes (`editor-grid`, `side-card-muted`). New types: `ViewMode`, `PlaygroundState` per spec.
-- **Imports**: `.ts` extensions used (`./specs.ts`, `./style.css`). Workspace alias `@rte/editor` for editor package. Use ES module `import` (file is `"type": "module"`).
+- **Imports**: `.ts` extensions used (`./specs.ts`, `./style.css`). Workspace alias `instant-markdown-editor` for editor package. Use ES module `import` (file is `"type": "module"`).
 - **Error handling**: No try/catch in current `renderEditor`; spec doesn't require new error handling. `setMarkdown` silently no-ops on parse failure (`packages/editor/src/index.ts:60-61`) — acceptable per spec failure-mode table.
 - **Types**: TypeScript strict (tsc in build). Use explicit type annotations on exported/closure-captured state objects. `HTMLElement` / `HTMLTextAreaElement` for DOM refs (matches existing `querySelector<HTMLElement>` pattern).
 - **Testing**: No automated coverage required. `vp check` (tsc + lint) + manual `pnpm dev` per spec. `vp test` only needs to not regress import-wise.

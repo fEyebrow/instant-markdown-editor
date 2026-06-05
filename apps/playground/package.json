@@ -9,7 +9,7 @@
     "preview": "vp preview"
   },
   "dependencies": {
-    "@rte/editor": "workspace:*",
+    "instant-markdown-editor": "workspace:*",
     "prosemirror-state": "^1.4.3"
   },
   "devDependencies": {

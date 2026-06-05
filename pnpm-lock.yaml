@@ -48,7 +48,7 @@ importers:
 
   apps/playground:
     dependencies:
-      '@rte/editor':
+      instant-markdown-editor:
         specifier: workspace:*
         version: link:../../packages/editor
       prosemirror-state:
@@ -1938,7 +1938,7 @@ snapshots:
 
   ast-kit@3.0.0-beta.1:
     dependencies:
-      '@babel/parser': 8.0.0-rc.4
+      '@babel/parser': 8.0.0-rc.6
       estree-walker: 3.0.3
       pathe: 2.0.3
 

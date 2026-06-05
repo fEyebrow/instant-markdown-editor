@@ -1,11 +1,11 @@
-import { createEditor } from "@rte/editor";
+import { createEditor } from "instant-markdown-editor";
 import {
   applyActions,
   EDITOR_SPEC_FEATURES,
   type EditorSpecCase,
   projectEditorView,
   setSpecMarkdown,
-} from "@rte/editor/specs";
+} from "instant-markdown-editor/specs";
 import type { Selection } from "prosemirror-state";
 
 interface Snapshot {

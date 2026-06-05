@@ -8,8 +8,8 @@
 
     /* Bundler mode */
     "paths": {
-      "@rte/editor": ["../../packages/editor/src/index.ts"],
-      "@rte/editor/specs": ["../../packages/editor/src/specs.ts"]
+      "instant-markdown-editor": ["../../packages/editor/src/index.ts"],
+      "instant-markdown-editor/specs": ["../../packages/editor/src/specs.ts"]
     },
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
