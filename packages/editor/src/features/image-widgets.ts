@@ -31,8 +31,8 @@ function buildDecorationSet(state: EditorState): DecorationSet {
       const alt = typeof altAttr === "string" ? altAttr : "";
       const titleAttr = span.attrs?.title;
       const title = typeof titleAttr === "string" ? titleAttr : null;
-      const pos = block.blockStart + span.openFrom;
-      decorations.push(Decoration.widget(pos, () => buildImage(src, alt, title), { side: -1 }));
+      const pos = block.blockStart + span.closeTo;
+      decorations.push(Decoration.widget(pos, () => buildImage(src, alt, title), { side: 1 }));
     }
   }
 

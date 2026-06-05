@@ -13,7 +13,7 @@ export const liveImageSpec = {
         {
           step: 7,
           expectedProjection:
-            '<p><img src="y" alt="x"><pending>![</pending><pending>x</pending><pending>](y)</pending>|</p>',
+            '<p><pending>![</pending><pending>x</pending><pending>](y)</pending>|<img src="y" alt="x"></p>',
           expectedMarkdown: "![x](y)",
         },
       ],
@@ -40,7 +40,7 @@ export const liveImageSpec = {
         {
           step: 1,
           expectedProjection:
-            '<p><img src="y" alt="x"><pending>![</pending><pending>x</pending><pending>](y</pending>|<pending>)</pending></p>',
+            '<p><pending>![</pending><pending>x</pending><pending>](y</pending>|<pending>)</pending><img src="y" alt="x"></p>',
           expectedMarkdown: "![x](y)",
         },
       ],
@@ -87,7 +87,7 @@ export const liveImageSpec = {
           step: 2,
           title: "repaired source restores widget",
           expectedProjection:
-            '<p><img src="y" alt="x"><pending>![</pending><pending>x</pending><pending>](y)</pending>|</p>',
+            '<p><pending>![</pending><pending>x</pending><pending>](y)</pending>|<img src="y" alt="x"></p>',
           expectedMarkdown: "![x](y)",
         },
       ],
@@ -128,7 +128,7 @@ export const liveImageSpec = {
         {
           step: 1,
           expectedProjection:
-            '<p><img src="b" alt="**a**"><pending>![</pending><pending>**a**</pending><pending>](b)</pending>|</p>',
+            '<p><pending>![</pending><pending>**a**</pending><pending>](b)</pending>|<img src="b" alt="**a**"></p>',
           expectedMarkdown: "![**a**](b)",
         },
       ],
