@@ -678,7 +678,11 @@ pre {
     grid-template-columns: 1fr;
   }
 
-  .specs-page-wrap,
+  .specs-page-wrap {
+    height: auto;
+    overflow: auto;
+  }
+
   .specs-shell {
     height: auto;
     overflow: visible;

@@ -29,7 +29,7 @@
 - 用 `vp test` 跑红，确认失败来自当前目标行为，而不是测试写错或无关回归。
 - 实现最小改动，让新增 case 变绿；避免顺手扩展未覆盖的行为。
 - 绿灯后再重构，并保持 `vp test` 通过。
-- 涉及类型、lint、构建或跨模块契约时，最后跑 `vp check` 或 `pnpm ready`。
+- 代码改动完成时，最后跑 `pnpm ready`，确保 check / test / build 全量通过，并更新 playground 依赖的最新构建产物。
 
 ## Testing principles
 
