@@ -1,8 +1,7 @@
-import "./style.css";
 import { baseKeymap } from "prosemirror-commands";
 import { history, redo, undo } from "prosemirror-history";
 import { keymap } from "prosemirror-keymap";
-import { EditorState } from "prosemirror-state";
+import { EditorState, TextSelection } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { createFeatureKeymaps, createFeaturePlugins } from "./features/index.ts";
 import { markdownPasteParser } from "./markdown/paste.ts";
@@ -16,6 +15,7 @@ export interface EditorOptions {
   initialMarkdown?: string;
   onChange?: (markdown: string) => void;
   cursorProjection?: boolean;
+  scrollToSelection?: boolean;
 }
 
 export interface EditorHandle {
@@ -26,7 +26,13 @@ export interface EditorHandle {
 }
 
 export function createEditor(options: EditorOptions): EditorHandle {
-  const { mount, initialMarkdown = "", onChange, cursorProjection = false } = options;
+  const {
+    mount,
+    initialMarkdown = "",
+    onChange,
+    cursorProjection = false,
+    scrollToSelection = true,
+  } = options;
 
   const state = EditorState.create({
     doc: markdownParser.parse(initialMarkdown) ?? undefined,
@@ -44,6 +50,7 @@ export function createEditor(options: EditorOptions): EditorHandle {
   const view = new EditorView(mount, {
     state,
     clipboardTextParser: markdownPasteParser(),
+    handleScrollToSelection: scrollToSelection ? undefined : () => true,
     dispatchTransaction(tr) {
       const next = view.state.apply(tr);
       view.updateState(next);
@@ -58,13 +65,9 @@ export function createEditor(options: EditorOptions): EditorHandle {
     getMarkdown: () => serializeMarkdown(view.state.doc),
     setMarkdown(markdown) {
       const doc = markdownParser.parse(markdown);
-      if (!doc) return;
-      const newState = EditorState.create({
-        doc,
-        schema: editorSchema,
-        plugins: view.state.plugins,
-      });
-      view.updateState(newState);
+      const tr = view.state.tr.replaceWith(0, view.state.doc.content.size, doc.content);
+      tr.setSelection(TextSelection.atEnd(tr.doc));
+      view.dispatch(tr);
     },
     destroy: () => view.destroy(),
   };
@@ -73,15 +76,3 @@ export function createEditor(options: EditorOptions): EditorHandle {
 function serializeMarkdown(doc: EditorState["doc"]): string {
   return markdownSerializer.serialize(doc);
 }
-
-export { editorSchema };
-export { EDITOR_SPEC_FEATURES } from "./specs/index.ts";
-export type { EditorSpecCase, EditorSpecCheckpoint, EditorSpecFeature } from "./specs/index.ts";
-export {
-  applyAction,
-  applyActions,
-  parseChord,
-  projectEditorView,
-  setSpecMarkdown,
-} from "./specs/runner.ts";
-export type { Chord, ProjectionOptions } from "./specs/runner.ts";

@@ -1,4 +1,5 @@
 import { expect, test } from "vite-plus/test";
+import { undo } from "prosemirror-history";
 import { TextSelection } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
 import { createEditor } from "../src/index.ts";
@@ -12,6 +13,28 @@ test("createEditor mounts and round-trips markdown", () => {
   const mount = document.createElement("div");
   const editor = createEditor({ mount, initialMarkdown: "# Hello\n\nworld" });
   expect(editor.getMarkdown()).toBe("# Hello\n\nworld");
+  editor.destroy();
+});
+
+test("setMarkdown dispatches a history-preserving change at the document end", () => {
+  const mount = document.createElement("div");
+  const changes: string[] = [];
+  const editor = createEditor({
+    mount,
+    initialMarkdown: "one",
+    onChange(markdown) {
+      changes.push(markdown);
+    },
+  });
+
+  editor.setMarkdown("two");
+  typeText(editor.view, "!");
+
+  expect(changes).toEqual(["two", "two!"]);
+  expect(editor.getMarkdown()).toBe("two!");
+
+  expect(undo(editor.view.state, editor.view.dispatch)).toBe(true);
+  expect(editor.getMarkdown()).toBe("one");
   editor.destroy();
 });
 

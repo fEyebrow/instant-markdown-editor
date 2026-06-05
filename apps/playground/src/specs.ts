@@ -1,11 +1,11 @@
+import { createEditor } from "@rte/editor";
 import {
   applyActions,
-  createEditor,
   EDITOR_SPEC_FEATURES,
   type EditorSpecCase,
   projectEditorView,
   setSpecMarkdown,
-} from "@rte/editor";
+} from "@rte/editor/specs";
 import type { Selection } from "prosemirror-state";
 
 interface Snapshot {
@@ -166,6 +166,7 @@ function mountSpecCase(root: HTMLElement, specCase: EditorSpecCase): void {
     mount,
     onChange: updateOutputs,
     cursorProjection: true,
+    scrollToSelection: false,
   });
 
   const checkpoints = new Map(

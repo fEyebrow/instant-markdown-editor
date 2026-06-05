@@ -1,11 +1,11 @@
 import { expect, test } from "vite-plus/test";
+import { createEditor } from "../src/index.ts";
 import {
   applyActions,
-  createEditor,
   EDITOR_SPEC_FEATURES,
   projectEditorView,
   setSpecMarkdown,
-} from "../src/index.ts";
+} from "../src/specs.ts";
 
 for (const feature of EDITOR_SPEC_FEATURES) {
   for (const specCase of feature.cases) {

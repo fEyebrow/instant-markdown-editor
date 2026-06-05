@@ -1,23 +1,20 @@
-# vite-plus-starter
+# @rte/editor
 
-A starter for creating a Vite Plus project.
+ProseMirror-based Typora-style WYSIWYG Markdown editor.
 
-## Development
+## Usage
 
-- Install dependencies:
+```ts
+import { createEditor } from "@rte/editor";
+import "@rte/editor/style.css";
 
-```bash
-vp install
+const editor = createEditor({
+  mount: document.querySelector("#editor")!,
+  initialMarkdown: "# Hello",
+  onChange(markdown) {
+    console.log(markdown);
+  },
+});
 ```
 
-- Run the unit tests:
-
-```bash
-vp test
-```
-
-- Build the library:
-
-```bash
-vp pack
-```
+The root package entry exposes the runtime editor interface only. Spec runner helpers are available from `@rte/editor/specs` for playground and behavior-test tooling.

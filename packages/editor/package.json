@@ -8,14 +8,28 @@
   ],
   "type": "module",
   "exports": {
-    ".": "./dist/index.mjs",
+    ".": {
+      "types": "./dist/index.d.mts",
+      "import": "./dist/index.mjs"
+    },
+    "./specs": {
+      "types": "./dist/specs.d.mts",
+      "import": "./dist/specs.mjs"
+    },
     "./package.json": "./package.json",
     "./style.css": "./dist/style.css"
   },
   "publishConfig": {
     "access": "public",
     "exports": {
-      ".": "./dist/index.mjs",
+      ".": {
+        "types": "./dist/index.d.mts",
+        "import": "./dist/index.mjs"
+      },
+      "./specs": {
+        "types": "./dist/specs.d.mts",
+        "import": "./dist/specs.mjs"
+      },
       "./style.css": "./dist/style.css",
       "./package.json": "./package.json"
     }

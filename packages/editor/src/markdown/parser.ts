@@ -22,11 +22,12 @@ interface StackFrame {
 
 class ParseState {
   stack: StackFrame[];
+  readonly schema: Schema;
+  readonly handlers: Record<string, TokenHandler>;
 
-  constructor(
-    readonly schema: Schema,
-    readonly handlers: Record<string, TokenHandler>,
-  ) {
+  constructor(schema: Schema, handlers: Record<string, TokenHandler>) {
+    this.schema = schema;
+    this.handlers = handlers;
     this.stack = [{ type: schema.topNodeType, attrs: null, content: [], marks: Mark.none }];
   }
 
@@ -79,8 +80,12 @@ class ParseState {
     for (let i = 0; i < tokens.length; i += 1) {
       const tok = tokens[i];
       const handler = this.handlers[tok.type];
-      if (!handler) throw new Error(`Token type \`${tok.type}\` not supported by Markdown parser`);
-      handler(this, tok, tokens, i);
+      if (!handler) continue;
+      try {
+        handler(this, tok, tokens, i);
+      } catch {
+        continue;
+      }
     }
   }
 
