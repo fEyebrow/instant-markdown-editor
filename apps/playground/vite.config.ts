@@ -1,7 +1,10 @@
 import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite-plus";
 
+const repositoryName = process.env.GITHUB_REPOSITORY?.split("/").pop() ?? "instant-markdown-editor";
+
 export default defineConfig({
+  base: process.env.GITHUB_ACTIONS ? `/${repositoryName}/` : "/",
   resolve: {
     alias: {
       "instant-markdown-editor/style.css": fileURLToPath(
