@@ -66,7 +66,7 @@ editor.destroy();
 
 环境要求：
 
-- Node `>=22.12.0`
+- Node `>=22.13.0`
 - pnpm `11.1.1`
 
 常用命令：
@@ -78,6 +78,14 @@ vp test       # 运行 editor behavior specs
 vp check      # 类型检查和 lint
 pnpm ready    # check + test + build
 ```
+
+### 部署 playground
+
+`apps/playground` 通过 GitHub Actions 手动部署到 GitHub Pages。需要发布时，在
+GitHub Actions 页面运行 `Deploy playground to GitHub Pages` workflow。
+
+部署产物来自 `apps/playground/dist`，workflow 会按当前 GitHub 仓库名配置 Vite
+`base`，因此 GitHub Pages 的资源路径会落在对应仓库子路径下。
 
 开发 Markdown inline feature 时，请先阅读
 `docs/inline-mark-feature-guide.md`。项目的领域词汇见 `CONTEXT.md`，架构决策见
