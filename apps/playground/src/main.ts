@@ -46,13 +46,30 @@ let toggleListener: ((event: KeyboardEvent) => void) | null = null;
 
 const app = document.querySelector<HTMLElement>("#app")!;
 
-if (isSpecsPath(window.location.pathname)) {
-  renderSpecs(app);
-} else {
-  renderEditor(app);
+type Route = "editor" | "specs";
+
+let currentRoute: Route | null = null;
+let cleanupRoute: (() => void) | null = null;
+
+renderRoute();
+window.addEventListener("hashchange", renderRoute);
+
+function renderRoute(): void {
+  const route: Route = isSpecsPath(window.location.hash) ? "specs" : "editor";
+  if (route === currentRoute) return;
+
+  cleanupRoute?.();
+  cleanupRoute = null;
+  currentRoute = route;
+
+  if (route === "specs") {
+    renderSpecs(app);
+  } else {
+    cleanupRoute = renderEditor(app);
+  }
 }
 
-function renderEditor(root: HTMLElement): void {
+function renderEditor(root: HTMLElement): () => void {
   root.innerHTML = `
     <div class="shell shell-soft">
       ${renderTopbar("editor")}
@@ -92,6 +109,14 @@ function renderEditor(root: HTMLElement): void {
     else enterWysiwyg(state);
   };
   window.addEventListener("keydown", toggleListener, true);
+
+  return () => {
+    if (toggleListener) {
+      window.removeEventListener("keydown", toggleListener, true);
+      toggleListener = null;
+    }
+    editor.destroy();
+  };
 }
 
 function isToggleChord(event: KeyboardEvent): boolean {

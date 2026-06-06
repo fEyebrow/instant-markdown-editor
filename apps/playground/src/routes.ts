@@ -1,9 +1,10 @@
 const baseUrl = import.meta.env.BASE_URL;
 const basePath = baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+const baseHref = `${basePath}/`;
 
-export const editorPath = `${basePath}/`;
-export const specsPath = `${basePath}/specs`;
+export const editorPath = `${baseHref}#/`;
+export const specsPath = `${baseHref}#/specs`;
 
-export function isSpecsPath(pathname: string): boolean {
-  return pathname === specsPath || pathname === `${specsPath}/`;
+export function isSpecsPath(hash: string): boolean {
+  return hash === "#/specs" || hash === "#/specs/";
 }

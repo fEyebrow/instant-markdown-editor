@@ -62,7 +62,7 @@ export function renderSpecs(root: HTMLElement): void {
   renderFeatureList();
   renderActiveFeature();
 
-  root.addEventListener("click", (event) => {
+  featureList.addEventListener("click", (event) => {
     const target = event.target;
     if (!(target instanceof HTMLElement)) return;
 
