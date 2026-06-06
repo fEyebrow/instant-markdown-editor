@@ -2,6 +2,7 @@ import "instant-markdown-editor/style.css";
 import "./style.css";
 import { createEditor, type EditorHandle } from "instant-markdown-editor";
 import { TextSelection } from "prosemirror-state";
+import { editorPath, isSpecsPath, specsPath } from "./routes.ts";
 import { renderSpecs } from "./specs.ts";
 
 const initial = `# packages/editor playground
@@ -45,7 +46,7 @@ let toggleListener: ((event: KeyboardEvent) => void) | null = null;
 
 const app = document.querySelector<HTMLElement>("#app")!;
 
-if (window.location.pathname === "/specs") {
+if (isSpecsPath(window.location.pathname)) {
   renderSpecs(app);
 } else {
   renderEditor(app);
@@ -163,10 +164,10 @@ function renderTopbar(active: "editor" | "specs"): string {
   return `
     <header class="topbar">
       <div class="brandrow">
-        <a class="brandmark" href="/">Typora</a>
+        <a class="brandmark" href="${editorPath}">Typora</a>
         <nav class="topnav" aria-label="Sections">
-          <a class="navlink${active === "editor" ? " active" : ""}" href="/">Editor</a>
-          <a class="navlink${active === "specs" ? " active" : ""}" href="/specs">Specs</a>
+          <a class="navlink${active === "editor" ? " active" : ""}" href="${editorPath}">Editor</a>
+          <a class="navlink${active === "specs" ? " active" : ""}" href="${specsPath}">Specs</a>
         </nav>
       </div>
     </header>
