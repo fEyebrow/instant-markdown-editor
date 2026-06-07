@@ -360,7 +360,8 @@ pre {
   margin: 0;
   border: 0;
   outline: none;
-  resize: vertical;
+  overflow: hidden;
+  resize: none;
   background: var(--surface);
   color: var(--text);
   font-family: var(--mono);

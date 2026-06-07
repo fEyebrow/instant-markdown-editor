@@ -15,6 +15,8 @@ Press Cmd+/ (or Ctrl+/) to compare the rendered editor with retained Markdown so
 
 Mix *italic*, **bold**, ~~strikethrough~~, H~2~O subscript, E=mc^2^ superscript, ==highlight==, \`inline code\`, a [labelled link](https://prosemirror.net), and an autolink like <https://github.com> all in one paragraph.
 
+Here is an inline image: ![GitHub avatar](https://avatars.githubusercontent.com/u/18180417?v=4)
+
 ## Block syntax
 
 > Blockquotes wrap any paragraph in a quoted callout.
@@ -109,12 +111,14 @@ function renderEditor(root: HTMLElement): () => void {
     else enterWysiwyg(state);
   };
   window.addEventListener("keydown", toggleListener, true);
+  textarea.addEventListener("input", autosizeTextarea);
 
   return () => {
     if (toggleListener) {
       window.removeEventListener("keydown", toggleListener, true);
       toggleListener = null;
     }
+    textarea.removeEventListener("input", autosizeTextarea);
     editor.destroy();
   };
 }
@@ -141,6 +145,7 @@ function enterSource(state: PlaygroundState): void {
 
   editorMount.hidden = true;
   textarea.hidden = false;
+  autosizeTextarea({ currentTarget: textarea });
 
   textarea.focus();
   textarea.setSelectionRange(cursor, cursor);
@@ -166,6 +171,13 @@ function enterWysiwyg(state: PlaygroundState): void {
   view.focus();
   editorMount.scrollTop = state.lastEditorScrollTop;
   state.view = "wysiwyg";
+}
+
+function autosizeTextarea(event: Pick<Event, "currentTarget">): void {
+  const textarea = event.currentTarget;
+  if (!(textarea instanceof HTMLTextAreaElement)) return;
+  textarea.style.height = "auto";
+  textarea.style.height = `${textarea.scrollHeight}px`;
 }
 
 function textOffsetToDocPos(doc: EditorDoc, targetOffset: number): number {
