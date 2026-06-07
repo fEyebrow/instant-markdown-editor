@@ -7,7 +7,7 @@ import {
   setSpecMarkdown,
 } from "instant-markdown-editor/specs";
 import type { Selection } from "prosemirror-state";
-import { editorPath, specsPath } from "./routes.ts";
+import { renderTopbar } from "./topbar.ts";
 
 interface Snapshot {
   index: number;
@@ -25,15 +25,7 @@ export function renderSpecs(root: HTMLElement): void {
 
   root.innerHTML = `
     <div class="shell docs-shell">
-      <header class="topbar">
-        <div class="brandrow">
-          <a class="brandmark" href="${editorPath}">Typora</a>
-          <nav class="topnav" aria-label="Sections">
-            <a class="navlink" href="${editorPath}">Editor</a>
-            <a class="navlink active" href="${specsPath}">Specs</a>
-          </nav>
-        </div>
-      </header>
+      ${renderTopbar("specs")}
       <main class="page-wrap page-wrap-top specs-page-wrap">
         <section class="specs-shell">
           <aside class="specs-sidebar">

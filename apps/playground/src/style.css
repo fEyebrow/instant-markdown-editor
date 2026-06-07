@@ -118,8 +118,15 @@ pre {
 .brandrow {
   display: flex;
   align-items: center;
-  justify-content: flex-start;
+  justify-content: space-between;
   gap: 1.2rem;
+}
+
+.brandnav {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  min-width: 0;
 }
 
 .brandmark {
@@ -160,6 +167,35 @@ pre {
 
 .navlink.active::after {
   background: var(--accent);
+}
+
+.iconlink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  color: var(--muted);
+  text-decoration: none;
+  transition:
+    border-color 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.iconlink:hover {
+  border-color: var(--line-strong);
+  background: rgba(255, 254, 250, 0.72);
+  color: var(--accent-strong);
+}
+
+.iconlink svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  fill: currentColor;
 }
 
 .docs-layout {
@@ -739,6 +775,11 @@ pre {
   }
 
   .brandrow {
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .brandnav {
     align-items: flex-start;
     flex-direction: column;
     gap: 0.8rem;
