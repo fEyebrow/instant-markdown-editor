@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Implementation Notes — Phase 1</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        max-width: 760px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+        line-height: 1.6;
+      }
+      h1 {
+        font-size: 1.4rem;
+        border-bottom: 1px solid color-mix(in srgb, currentColor 20%, transparent);
+        padding-bottom: 0.5rem;
+      }
+      .note-entry {
+        border: 1px solid color-mix(in srgb, currentColor 15%, transparent);
+        border-radius: 8px;
+        padding: 1rem 1.25rem;
+        margin: 1rem 0;
+      }
+      .note-entry h3 {
+        margin-top: 0;
+        font-size: 1.05rem;
+      }
+      dt {
+        font-weight: 600;
+        margin-top: 0.6rem;
+      }
+      dd {
+        margin-left: 0;
+      }
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.9em;
+        background: color-mix(in srgb, currentColor 8%, transparent);
+        padding: 0.1em 0.35em;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Implementation Notes — Phase 1（Image Paste &amp; Drop Upload）</h1>
+    <main>
+      <section class="note-entry">
+        <h3>多文件顺序 — spec 的映射假设不成立，改为串行化 finish</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            spec 声称多文件"各自 resolve 时按自己 placeholder
+            的映射位置插入，先后完成顺序不影响视觉顺序"。实际上同一插入点的多个 widget decoration
+            在位置映射上不可区分：后上传完成的文件若先 resolve，会插在前面，导致乱序。
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            上传仍然并发，但完成（插入/失败收尾）步骤按文件顺序用 promise 链串行化（<code
+              >chain = chain.then(...)</code
+            >）。测试用乱序 resolve（先 b 后 a）锁定该行为。
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            完全串行上传（慢，多文件时占位反馈延迟）；或按 resolve
+            顺序插入（违反"按顺序插入"验收标准）。
+          </dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>handleDrop — posAtCoords 在无布局环境直接抛异常</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            spec 假设 <code>posAtCoords</code> 失败时返回 null。jsdom 下它因缺少
+            <code>elementFromPoint</code> 直接抛 TypeError。
+          </dd>
+          <dt>Decision</dt>
+          <dd>包一层 <code>dropPosition</code> try/catch，异常与 null 统一回退到光标位置。</dd>
+          <dt>Alternative</dt>
+          <dd>只在测试里 stub posAtCoords——但生产环境同类异常会导致 drop 整体失败，守卫更稳。</dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>blob URL 回收 — 从 decoration spec 改为闭包持有</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            spec 要求成功/失败/放弃三条路径都 revoke 预览 blob URL。若把 previewUrl 存在 decoration
+            spec 上，占位被用户删除后 decoration 不存在，URL 取不回，"放弃"路径必然泄漏。
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            previewUrl 由 <code>handleImageFiles</code> 的每文件闭包持有，settle 时无条件 revoke，与
+            decoration 生命周期解耦。
+          </dd>
+          <dt>Alternative</dt>
+          <dd>decoration spec 携带 previewUrl（删除占位即泄漏，已否决）。</dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>Scout — 用会话内勘探结论代替 scout 子代理</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            execute-spec 流程要求先跑 scout 子代理产出 context map。本会话在 ideation
+            阶段已逐文件读过全部相关代码。
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            按 skill 的 inline fallback 路径直接落 <code>context-map.md</code>（GO,
+            90/100），避免冷启动子代理重复推导同样的上下文。 其中预判的风险（同 pos 占位顺序、jsdom
+            无 createObjectURL）全部在实现中命中。
+          </dd>
+          <dt>Alternative</dt>
+          <dd>照章spawn scout 子代理（多花一次冷启动成本，信息增量为零）。</dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>Placeholder 样式 — block 而非 spec 写的 inline-block</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            spec 第 5 节写 inline-block，但同时要求参考 <code>.md-image-widget</code>（block +
+            居中）。两者矛盾（reviewer low finding）。
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            取 block + <code>margin: 1em auto</code>，与最终渲染的图片 widget
+            布局一致，上传完成时不发生布局跳变。
+          </dd>
+          <dt>Alternative</dt>
+          <dd>inline-block（上传中内联、完成后变块级，视觉跳变）。</dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>Reviewer medium — 失败收尾不再排队</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>
+            初版把 resolve 和 reject
+            的收尾都挂在串行链上：批次里前一个上传永久挂起会连带后面文件的失败清理与
+            <code>onImageUploadError</code> 永不触发（review cycle 1 medium finding）。
+          </dd>
+          <dt>Decision</dt>
+          <dd>
+            失败路径直接挂在各自 upload promise 的
+            <code>catch</code> 上立即执行；串行链只保留需要保序的成功插入。已补测试锁定。
+          </dd>
+          <dt>Alternative</dt>
+          <dd>维持全收尾串行（失败语义被无关文件拖死，已否决）。</dd>
+        </dl>
+      </section>
+      <section class="note-entry">
+        <h3>Open item 落定 — drop 进 code_block 照常插入</h3>
+        <dl>
+          <dt>Context</dt>
+          <dd>spec 留了 open item：drop 落点在 code_block 时回退光标还是照常插入。</dd>
+          <dt>Decision</dt>
+          <dd>
+            照常插入（spec 倾向项）。<code>![alt](url)</code> 在代码块里是字面文本，符合
+            source-retained 语义；插入点经 <code>TextSelection.near</code> 归一保证合法。
+          </dd>
+          <dt>Alternative</dt>
+          <dd>
+            检测
+            <code>$pos.parent.type.spec.code</code>
+            回退光标位置——增加分支，收益存疑，留给真实反馈驱动。
+          </dd>
+        </dl>
+      </section>
+    </main>
+  </body>
+</html>

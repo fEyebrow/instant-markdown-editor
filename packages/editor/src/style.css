@@ -166,6 +166,34 @@
   max-width: 100%;
 }
 
+.ProseMirror .md-image-upload-placeholder {
+  display: block;
+  margin: 1em auto;
+  max-width: 100%;
+  min-width: 4em;
+  min-height: 3em;
+  width: fit-content;
+  border: 1px dashed #b3b3b3;
+  border-radius: 4px;
+  opacity: 0.5;
+  animation: md-image-upload-pulse 1.2s ease-in-out infinite;
+}
+
+.ProseMirror .md-image-upload-placeholder img {
+  display: block;
+  max-width: 100%;
+}
+
+@keyframes md-image-upload-pulse {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 0.25;
+  }
+}
+
 .ProseMirror .play-caret {
   display: inline-block;
   width: 1px;

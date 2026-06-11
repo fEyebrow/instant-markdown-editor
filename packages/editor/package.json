@@ -44,6 +44,7 @@
   "dependencies": {
     "markdown-it": "^14.1.0",
     "prosemirror-commands": "^1.5.2",
+    "prosemirror-dropcursor": "catalog:",
     "prosemirror-history": "^1.4.1",
     "prosemirror-inputrules": "catalog:",
     "prosemirror-keymap": "^1.2.2",

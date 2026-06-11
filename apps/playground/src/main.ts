@@ -91,6 +91,15 @@ function renderEditor(root: HTMLElement): () => void {
   const editor = createEditor({
     mount: editorMount,
     initialMarkdown: initial,
+    // demo 上传：模拟网络延迟后返回本地 blob URL（仅当前会话可见）；
+    // 真实接入时由宿主替换为云存储上传。
+    uploadImage: async (file) => {
+      await new Promise((resolve) => setTimeout(resolve, 1200));
+      return URL.createObjectURL(file);
+    },
+    onImageUploadError: (file, error) => {
+      console.error(`image upload failed: ${file.name}`, error);
+    },
   });
 
   const state: PlaygroundState = {
